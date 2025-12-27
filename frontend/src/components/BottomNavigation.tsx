@@ -1,93 +1,103 @@
 /**
  * @component UI-BOTTOM-NAV
- * @description 底部导航区域，包含友情链接、二维码和免责声明
- * @calls 无 - 纯展示组件
- * @children_slots 无
+ * @description 页面底部导航，包含友情链接和二维码展示区域
  * 
- * ============ 功能实现清单（必填）============
- * @scenarios_covered: 无scenarios（纯展示组件）
+ * ============ 功能实现清单 ============
+ * @scenarios_covered: N/A (纯展示组件，无业务场景)
  * 
  * @features_implemented:
- *   ✅ 显示友情链接Logo集合
- *   ✅ 显示4个二维码（微信/微博/公众号/12306）
+ *   ✅ 显示友情链接图片
+ *   ✅ 显示4个二维码（中国铁路官方微信、微博、12306公众号、铁路12306）
  *   ✅ 显示免责声明文字
+ *   ✅ 友情链接和二维码区域垂直布局
  * 
  * @implementation_status:
- *   - Scenarios Coverage: N/A (纯展示组件)
- *   - Features Coverage: 3/3 (100%)
- *   - UI Visual: 像素级精确（参考ui-style-guide.md第5.3节）
+ *   - Scenarios Coverage: N/A (展示组件)
+ *   - Features Coverage: 4/4 (100%)
+ *   - UI Visual: 像素级精确（按照 ui-style-guide.md 第5节）
  * 
- * @layout_position "页面最下方，作为login-page-container的第三个子元素"
- * @dimensions "宽度100%，高度auto"
+ * @layout_position "页面最底部，作为 login-page-container 的第三个子元素"
+ * @dimensions "宽度100%，高度约180px（内容自适应）"
+ * @background_images [
+ *   "/images/友情链接.png",
+ *   "/images/中国铁路官方微信二维码.png",
+ *   "/images/中国铁路官方微博二维码.png",
+ *   "/images/12306公众号二维码.png",
+ *   "/images/铁路12306二维码.png"
+ * ]
  * ================================================
  */
 
 import React from 'react';
 import './BottomNavigation.css';
 
-export const BottomNavigation: React.FC = () => {
+const BottomNavigation: React.FC = () => {
+  // ========== UI Render ==========
   return (
     <div className="bottom-navigation">
-      {/* 友情链接区域 - 左侧 */}
-      <div className="bottom-links-section">
-        <div className="bottom-links-title">友情链接</div>
-        <div className="bottom-links-logos">
-          <img 
-            src="/images/友情链接.png" 
-            alt="友情链接" 
-            className="bottom-link-logo"
-          />
-        </div>
+      {/* 友情链接区域 - 上半部分 */}
+      <div className="bottom-navigation-partner-links-section">
+        {/* @feature "显示友情链接图片" */}
+        <h3 className="bottom-navigation-partner-links-title">友情链接</h3>
+        <img 
+          src="/images/友情链接.png" 
+          alt="友情链接" 
+          className="bottom-navigation-partner-links-image"
+        />
       </div>
 
-      {/* 二维码展示区域 - 中间 */}
-      <div className="bottom-qrcode-section">
-        <div className="bottom-qrcode-item">
-          <div className="bottom-qrcode-title">中国铁路官方微信</div>
-          <img 
-            src="/images/中国铁路官方微信二维码.png" 
-            alt="中国铁路官方微信" 
-            className="bottom-qrcode-image"
-          />
+      {/* 二维码区域 - 下半部分 */}
+      <div className="bottom-navigation-qrcode-section">
+        {/* 二维码组 */}
+        <div className="bottom-navigation-qrcode-groups">
+          {/* @feature "显示4个二维码 - 中国铁路官方微信" */}
+          <div className="bottom-navigation-qrcode-group">
+            <h4 className="bottom-navigation-qrcode-title">中国铁路官方微信</h4>
+            <img 
+              src="/images/中国铁路官方微信二维码.png" 
+              alt="中国铁路官方微信二维码" 
+              className="bottom-navigation-qrcode-image"
+            />
+          </div>
+
+          {/* @feature "显示4个二维码 - 中国铁路官方微博" */}
+          <div className="bottom-navigation-qrcode-group">
+            <h4 className="bottom-navigation-qrcode-title">中国铁路官方微博</h4>
+            <img 
+              src="/images/中国铁路官方微博二维码.png" 
+              alt="中国铁路官方微博二维码" 
+              className="bottom-navigation-qrcode-image"
+            />
+          </div>
+
+          {/* @feature "显示4个二维码 - 12306公众号" */}
+          <div className="bottom-navigation-qrcode-group">
+            <h4 className="bottom-navigation-qrcode-title">12306 公众号</h4>
+            <img 
+              src="/images/12306公众号二维码.png" 
+              alt="12306公众号二维码" 
+              className="bottom-navigation-qrcode-image"
+            />
+          </div>
+
+          {/* @feature "显示4个二维码 - 铁路12306" */}
+          <div className="bottom-navigation-qrcode-group">
+            <h4 className="bottom-navigation-qrcode-title">铁路12306</h4>
+            <img 
+              src="/images/铁路12306二维码.png" 
+              alt="铁路12306二维码" 
+              className="bottom-navigation-qrcode-image"
+            />
+          </div>
         </div>
 
-        <div className="bottom-qrcode-item">
-          <div className="bottom-qrcode-title">中国铁路官方微博</div>
-          <img 
-            src="/images/中国铁路官方微博二维码.png" 
-            alt="中国铁路官方微博" 
-            className="bottom-qrcode-image"
-          />
-        </div>
-
-        <div className="bottom-qrcode-item">
-          <div className="bottom-qrcode-title">12306 公众号</div>
-          <img 
-            src="/images/12306公众号二维码.png" 
-            alt="12306公众号" 
-            className="bottom-qrcode-image"
-          />
-        </div>
-
-        <div className="bottom-qrcode-item">
-          <div className="bottom-qrcode-title">铁路12306</div>
-          <img 
-            src="/images/铁路12306二维码.png" 
-            alt="铁路12306" 
-            className="bottom-qrcode-image"
-          />
-        </div>
-      </div>
-
-      {/* 免责声明区域 - 右侧 */}
-      <div className="bottom-disclaimer">
-        中国铁路客户服务中心<br />
-        版权所有©2024<br />
-        京ICP证000000号
+        {/* @feature "显示免责声明文字" */}
+        <p className="bottom-navigation-disclaimer-text">
+          官方APP下载，目前铁路未授权其他网站或APP开展类似服务内容，敬请广大用户注意。
+        </p>
       </div>
     </div>
   );
 };
 
 export default BottomNavigation;
-

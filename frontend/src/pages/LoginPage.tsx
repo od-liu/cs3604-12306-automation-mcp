@@ -1,95 +1,76 @@
 /**
  * @component UI-LOGIN-PAGE
- * @description 登录页面容器，组合所有子组件
- * @calls 无 - 容器组件
+ * @description 登录页面主容器，采用上中下三段式布局
  * @children_slots REQ-TOP-NAV, REQ-LOGIN-FORM, REQ-BOTTOM-NAV, REQ-SMS-VERIFICATION
  * 
- * ============ 功能实现清单（必填）============
- * @scenarios_covered: 无scenarios（容器组件）
+ * ============ 功能实现清单 ============
+ * @scenarios_covered: N/A (容器组件，无业务场景)
  * 
  * @features_implemented:
- *   ✅ 垂直三段式布局（顶部导航 + 主内容区 + 底部导航）
- *   ✅ 背景图片设置
- *   ✅ 登录表单区域（右侧，距离右边缘120px）
- *   ✅ 短信验证弹窗（条件显示）
- *   ✅ 页面占满视口高度（min-height: 100vh）
+ *   ✅ 提供上中下三段式布局（TopNavigation + MainContent + BottomNavigation）
+ *   ✅ 中间内容区域加载背景图片
+ *   ✅ 为子组件预留插槽位置
+ *   ✅ 响应式全屏布局（min-height: 100vh）
  * 
  * @implementation_status:
  *   - Scenarios Coverage: N/A (容器组件)
- *   - Features Coverage: 5/5 (100%)
- *   - UI Visual: 像素级精确（参考ui-style-guide.md第2.3节）
- * 
- * @layout_position "根容器，占据整个视口"
- * @dimensions "宽度100%，最小高度100vh"
+ *   - Features Coverage: 4/4 (100%)
+ *   - UI Visual: 像素级精确（按照 ui-style-guide.md）
  * ================================================
  */
 
 import React, { useState } from 'react';
-import TopNavigation from '../components/TopNavigation';
-import LoginForm from '../components/LoginForm';
-import BottomNavigation from '../components/BottomNavigation';
-import SmsVerificationModal from '../components/SmsVerificationModal';
 import './LoginPage.css';
+import TopNavigation from '../components/TopNavigation';
+import BottomNavigation from '../components/BottomNavigation';
+import LoginForm from '../components/LoginForm';
+import SmsVerificationModal from '../components/SmsVerificationModal';
 
-export const LoginPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   // ========== State Management ==========
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const [currentUsername, setCurrentUsername] = useState('');
+  const [showSmsModal, setShowSmsModal] = useState(false);
+  const [userId, setUserId] = useState<number>(0);
 
   // ========== Event Handlers ==========
-  
-  /**
-   * @feature "登录成功后弹出短信验证窗口"
-   * 当登录表单验证成功时调用
-   */
-  const handleLoginSuccess = () => {
-    setShowVerificationModal(true);
+  const handleLoginSuccess = (data: any) => {
+    setUserId(data.userId);
+    setShowSmsModal(true);
   };
 
-  /**
-   * @feature "关闭短信验证弹窗"
-   */
-  const handleCloseModal = () => {
-    setShowVerificationModal(false);
-  };
-
-  /**
-   * @feature "短信验证成功后的处理"
-   * 验证成功后跳转到个人中心页面
-   */
-  const handleVerificationSuccess = () => {
-    console.log('验证成功，跳转到个人中心页面');
-    setShowVerificationModal(false);
-    // TODO: 实现路由跳转到个人中心
-    // window.location.href = '/personal-center';
+  const handleVerifySuccess = () => {
+    // 验证成功，跳转到个人中心（预留功能）
+    console.log('Verification successful, redirect to user center');
+    setShowSmsModal(false);
   };
 
   // ========== UI Render ==========
   return (
     <div className="login-page-container">
-      {/* 第一个子元素：顶部导航 */}
+      {/* 顶部导航 - 第一个子元素 */}
       <TopNavigation />
 
-      {/* 第二个子元素：主内容区 */}
-      <div className="main-content">
-        {/* 左侧推广区域 */}
-        <div className="promotional-area">
-          {/* 推广内容区域 - 预留给未来需求 */}
+      {/* 主内容区域 - 第二个子元素，flex: 1 */}
+      <div className="main-content-area">
+        {/* 左侧推广区域 - 预留给未来的推广内容 */}
+        <div className="left-promotion">
+          {/* 推广内容占位 */}
         </div>
 
-        {/* 右侧登录表单 */}
-        <LoginForm onLoginSuccess={handleLoginSuccess} />
+        {/* 右侧登录表单容器 */}
+        <div className="right-form-container">
+          <LoginForm onLoginSuccess={handleLoginSuccess} />
+        </div>
       </div>
 
-      {/* 第三个子元素：底部导航 */}
+      {/* 底部导航 - 第三个子元素 */}
       <BottomNavigation />
 
       {/* 短信验证弹窗 - 条件渲染 */}
-      {showVerificationModal && (
+      {showSmsModal && (
         <SmsVerificationModal
-          username={currentUsername || 'testuser'}
-          onClose={handleCloseModal}
-          onSuccess={handleVerificationSuccess}
+          userId={userId}
+          onClose={() => setShowSmsModal(false)}
+          onVerifySuccess={handleVerifySuccess}
         />
       )}
     </div>
@@ -97,4 +78,3 @@ export const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
-

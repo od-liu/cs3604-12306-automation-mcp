@@ -16,7 +16,7 @@
     api_ids:
       - API-LOGIN
     func_ids:
-      - FUNC-AUTHENTICATE-USER
+      - FUNC-VALIDATE-LOGIN
 - id: REQ-BOTTOM-NAV
   status: processed
   artifacts:
@@ -31,5 +31,5 @@
       - API-SEND-SMS
       - API-VERIFY-SMS
     func_ids:
-      - FUNC-SEND-VERIFICATION-CODE
+      - FUNC-SEND-SMS-CODE
       - FUNC-VERIFY-SMS-CODE

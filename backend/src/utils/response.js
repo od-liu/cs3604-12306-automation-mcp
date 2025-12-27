@@ -1,51 +1,54 @@
 /**
- * @file Response Utilities
- * @description Helper functions for API responses
+ * 统一响应格式工具函数
  */
 
 /**
- * Send success response
- * @param {Object} res - Express response object
- * @param {Object} data - Response data
- * @param {String} message - Success message
+ * 成功响应
  */
-function sendSuccess(res, data = {}, message = 'Success') {
-  res.json({
+function successResponse(res, data = null, message = 'Success', statusCode = 200) {
+  return res.status(statusCode).json({
     success: true,
     message,
-    ...data
+    data
   });
 }
 
 /**
- * Send error response
- * @param {Object} res - Express response object
- * @param {String} message - Error message
- * @param {Number} statusCode - HTTP status code
+ * 错误响应
  */
-function sendError(res, message = 'Error', statusCode = 400) {
-  res.status(statusCode).json({
+function errorResponse(res, message = 'Error', statusCode = 400, error = null) {
+  return res.status(statusCode).json({
     success: false,
-    message
+    message,
+    error: process.env.NODE_ENV === 'development' ? error : undefined
   });
 }
 
 /**
- * Send not implemented response (501)
- * @param {Object} res - Express response object
- * @param {Object} mockData - Mock data to return
+ * 未授权响应
  */
-function sendNotImplemented(res, mockData = {}) {
-  res.status(501).json({
-    success: false,
-    message: 'Not Implemented - This is skeleton code',
-    mockData
-  });
+function unauthorizedResponse(res, message = 'Unauthorized') {
+  return errorResponse(res, message, 401);
+}
+
+/**
+ * 未找到响应
+ */
+function notFoundResponse(res, message = 'Not found') {
+  return errorResponse(res, message, 404);
+}
+
+/**
+ * 服务器错误响应
+ */
+function serverErrorResponse(res, message = 'Internal server error', error = null) {
+  return errorResponse(res, message, 500, error);
 }
 
 module.exports = {
-  sendSuccess,
-  sendError,
-  sendNotImplemented
+  successResponse,
+  errorResponse,
+  unauthorizedResponse,
+  notFoundResponse,
+  serverErrorResponse
 };
-

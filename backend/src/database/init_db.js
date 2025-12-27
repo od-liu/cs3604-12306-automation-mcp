@@ -1,92 +1,89 @@
 /**
- * @file Database Initialization
- * @description Creates database tables for 12306 Login System
+ * 数据库初始化脚本
+ * 创建表结构和插入初始数据
  */
 
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { db } = require('./db');
 
-const DB_PATH = path.join(__dirname, '../../database.db');
+// 创建用户表
+const createUsersTable = `
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  email TEXT,
+  phone TEXT,
+  password TEXT NOT NULL,
+  id_number TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+`;
 
-/**
- * Initialize database schema
- */
+// 创建短信验证码表
+const createSmsCodesTable = `
+CREATE TABLE IF NOT EXISTS sms_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  code TEXT NOT NULL,
+  expires_at INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+`;
+
+// 插入测试用户数据
+const insertTestUsers = `
+INSERT OR IGNORE INTO users (id, username, email, phone, password, id_number) VALUES
+  (1, 'testuser', 'test@example.com', '13800138000', 'password123', '1234'),
+  (2, 'admin', 'admin@example.com', '13900139000', 'admin123', '5678');
+`;
+
+// 执行初始化
 function initDatabase() {
-  const db = new sqlite3.Database(DB_PATH, (err) => {
-    if (err) {
-      console.error('Error opening database:', err.message);
-      return;
-    }
-    console.log('Connected to SQLite database');
-  });
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      // 创建表
+      db.run(createUsersTable, (err) => {
+        if (err) {
+          console.error('❌ Error creating users table:', err.message);
+          return reject(err);
+        }
+        console.log('✅ Users table created/verified');
+      });
 
-  db.serialize(() => {
-    // Users table
-    db.run(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        email TEXT,
-        phone TEXT,
-        id_number TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating users table:', err.message);
-      } else {
-        console.log('Users table created or already exists');
-      }
+      db.run(createSmsCodesTable, (err) => {
+        if (err) {
+          console.error('❌ Error creating sms_codes table:', err.message);
+          return reject(err);
+        }
+        console.log('✅ SMS codes table created/verified');
+      });
+
+      // 插入测试数据
+      db.run(insertTestUsers, (err) => {
+        if (err) {
+          console.error('❌ Error inserting test users:', err.message);
+        } else {
+          console.log('✅ Test users inserted/verified');
+        }
+        resolve();
+      });
     });
-
-    // Verification codes table
-    db.run(`
-      CREATE TABLE IF NOT EXISTS verification_codes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        code TEXT NOT NULL,
-        type TEXT NOT NULL,
-        expires_at DATETIME NOT NULL,
-        used INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Error creating verification_codes table:', err.message);
-      } else {
-        console.log('Verification codes table created or already exists');
-      }
-    });
-
-    // Insert sample user for testing
-    db.run(`
-      INSERT OR IGNORE INTO users (username, password, email, phone, id_number)
-      VALUES ('testuser', 'password123', 'test@example.com', '13800138000', '1234')
-    `, (err) => {
-      if (err) {
-        console.error('Error inserting sample user:', err.message);
-      } else {
-        console.log('Sample user created or already exists');
-      }
-    });
-  });
-
-  db.close((err) => {
-    if (err) {
-      console.error('Error closing database:', err.message);
-    } else {
-      console.log('Database initialization complete');
-    }
   });
 }
 
-// Run if called directly
+// 如果直接运行此脚本，执行初始化
 if (require.main === module) {
-  initDatabase();
+  initDatabase()
+    .then(() => {
+      console.log('🎉 Database initialization completed');
+      db.close();
+    })
+    .catch((err) => {
+      console.error('💥 Database initialization failed:', err);
+      db.close();
+      process.exit(1);
+    });
 }
 
 module.exports = { initDatabase };
-

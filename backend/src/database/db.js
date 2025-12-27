@@ -1,58 +1,54 @@
 /**
- * @file Database Connection
- * @description SQLite database connection singleton
+ * SQLite数据库连接配置
+ * 提供数据库实例和常用查询方法
  */
 
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Use test database in test mode
-const DB_PATH = process.env.TEST_MODE === 'true' && process.env.TEST_DB_PATH
-  ? process.env.TEST_DB_PATH
-  : path.join(__dirname, '../../database.db');
+// 数据库文件路径（支持测试环境）
+const DB_PATH = process.env.TEST_DB_PATH || path.join(__dirname, '../../database.db');
 
-let db = null;
-
-/**
- * Get database connection
- * @returns {sqlite3.Database} Database instance
- */
-function getDatabase() {
-  if (!db) {
-    db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        console.error('Error opening database:', err.message);
-        throw err;
-      }
-    });
+// 创建数据库连接
+const db = new sqlite3.Database(DB_PATH, (err) => {
+  if (err) {
+    console.error('❌ Database connection error:', err.message);
+  } else {
+    console.log('✅ Connected to SQLite database');
   }
-  return db;
-}
+});
 
-/**
- * Close database connection
- */
-function closeDatabase() {
-  if (db) {
-    db.close((err) => {
-      if (err) {
-        console.error('Error closing database:', err.message);
-      }
-      db = null;
+// Promise包装查询方法
+const dbGet = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
     });
-  }
-}
-
-/**
- * Reset database connection (for testing)
- */
-function resetDatabase() {
-  db = null;
-}
-
-module.exports = {
-  getDatabase,
-  closeDatabase,
-  resetDatabase
+  });
 };
 
+const dbAll = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+const dbRun = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function(err) {
+      if (err) reject(err);
+      else resolve({ lastID: this.lastID, changes: this.changes });
+    });
+  });
+};
+
+module.exports = {
+  db,
+  dbGet,
+  dbAll,
+  dbRun
+};

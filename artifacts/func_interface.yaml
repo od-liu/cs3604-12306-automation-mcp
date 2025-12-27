@@ -1,26 +1,26 @@
-FUNC-AUTHENTICATE-USER:
+FUNC-VALIDATE-LOGIN:
   related_req_id: REQ-LOGIN-FORM
   path: backend/src/database/operations.js
-  signature: authenticateUser(username, password)
+  signature: validateLogin(username, password)
   upstream_ids:
     - API-LOGIN
   db_tables:
     - users
-FUNC-SEND-VERIFICATION-CODE:
+FUNC-SEND-SMS-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
-  signature: sendVerificationCode(username, idNumber)
+  signature: sendSmsCode(userId, idNumber)
   upstream_ids:
     - API-SEND-SMS
   db_tables:
     - users
-    - verification_codes
+    - sms_codes
 FUNC-VERIFY-SMS-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
-  signature: verifySmsCode(username, idNumber, code)
+  signature: verifySmsCode(userId, idNumber, smsCode)
   upstream_ids:
     - API-VERIFY-SMS
   db_tables:
-    - verification_codes
     - users
+    - sms_codes
