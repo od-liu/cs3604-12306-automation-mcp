@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 12306 登录页面 - 架构设计项目
 
 本项目是12306登录页面的完整架构骨架代码，包含前端UI、后端API和数据库逻辑三层架构。
@@ -365,3 +366,7 @@ npm run test
 4. 实现个人中心页面
 5. 添加响应式布局适配移动端
 
+=======
+# cs3604-12306-automation-mcp
+An MCP-based browser automation agent for replicating and interacting with the 12306 China Railway booking system.
+>>>>>>> 2a0189fe81d6ec537512a3f8410787edd7833e92

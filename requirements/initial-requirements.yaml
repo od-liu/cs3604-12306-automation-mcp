@@ -1,24 +1,33 @@
 # 登录页面初始需求文档
 # 这是提供给 UI Analyzer Agent 的输入文档
-# 只包含业务功能和场景，不包含UI细节
+# Agent 会自动获取截图、图片资源和交互场景截图
+
+# ⚠️ 使用说明：
+# 1. 如果某个组件需要交互场景截图（如登录后的弹窗），请在 description 中添加 "**交互场景截图**:" 字段
+# 2. 如果交互场景需要登录凭证，请在 "**登录凭证**:" 中填写真实的测试账户信息
+# 3. Agent 会按照 steps 中定义的步骤自动执行交互并截图
+# 4. 支持的 action 类型: type, click, wait, wait_for_element, screenshot, evaluate, console_log 等
+# 5. 使用 ${LOGIN_CREDENTIALS.xxx} 引用登录凭证中的字段
 
 - id: REQ-LOGIN-PAGE
   name: 登录页面
   description: |
     用户登录主页面，包含登录表单和短信验证功能。
     
-    主要功能：
+    **网站地址**: https://kyfw.12306.cn/otn/resources/login.html
+    **页面宽度参考**: 1920px
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 背景图片（主内容区域）
+    - 二维码（底部导航，4个：中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306）
+    - 友情链接（底部导航，4个：2行2列布局）
+    
+    **主要功能**：
     - 用户可以使用用户名/邮箱/手机号登录
     - 支持密码输入和验证
     - 登录成功后需要短信验证
     - 提供注册和找回密码的入口
-    
-    页面参考：
-    - 整体页面截图: "./images/整体页面截图/登录页面.png"
-    - 页面宽度参考: 1920px（用于计算相对尺寸）
-    
-    页面资源：
-    - 背景图片: "/images/登录页-背景-新.jpg" (中间内容区域的背景图片)
   
   dependencies: []
   scenarios: []
@@ -29,16 +38,14 @@
       description: |
         页面顶部导航栏，包含品牌Logo和欢迎文字。
         
-        功能要求：
+        **需要截图**: 是
+        **组件定位**: 页面最上方，横向占据整个页面宽度，高度约80px，白色背景
+        **定位提示**: header, nav, [role="banner"]
+        
+        **功能要求**：
         - 显示12306品牌Logo和名称
         - 显示欢迎文字"欢迎登录12306"
         - Logo点击可跳转到首页
-        
-        组件参考：
-        - 特写截图: "./images/组件特写截图/登录页-顶部导航区域.png"
-        
-        组件资源：
-        - Logo图片: "/images/登录页-顶部导航区域-中国铁路Logo.png" (品牌Logo，使用在网页中)
       
       dependencies: []
       scenarios: []
@@ -49,14 +56,59 @@
       description: |
         用户输入凭据进行登录的表单。
         
-        功能要求：
+        **需要截图**: 是
+        **组件定位**: 页面右侧，距离右边缘约150px，垂直居中，白色卡片容器，宽度约350-400px
+        **定位提示**: form, .login-form, [class*="login"]
+        
+        **功能要求**：
         - 支持账号登录和扫码登录两种模式
         - 账号登录支持用户名/邮箱/手机号
         - 需要输入密码
         - 提供"立即注册"和"忘记密码"链接
         
-        组件参考：
-        - 特写截图: "./images/组件特写截图/登录表单区域-登录表单.png"
+        **交互场景截图**:
+          - name: "前端验证-用户名为空"
+            description: "测试不输入用户名直接点击登录"
+            steps:
+              - action: click
+                target: "立即登录按钮"
+                target_hint: "button:has-text('立即登录')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "登录表单-错误-用户名为空.png"
+                
+          - name: "前端验证-密码为空"
+            description: "测试只输入用户名不输入密码"
+            steps:
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名']"
+                value: "test_user"
+              - action: click
+                target: "立即登录按钮"
+                target_hint: "button:has-text('立即登录')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "登录表单-错误-密码为空.png"
+                
+          - name: "前端验证-密码过短"
+            description: "测试输入少于6位的密码"
+            steps:
+              - action: evaluate
+                script: "document.querySelector('input[type=\"password\"]').value = ''"
+              - action: type
+                target: "密码输入框"
+                target_hint: "input[type='password']"
+                value: "123"
+              - action: click
+                target: "立即登录按钮"
+                target_hint: "button:has-text('立即登录')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "登录表单-错误-密码过短.png"
       
       dependencies: []
       
@@ -75,7 +127,7 @@
           given: 用户在登录页面输入了用户名和小于6位的密码
           when: 用户点击"立即登录"
           then: 显示错误提示"密码长度不能少于6位！"
-          示例截图: "./images/交互状态截图/登录表单区域-密码长度不能少于6位提示.png"
+          示例截图: 
           
         - name: 用户名未注册
           given: 用户在登录页面输入了符合格式要求但未注册的用户名
@@ -99,20 +151,21 @@
       description: |
         页面底部的友情链接和二维码展示区域。
         
-        功能要求：
+        **需要截图**: 是
+        **组件定位**: 页面最底部，横向占据整个页面宽度，高度约180px，白色背景
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **布局结构**：
+        - 上半部分：左右并排布局
+          * 左侧：友情链接区域（标题 + 4个合作伙伴Logo，2行2列排列）
+          * 右侧：二维码区域（4个官方平台二维码，横向排列，每个二维码上方有标题）
+        - 下半部分：版权信息区域（深灰色背景，包含版权声明、技术支持和ICP备案信息）
+        
+        **功能要求**：
         - 显示友情链接（合作伙伴Logo）
-        - 显示四个官方平台二维码
+        - 显示四个官方平台二维码（中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306）
         - 提供扫码关注入口
-        
-        组件参考：
-        - 特写截图: "./images/组件特写截图/登录页-底部导航区域.png"
-        
-        组件资源：
-        - 友情链接图片: "/images/友情链接.png" (合作伙伴Logo集合，使用在网页中)
-        - 中国铁路官方微信二维码: "/images/中国铁路官方微信二维码.png" (使用在网页中)
-        - 中国铁路官方微博二维码: "/images/中国铁路官方微博二维码.png" (使用在网页中)
-        - 12306公众号二维码: "/images/12306公众号二维码.png" (使用在网页中)
-        - 铁路12306二维码: "/images/铁路12306二维码.png" (使用在网页中)
+        - 显示版权和备案信息
       
       dependencies: []
       scenarios: []
@@ -121,17 +174,110 @@
     - id: REQ-SMS-VERIFICATION
       name: 短信验证
       description: |
-        登录成功后的短信验证流程。
+        登录成功后的短信验证流程弹窗。
         
-        功能要求：
+        **需要截图**: 是（通过交互场景自动触发）
+        **组件定位**: 屏幕居中显示的模态弹窗，宽度约700px，带半透明黑色遮罩
+        **定位提示**: .modal, [role="dialog"], .popup
+        
+        **功能要求**：
         - 用户需要输入证件号后4位
         - 点击"获取验证码"发送验证码
         - 验证码显示在浏览器控制台
         - 输入验证码完成验证
         - 限制验证码发送频率（1分钟内不可重复发送）
         
-        组件参考：
-        - 特写截图: "./images/组件特写截图/短信验证弹窗.png"
+        **前置条件**:
+          - 完成 REQ-LOGIN-FORM 的成功登录
+        
+        **登录凭证**:
+          ⚠️ 凭证从环境变量读取，Agent 会自动从 credentials.env 文件加载：
+          - username: 从 ${LOGIN_USERNAME} 环境变量读取
+          - password: 从 ${LOGIN_PASSWORD} 环境变量读取
+          - id_card_last4: 从 ${LOGIN_ID_CARD_LAST4} 环境变量读取
+          
+          📋 使用步骤：
+          1. 复制 credentials.example.env 为 credentials.env
+          2. 在 credentials.env 中填入真实测试账户信息
+          3. 运行 Agent 时会自动加载凭证
+        
+        **交互场景截图**:
+          - name: "弹窗初始状态"
+            description: "登录成功后弹出的验证窗口"
+            steps:
+              - action: evaluate
+                script: |
+                  document.querySelector('input[placeholder*="用户名"]').value = '';
+                  document.querySelector('input[type="password"]').value = '';
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名']"
+                value: "${LOGIN_CREDENTIALS.username}"
+              - action: type
+                target: "密码输入框"
+                target_hint: "input[type='password']"
+                value: "${LOGIN_CREDENTIALS.password}"
+              - action: click
+                target: "立即登录按钮"
+                target_hint: "button:has-text('立即登录')"
+              - action: wait
+                duration: 2
+              - action: wait_for_element
+                target: "短信验证弹窗"
+                target_hint: "[role='dialog']"
+                timeout: 5
+              - action: screenshot
+                filename: "短信验证-初始状态.png"
+                
+          - name: "证件号为空"
+            description: "不输入证件号直接点击确定"
+            steps:
+              - action: evaluate
+                script: "document.querySelector('input[placeholder*=\"证件号\"]').value = ''"
+              - action: click
+                target: "确定按钮"
+                target_hint: "button:has-text('确定')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "短信验证-错误-证件号为空.png"
+                
+          - name: "证件号错误"
+            description: "输入错误的证件号后4位"
+            steps:
+              - action: evaluate
+                script: "document.querySelector('input[placeholder*=\"证件号\"]').value = ''"
+              - action: type
+                target: "证件号输入框"
+                target_hint: "input[placeholder*='证件号']"
+                value: "9999"
+              - action: click
+                target: "获取验证码按钮"
+                target_hint: "button:has-text('获取验证码')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "短信验证-错误-证件号错误.png"
+                
+          - name: "获取验证码成功"
+            description: "输入正确证件号获取验证码"
+            steps:
+              - action: evaluate
+                script: "document.querySelector('input[placeholder*=\"证件号\"]').value = ''"
+              - action: type
+                target: "证件号输入框"
+                target_hint: "input[placeholder*='证件号']"
+                value: "${LOGIN_CREDENTIALS.id_card_last4}"
+              - action: click
+                target: "获取验证码按钮"
+                target_hint: "button:has-text('获取验证码')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "短信验证-成功-验证码已发送.png"
+              - action: console_log
+                extract: "验证码"
+                
       
       dependencies:
         - REQ-LOGIN-FORM
@@ -141,13 +287,11 @@
           given: 用户输入了错误的证件号后4位
           when: 用户点击"获取验证码"按钮
           then: 显示错误提示"请输入正确的用户信息！"，按钮进入倒计时状态
-          示例截图: "./images/交互状态截图/短信验证弹窗-请输入正确用户信息提示.png"
           
         - name: 获取验证码-成功
           given: 用户输入了正确的证件号后4位，且1分钟内未发送过验证码
           when: 用户点击"获取验证码"按钮
           then: 发送验证码到浏览器控制台，按钮进入倒计时状态，显示成功提示
-          示例截图: "./images/交互状态截图/短信验证弹窗-获取手机验证码成功提示.png"
           
         - name: 获取验证码-频率限制
           given: 用户输入了正确的证件号后4位，但1分钟内已发送过验证码
@@ -190,4 +334,3 @@
           then: 验证通过，用户登录成功，跳转到个人中心页面
       
       children: []
-
