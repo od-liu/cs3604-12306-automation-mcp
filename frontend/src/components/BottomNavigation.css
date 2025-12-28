@@ -1,0 +1,114 @@
+/* ========== 底部导航容器 ========== */
+.bottom-navigation-footer {
+  display: block !important;
+  position: static !important;
+  width: 100% !important;
+  min-height: 274px !important;
+  background-color: #FFFFFF !important;
+  padding: 30px 150px !important;
+  box-sizing: border-box !important;
+}
+
+.bottom-navigation-content {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 20px !important;
+}
+
+/* ========== 友情链接区域 ========== */
+.bottom-navigation-partner-section {
+  flex: 1 !important;
+}
+
+.bottom-navigation-partner-section h2 {
+  font-size: 16px !important;
+  color: #333333 !important;
+  margin-bottom: 15px !important;
+  font-weight: bold !important;
+}
+
+.bottom-navigation-partner-logos {
+  display: grid !important;
+  grid-template-columns: repeat(2, 200px) !important;
+  grid-template-rows: repeat(2, auto) !important;
+  gap: 10px !important;
+}
+
+.bottom-navigation-partner-logo-item {
+  display: block !important;
+  width: 200px !important;
+  height: 34px !important;
+}
+
+.bottom-navigation-partner-logo-item img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* ========== 二维码区域 ========== */
+.bottom-navigation-qrcode-section {
+  display: flex !important;
+  gap: 20px !important;
+}
+
+.bottom-navigation-qrcode-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.bottom-navigation-qrcode-item h3 {
+  font-size: 12px !important;
+  color: #333333 !important;
+  margin-bottom: 8px !important;
+  text-align: center !important;
+  font-weight: normal !important;
+}
+
+.bottom-navigation-qrcode-item img {
+  display: block !important;
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: contain !important;
+}
+
+.bottom-navigation-qr-description {
+  font-size: 11px !important;
+  color: #666666 !important;
+  margin-top: 5px !important;
+  text-align: center !important;
+}
+
+/* ========== 版权信息区域 ========== */
+.bottom-navigation-copyright-section {
+  display: block !important;
+  width: 100% !important;
+  background-color: #F5F5F5 !important;
+  padding: 15px !important;
+  text-align: center !important;
+  font-size: 12px !important;
+  color: #666666 !important;
+  line-height: 1.6 !important;
+  margin-top: 20px !important;
+  box-sizing: border-box !important;
+}
+
+.bottom-navigation-copyright-text {
+  margin: 0 0 5px 0 !important;
+}
+
+.bottom-navigation-icp-text {
+  margin: 0 !important;
+}
+
+.bottom-navigation-copyright-section a {
+  color: #3B99FC !important;
+  text-decoration: none !important;
+}
+
+.bottom-navigation-copyright-section a:hover {
+  text-decoration: underline !important;
+}

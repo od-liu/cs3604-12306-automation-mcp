@@ -1,0 +1,26 @@
+API-LOGIN:
+  related_req_id: REQ-LOGIN-FORM
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/login
+  upstream_ids:
+    - UI-LOGIN-FORM
+  downstream_ids:
+    - FUNC-VERIFY-USER-CREDENTIALS
+API-SEND-VERIFICATION-CODE:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/send-code
+  upstream_ids:
+    - UI-SMS-VERIFICATION
+  downstream_ids:
+    - FUNC-VERIFY-ID-CARD
+    - FUNC-CHECK-VERIFICATION-RATE-LIMIT
+    - FUNC-GENERATE-VERIFICATION-CODE
+API-VERIFY-CODE:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/verify-code
+  upstream_ids:
+    - UI-SMS-VERIFICATION
+  downstream_ids:
+    - FUNC-VERIFY-CODE

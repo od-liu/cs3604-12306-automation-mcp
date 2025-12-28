@@ -1,0 +1,203 @@
+/* ========== 登录表单容器 ========== */
+.login-form {
+  display: block !important;
+  width: 380px !important;
+  background-color: #FFFFFF !important;
+  border-radius: 0px !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ========== 标签页切换 ========== */
+.login-form .tabs {
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 30px !important;
+  margin-bottom: 20px !important;
+  border-bottom: 1px solid #DEDEDE !important;
+}
+
+.login-form .tab {
+  flex: 0 0 auto !important;
+  font-size: 16px !important;
+  padding: 10px 0 !important;
+  cursor: pointer !important;
+  color: #666666 !important;
+  border-bottom: 2px solid transparent !important;
+  transition: color 0.3s, border-color 0.3s !important;
+}
+
+.login-form .tab.active {
+  color: #3B99FC !important;  /* 品牌主色 */
+  font-weight: bold !important;
+  border-bottom-color: #3B99FC !important;
+}
+
+.login-form .tab:hover:not(.active) {
+  color: #333333 !important;
+}
+
+/* ========== 表单内容区域 ========== */
+.login-form .form-content {
+  padding-top: 10px !important;
+}
+
+/* ========== 表单输入区域 ========== */
+.login-form .input-group {
+  margin-bottom: 15px !important;
+}
+
+.login-form .input-field {
+  display: block !important;
+  width: 100% !important;
+  height: 40px !important;
+  padding: 10px !important;
+  font-size: 14px !important;
+  color: #333333 !important;
+  border: 1px solid #DEDEDE !important;
+  border-radius: 0px !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.3s !important;
+}
+
+.login-form .input-field::placeholder {
+  color: #999999 !important;
+}
+
+.login-form .input-field:focus {
+  outline: none !important;
+  border-color: #3B99FC !important;  /* 聚焦时变为品牌色 */
+}
+
+/* ========== 错误状态（参考交互截图）========== */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-用户名为空.png */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-密码为空.png */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-密码过短.png */
+/* 
+ * 从交互截图中提取的样式信息：
+ * - 错误提示位置：对应输入框的正下方
+ * - 错误提示颜色：红色 (#FF4D4F)
+ * - 错误提示背景：浅红色背景或白色背景
+ * - 图标：红色感叹号图标（左侧）
+ */
+
+.login-form .input-field.error {
+  border-color: #FF4D4F !important;
+}
+
+.login-form .error-message {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-bottom: 15px !important;
+  font-size: 12px !important;
+  color: #FF4D4F !important;
+  background-color: rgba(255, 77, 79, 0.1) !important;
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+}
+
+.login-form .error-message::before {
+  content: '!' !important;
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  background-color: #FF4D4F !important;
+  color: #FFFFFF !important;
+  border-radius: 50% !important;
+  text-align: center !important;
+  line-height: 16px !important;
+  font-weight: bold !important;
+  flex-shrink: 0 !important;
+}
+
+/* ========== 提交按钮 ========== */
+.login-form .submit-button {
+  display: block !important;
+  width: 100% !important;
+  height: 40px !important;
+  background-color: #FF8000 !important;  /* 主题橙色 */
+  color: #FFFFFF !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  margin-top: 20px !important;
+  transition: background-color 0.3s !important;
+}
+
+.login-form .submit-button:hover {
+  background-color: #FF9933 !important;  /* 悬停时稍微变亮 */
+}
+
+.login-form .submit-button:active {
+  background-color: #E67300 !important;  /* 点击时稍微变暗 */
+}
+
+.login-form .submit-button:disabled {
+  background-color: #CCCCCC !important;
+  cursor: not-allowed !important;
+}
+
+/* ========== 辅助链接 ========== */
+.login-form .links {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 15px !important;
+  font-size: 14px !important;
+}
+
+.login-form .links a {
+  color: #3B99FC !important;  /* 品牌主色 */
+  text-decoration: none !important;
+  transition: color 0.3s !important;
+}
+
+.login-form .links a:hover {
+  color: #1E78DB !important;  /* 悬停时变深 */
+  text-decoration: underline !important;
+}
+
+.login-form .links .separator {
+  color: #DEDEDE !important;
+}
+
+/* ========== 服务时间说明 ========== */
+.login-form .service-time {
+  margin-top: 15px !important;
+  font-size: 12px !important;
+  color: #999999 !important;
+  text-align: center !important;
+  line-height: 1.5 !important;
+}
+
+/* ========== 二维码登录区域 ========== */
+.login-form .qr-login-area {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 300px !important;
+}
+
+.login-form .qr-code-container {
+  text-align: center !important;
+}
+
+.login-form .qr-code-placeholder {
+  width: 200px !important;
+  height: 200px !important;
+  border: 2px dashed #DEDEDE !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  color: #999999 !important;
+  font-size: 14px !important;
+  line-height: 1.8 !important;
+}
+

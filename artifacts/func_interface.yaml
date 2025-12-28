@@ -1,0 +1,40 @@
+FUNC-VERIFY-USER-CREDENTIALS:
+  related_req_id: REQ-LOGIN-FORM
+  path: backend/src/database/operations.js
+  signature: verifyUserCredentials(username, password)
+  upstream_ids:
+    - API-LOGIN
+  db_tables:
+    - users
+FUNC-VERIFY-ID-CARD:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: verifyIdCard(username, idCardLast4)
+  upstream_ids:
+    - API-SEND-VERIFICATION-CODE
+  db_tables:
+    - users
+FUNC-CHECK-VERIFICATION-RATE-LIMIT:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: checkVerificationRateLimit(username)
+  upstream_ids:
+    - API-SEND-VERIFICATION-CODE
+  db_tables:
+    - verification_codes
+FUNC-GENERATE-VERIFICATION-CODE:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: generateVerificationCode(username)
+  upstream_ids:
+    - API-SEND-VERIFICATION-CODE
+  db_tables:
+    - verification_codes
+FUNC-VERIFY-CODE:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: verifyCode(username, code)
+  upstream_ids:
+    - API-VERIFY-CODE
+  db_tables:
+    - verification_codes

@@ -270,23 +270,55 @@
                 filename: "短信验证-错误-证件号错误.png"
                 
           - name: "获取验证码成功"
-            description: "输入正确证件号获取验证码"
+            description: "刷新页面后重新登录，输入正确证件号获取验证码"
             steps:
-              - action: evaluate
-                script: "document.querySelector('input[placeholder*=\"证件号\"]').value = ''"
+              # ✅ 第一步：刷新页面（重置验证码倒计时）
+              - action: navigate
+                url: "https://kyfw.12306.cn/otn/resources/login.html"
+              
+              # ✅ 第二步：等待页面加载完成
+              - action: wait
+                duration: 2
+              
+              # ✅ 第三步：填写用户名
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名']"
+                value: "${LOGIN_CREDENTIALS.username}"
+              
+              # ✅ 第四步：填写密码
+              - action: type
+                target: "密码输入框"
+                target_hint: "input[type='password']"
+                value: "${LOGIN_CREDENTIALS.password}"
+              
+              # ✅ 第五步：点击立即登录
+              - action: click
+                target: "立即登录按钮"
+                target_hint: "a:has-text('立即登录')"
+              
+              # ✅ 第六步：等待短信验证弹窗出现
+              - action: wait
+                duration: 3
+              
+              # ✅ 第七步：输入正确的证件号后4位
               - action: type
                 target: "证件号输入框"
                 target_hint: "input[placeholder*='证件号']"
                 value: "${LOGIN_CREDENTIALS.id_card_last4}"
+              
+              # ✅ 第八步：点击获取验证码
               - action: click
                 target: "获取验证码按钮"
-                target_hint: "button:has-text('获取验证码')"
+                target_hint: "a:has-text('获取验证码')"
+              
+              # ✅ 第九步：等待验证码发送完成
               - action: wait
                 duration: 1
+              
+              # ✅ 第十步：截图
               - action: screenshot
                 filename: "短信验证-成功-验证码已发送.png"
-              - action: console_log
-                extract: "验证码"
                 
       
       dependencies:

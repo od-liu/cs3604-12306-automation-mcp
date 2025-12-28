@@ -1,0 +1,36 @@
+UI-LOGIN-PAGE:
+  related_req_id: REQ-LOGIN-PAGE
+  path: frontend/src/pages/LoginPage.tsx
+  description: 登录页面主容器，整合所有子组件，实现三段式布局和背景轮播
+  downstream_ids: []
+UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation.tsx
+  description: 顶部导航栏，包含品牌Logo和欢迎文字
+  upstream_ids:
+    - UI-LOGIN-PAGE
+  downstream_ids: []
+UI-LOGIN-FORM:
+  related_req_id: REQ-LOGIN-FORM
+  path: frontend/src/components/LoginForm.tsx
+  description: 登录表单组件，实现6个scenarios的完整验证逻辑
+  upstream_ids:
+    - UI-LOGIN-PAGE
+  downstream_ids:
+    - API-LOGIN
+UI-BOTTOM-NAV:
+  related_req_id: REQ-BOTTOM-NAV
+  path: frontend/src/components/BottomNavigation.tsx
+  description: 底部导航组件，展示友情链接、二维码和版权信息
+  upstream_ids:
+    - UI-LOGIN-PAGE
+  downstream_ids: []
+UI-SMS-VERIFICATION:
+  related_req_id: REQ-SMS-VERIFICATION
+  path: frontend/src/components/SmsVerification.tsx
+  description: 短信验证弹窗组件，实现10个scenarios的完整验证逻辑
+  upstream_ids:
+    - UI-LOGIN-PAGE
+  downstream_ids:
+    - API-SEND-VERIFICATION-CODE
+    - API-VERIFY-CODE

@@ -1,0 +1,240 @@
+/* ========== 背景遮罩 ========== */
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 999 !important;
+}
+
+/* ========== 短信验证弹窗 ========== */
+.sms-verification-modal {
+  display: block !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 700px !important;
+  max-width: 90vw !important;
+  background-color: #FFFFFF !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+}
+
+/* ========== 弹窗标题栏 ========== */
+.sms-verification-modal .modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 30px !important;
+  border-bottom: 1px solid #EEEEEE !important;
+}
+
+.sms-verification-modal .modal-header h2 {
+  font-size: 18px !important;
+  color: #333333 !important;
+  font-weight: bold !important;
+  margin: 0 !important;
+}
+
+.sms-verification-modal .close-button {
+  width: 30px !important;
+  height: 30px !important;
+  border: none !important;
+  background: none !important;
+  font-size: 24px !important;
+  color: #999999 !important;
+  cursor: pointer !important;
+  transition: color 0.3s !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.sms-verification-modal .close-button:hover {
+  color: #333333 !important;
+}
+
+/* ========== 标签页 ========== */
+.sms-verification-modal .modal-tabs {
+  display: flex !important;
+  padding: 0 30px !important;
+  border-bottom: 1px solid #DEDEDE !important;
+}
+
+.sms-verification-modal .modal-tabs .tab {
+  padding: 15px 20px !important;
+  font-size: 16px !important;
+  color: #666666 !important;
+  border-bottom: 2px solid transparent !important;
+  cursor: pointer !important;
+  transition: color 0.3s, border-color 0.3s !important;
+}
+
+.sms-verification-modal .modal-tabs .tab.active {
+  color: #3B99FC !important;
+  font-weight: bold !important;
+  border-bottom-color: #3B99FC !important;
+}
+
+/* ========== 表单内容 ========== */
+.sms-verification-modal .modal-content {
+  padding: 30px !important;
+}
+
+.sms-verification-modal .form-group {
+  margin-bottom: 20px !important;
+}
+
+.sms-verification-modal .form-group label {
+  display: block !important;
+  font-size: 14px !important;
+  color: #333333 !important;
+  margin-bottom: 8px !important;
+}
+
+.sms-verification-modal .input-field {
+  display: block !important;
+  width: 100% !important;
+  height: 40px !important;
+  padding: 10px !important;
+  font-size: 14px !important;
+  color: #333333 !important;
+  border: 1px solid #DEDEDE !important;
+  border-radius: 4px !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.3s !important;
+}
+
+.sms-verification-modal .input-field::placeholder {
+  color: #999999 !important;
+}
+
+.sms-verification-modal .input-field:focus {
+  outline: none !important;
+  border-color: #3B99FC !important;
+}
+
+/* ========== 验证码输入区域 ========== */
+.sms-verification-modal .code-input-group {
+  display: flex !important;
+  gap: 10px !important;
+}
+
+.sms-verification-modal .code-input {
+  flex: 1 !important;
+}
+
+.sms-verification-modal .code-button {
+  flex: 0 0 120px !important;
+  height: 40px !important;
+  background-color: #FFFFFF !important;
+  color: #3B99FC !important;
+  border: 1px solid #3B99FC !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s, color 0.3s !important;
+}
+
+.sms-verification-modal .code-button:hover:not(.disabled) {
+  background-color: #3B99FC !important;
+  color: #FFFFFF !important;
+}
+
+.sms-verification-modal .code-button.disabled {
+  border-style: dashed !important;
+  color: #999999 !important;
+  border-color: #DEDEDE !important;
+  cursor: not-allowed !important;
+}
+
+.sms-verification-modal .code-button.dashed {
+  border-style: dashed !important;
+}
+
+/* ========== 错误和成功提示 ========== */
+.sms-verification-modal .error-message {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-bottom: 15px !important;
+  font-size: 12px !important;
+  color: #FF4D4F !important;
+  background-color: rgba(255, 77, 79, 0.1) !important;
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+}
+
+.sms-verification-modal .error-message::before {
+  content: '!' !important;
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  background-color: #FF4D4F !important;
+  color: #FFFFFF !important;
+  border-radius: 50% !important;
+  text-align: center !important;
+  line-height: 16px !important;
+  font-weight: bold !important;
+  flex-shrink: 0 !important;
+}
+
+.sms-verification-modal .success-message {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin-bottom: 15px !important;
+  font-size: 12px !important;
+  color: #52C41A !important;
+  background-color: rgba(82, 196, 26, 0.1) !important;
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+}
+
+/* ========== 提交按钮 ========== */
+.sms-verification-modal .submit-button {
+  display: block !important;
+  width: 100% !important;
+  height: 40px !important;
+  background-color: #FF8000 !important;
+  color: #FFFFFF !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  margin-top: 20px !important;
+  transition: background-color 0.3s !important;
+}
+
+.sms-verification-modal .submit-button:hover {
+  background-color: #FF9933 !important;
+}
+
+.sms-verification-modal .submit-button:active {
+  background-color: #E67300 !important;
+}
+
+.sms-verification-modal .submit-button:disabled {
+  background-color: #CCCCCC !important;
+  cursor: not-allowed !important;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 768px) {
+  .sms-verification-modal {
+    width: 90vw !important;
+  }
+  
+  .sms-verification-modal .modal-header,
+  .sms-verification-modal .modal-tabs,
+  .sms-verification-modal .modal-content {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+
