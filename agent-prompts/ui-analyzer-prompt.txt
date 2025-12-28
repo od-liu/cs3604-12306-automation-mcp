@@ -14,18 +14,59 @@
 
 ## 📋 核心任务
 
-将用户提供的**初始需求文档**（无图片版本）转换为完整的UI设计文档：
+**🎯 最终目标**：生成**精确、完整、可执行的UI需求文档**，确保开发者可以像素级还原任何网页的UI设计。
+
+**核心原则**：
+1. **准确性优先**：所有尺寸、颜色、布局信息必须精确到像素
+2. **完整性保证**：涵盖静态UI、交互状态、响应式布局的所有细节
+3. **可执行性强**：CSS代码可直接复制使用，无需二次加工
+
+---
 
 **工作流程**：
-1. **读取初始需求文档**（initial-requirements.yaml）
-2. **自动打开目标网页并获取截图**（新增）
-3. **自动提取并下载图片资源**（新增）
-4. **分析 UI 设计**（颜色、布局、尺寸）
-5. **输出完整的 UI 需求文档**：
-   - ui-requirements.yaml - UI结构、布局和位置信息
-   - ui-style-guide.md - 完整的CSS样式规范（可直接复制使用）
 
-这两份文档将交给 **TDD Developer Agent** 实现像素级精确的UI复刻。
+```
+初始需求文档（简化版，无图片）
+        ↓
+    Phase 1-5: 自动化信息采集
+      → 打开目标网页
+      → 截取页面和组件截图
+      → 下载图片资源
+      → 分析UI设计（颜色/布局/尺寸）
+      → 执行交互场景获取动态状态
+        ↓
+    Phase 6: 生成完整需求文档
+      → ui-requirements.yaml （结构化UI需求）
+      → ui-style-guide.md （可执行的CSS规范）
+        ↓
+完整的UI设计文档（交给 TDD Developer Agent）
+```
+
+---
+
+**输出文档的价值**：
+
+1. **ui-requirements.yaml**：
+   - 完整的组件层级结构（类似 React 组件树）
+   - 每个组件的精确位置和尺寸
+   - 布局方式（Flexbox/Grid/Position）
+   - 图片资源的路径和缩放信息
+   - 交互状态的截图引用
+
+2. **ui-style-guide.md**：
+   - 可直接复制的 CSS 代码
+   - 颜色体系（品牌色/文本色/状态色）
+   - 排版规范（字体/行高/字重）
+   - 交互状态样式（hover/focus/disabled/error）
+   - 响应式断点（如有）
+
+---
+
+**⚠️ 重要提示**：
+
+browser MCP 工具（截图、交互、资源下载）是**信息采集的手段**，不是目的。
+
+真正的价值在于：将采集到的视觉信息转换为**结构化、精确、可执行的技术文档**。
 
 ---
 
@@ -36,52 +77,159 @@
 **格式**：YAML  
 **内容**：业务功能和场景描述，**简化版**，包含网站地址和组件定位信息  
 
-**结构示例**：
+**通用结构模板**：
 ```yaml
-- id: REQ-LOGIN-PAGE
-  name: 登录页面
+- id: REQ-{PAGE-ID}
+  name: {页面名称}
   description: |
-    用户登录主页面，包含登录表单和短信验证功能。
+    {页面功能描述}
     
-    **网站地址**: https://kyfw.12306.cn/otn/resources/login.html
-    **页面宽度参考**: 1920px
+    **网站地址**: {目标URL}
+    **页面宽度参考**: {宽度}px
     
     **需要的图片资源**:
-    - Logo（顶部导航）
-    - 背景图片（主内容区域）
-    - 二维码（底部导航，4个）
-    - 友情链接图片（底部）
+    - {资源类型1}（{位置说明}）
+    - {资源类型2}（{位置说明}）
+    - ...
   
   dependencies: []
   scenarios: []
   
   children:
-    - id: REQ-TOP-NAV
-      name: 顶部导航
+    - id: REQ-{COMPONENT-ID}
+      name: {组件名称}
       description: |
-        页面顶部导航栏，包含品牌Logo和欢迎文字。
+        {组件功能描述}
         
-        **需要截图**: 是
-        **组件定位**: 页面最上方，高度约80px
-        **定位提示**: header 或 nav 标签，[role="banner"]
-      
-      dependencies: []
-      scenarios: []
-      children: []
-    
-    - id: REQ-LOGIN-FORM
-      name: 登录表单
-      description: |
-        用户输入凭据进行登录的表单。
-        
-        **需要截图**: 是
-        **组件定位**: 页面右侧，白色卡片，宽度约350px
-        **定位提示**: form 标签，class 可能包含 login 或 form
+        **需要截图**: 是/否
+        **组件定位**: {人类可读的位置描述}
+        **定位提示**: {CSS选择器提示}
       
       dependencies: []
       scenarios: [...]
       children: []
 ```
+
+---
+
+**多样化示例（3种典型页面类型）**：
+
+#### 示例1: 电商产品列表页（列表型UI）
+
+```yaml
+- id: REQ-PRODUCT-LIST-PAGE
+  name: 商品列表页
+  description: |
+    电商网站的商品浏览页面，包含搜索栏、筛选器、商品卡片网格。
+    
+    **网站地址**: https://example.com/products
+    **页面宽度参考**: 1920px
+    
+    **需要的图片资源**:
+    - 商品主图（商品卡片）
+    - 分类图标（侧边栏筛选器）
+    - Banner图（页面顶部）
+  
+  children:
+    - id: REQ-SEARCH-BAR
+      name: 搜索栏
+      description: |
+        页面顶部的商品搜索输入框和按钮。
+        
+        **需要截图**: 是
+        **组件定位**: 页面顶部，居中对齐，宽度约600px
+        **定位提示**: input[type="search"], .search-bar, [role="search"]
+    
+    - id: REQ-FILTER-SIDEBAR
+      name: 筛选侧边栏
+      description: |
+        左侧的商品筛选器（价格范围、品牌、分类等）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面左侧，宽度约250px，固定或粘性定位
+        **定位提示**: aside, .sidebar, [role="complementary"]
+    
+    - id: REQ-PRODUCT-CARD
+      name: 商品卡片
+      description: |
+        商品展示卡片（图片、标题、价格、评分）。
+        
+        **需要截图**: 是
+        **组件定位**: 主内容区域，Grid布局，每行3-4个
+        **定位提示**: .product-card, [class*="product"], article
+```
+
+#### 示例2: 用户个人中心页（表单型UI）
+
+```yaml
+- id: REQ-USER-PROFILE-PAGE
+  name: 个人中心页
+  description: |
+    用户查看和编辑个人信息的页面。
+    
+    **网站地址**: https://example.com/profile
+    **页面宽度参考**: 1440px
+    
+    **需要的图片资源**:
+    - 用户头像（顶部个人信息卡片）
+    - 背景装饰图（页面背景）
+  
+  children:
+    - id: REQ-PROFILE-HEADER
+      name: 个人信息头部
+      description: |
+        展示用户头像、昵称、会员等级的卡片。
+        
+        **需要截图**: 是
+        **组件定位**: 页面顶部，水平居中，宽度约800px
+        **定位提示**: .profile-header, [class*="user-info"]
+    
+    - id: REQ-EDIT-FORM
+      name: 信息编辑表单
+      description: |
+        包含多个输入字段的表单（姓名、邮箱、手机号等）。
+        
+        **需要截图**: 是
+        **组件定位**: 主内容区域，垂直布局
+        **定位提示**: form, .edit-form, [class*="profile-form"]
+```
+
+#### 示例3: 数据仪表板页（图表型UI）
+
+```yaml
+- id: REQ-DASHBOARD-PAGE
+  name: 数据仪表板
+  description: |
+    管理后台的数据可视化页面，包含统计卡片和图表。
+    
+    **网站地址**: https://example.com/dashboard
+    **页面宽度参考**: 1920px
+    
+    **需要的图片资源**:
+    - 图标（统计卡片）
+    - 图表图片（如果图表是静态图片）
+  
+  children:
+    - id: REQ-STAT-CARDS
+      name: 统计卡片组
+      description: |
+        顶部一排展示关键指标的卡片（总用户数、今日订单等）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面顶部，Grid布局，每行4个
+        **定位提示**: .stat-card, [class*="metric"], [class*="kpi"]
+    
+    - id: REQ-CHART-CONTAINER
+      name: 图表容器
+      description: |
+        包含各类数据图表的容器（折线图、柱状图、饼图）。
+        
+        **需要截图**: 是
+        **组件定位**: 主内容区域，2列布局
+        **定位提示**: .chart-wrapper, [class*="chart"], canvas, svg
+```
+
+---
 
 **关键字段说明**：
 - `网站地址`：用于 browser MCP 打开的目标 URL（必需）
@@ -90,6 +238,11 @@
 - `需要截图`：是否需要为该组件截取特写（必需）
 - `组件定位`：人类可读的位置描述（必需）
 - `定位提示`：CSS选择器提示，帮助自动定位（可选但推荐）
+
+**💡 提示**：
+- 不同类型的页面有不同的组件模式和布局方式
+- Agent 应该能处理任何类型的页面，不局限于特定场景
+- CSS选择器提示应该基于语义化HTML和常见命名模式
 
 ---
 
@@ -158,37 +311,46 @@ run_terminal_cmd(
 3. 使用 `browser_take_screenshot` 截取全页面截图
 4. 使用 `run_terminal_cmd` 移动截图到 images/整体页面截图/
 
-**工具调用示例**：
+**工具调用模板**：
 ```javascript
 // 1. 打开网页
 mcp_cursor-browser-extension_browser_navigate({
-  url: "https://kyfw.12306.cn/otn/resources/login.html"
+  url: "{从需求文档中提取的目标URL}"
 })
 
-// 2. 等待加载
+// 2. 等待加载（给页面足够的加载时间）
 mcp_cursor-browser-extension_browser_wait_for({
-  time: 3
+  time: 3  // 复杂页面可能需要更长时间（如有大量图片）
 })
 
 // 3. 截取全页面
 mcp_cursor-browser-extension_browser_take_screenshot({
   fullPage: true,
-  filename: "登录页面.png",  // 使用需求文档中的页面名称
+  filename: "{页面名称}.png",  // 使用需求文档中的页面名称
   type: "png"
 })
 
 // 4. 移动到正确目录
 run_terminal_cmd({
-  command: "mv /var/folders/.../12306-login-page.png requirements/images/整体页面截图/登录页面.png",
+  command: "mv {浏览器截图临时路径} requirements/images/整体页面截图/{页面名称}.png",
   is_background: false
 })
 ```
 
+**具体示例（3种页面类型）**：
+
+| 页面类型 | filename | 适用场景 |
+|---------|----------|---------|
+| 产品列表页 | `商品列表页.png` | 电商、内容聚合网站 |
+| 用户中心页 | `个人中心页.png` | 会员系统、SaaS后台 |
+| 数据仪表板 | `数据仪表板.png` | 管理后台、数据分析平台 |
+
 **关键点**：
-- 文件名使用需求文档中的页面名称（如"登录页面.png"）
-- 必须使用 `fullPage: true` 获取完整页面
-- 截图完成后立即移动到正确目录
-- 记录截图路径供后续文档引用
+- ✅ 文件名必须与需求文档中的 `name` 字段完全一致
+- ✅ 必须使用 `fullPage: true` 获取完整页面（包括滚动内容）
+- ✅ 截图完成后立即移动到 `requirements/images/整体页面截图/` 目录
+- ✅ 记录截图路径供后续文档生成时引用
+- ⚠️ 对于超长页面（如瀑布流列表），截图时间可能较长，需耐心等待
 
 **错误处理**：
 - 如果页面加载失败，重试最多3次
@@ -255,15 +417,40 @@ run_terminal_cmd({
 })
 ```
 
-**组件定位策略**：
+**通用组件定位策略**：
 
-| 组件类型 | 优先尝试的选择器 |
-|---------|----------------|
-| 顶部导航 | `header`, `nav`, `[role="banner"]` |
-| 底部导航 | `footer`, `[role="contentinfo"]` |
-| 登录表单 | `form`, `.login-form`, `[action*="login"]` |
-| 主内容区域 | `main`, `[role="main"]`, `#content` |
-| 侧边栏 | `aside`, `.sidebar`, `[role="complementary"]` |
+| 组件类型 | 优先尝试的选择器 | 适用场景 |
+|---------|----------------|---------|
+| **导航类** | | |
+| 顶部导航栏 | `header`, `nav`, `[role="banner"]` | 所有页面 |
+| 底部页脚 | `footer`, `[role="contentinfo"]` | 所有页面 |
+| 侧边栏 | `aside`, `.sidebar`, `[role="complementary"]` | 仪表板、文档站 |
+| 面包屑导航 | `nav[aria-label*="bread"]`, `.breadcrumb` | 多层级页面 |
+| **内容类** | | |
+| 主内容区域 | `main`, `[role="main"]`, `#content`, `.container` | 所有页面 |
+| 文章内容 | `article`, `[role="article"]`, `.post-content` | 博客、新闻站 |
+| 卡片容器 | `.card`, `[class*="card"]`, `article` | 列表页、仪表板 |
+| 列表项 | `li`, `.list-item`, `[class*="item"]` | 列表页 |
+| **表单类** | | |
+| 通用表单 | `form`, `[role="form"]` | 所有表单页 |
+| 搜索框 | `input[type="search"]`, `[role="search"]`, `.search-bar` | 列表页、导航栏 |
+| 筛选器 | `.filter`, `[class*="filter"]`, `select`, `input[type="checkbox"]` | 列表页、搜索页 |
+| 提交按钮 | `button[type="submit"]`, `input[type="submit"]`, `.submit-btn` | 表单页 |
+| **交互类** | | |
+| 模态弹窗 | `[role="dialog"]`, `.modal`, `.popup`, `[aria-modal="true"]` | 所有页面 |
+| 下拉菜单 | `[role="menu"]`, `.dropdown`, `select` | 导航栏、表单 |
+| 标签页 | `[role="tablist"]`, `.tabs`, `[class*="tab"]` | 详情页、仪表板 |
+| 工具提示 | `[role="tooltip"]`, `.tooltip`, `[class*="tip"]` | 所有页面 |
+| **媒体类** | | |
+| 图片容器 | `figure`, `.image-wrapper`, `[class*="image"]` | 所有页面 |
+| 视频播放器 | `video`, `.video-player`, `[class*="player"]` | 媒体页面 |
+| 图表容器 | `canvas`, `svg`, `.chart`, `[class*="chart"]` | 仪表板 |
+
+**定位优先级策略**：
+1. ✅ **语义化HTML标签**（header, nav, main, footer, form, article, aside）
+2. ✅ **ARIA角色属性**（role="banner", role="main", role="search"）
+3. ✅ **常见命名模式**（.sidebar, .header, .footer, .card, .btn）
+4. ⚠️ **避免脆弱选择器**（div:nth-child(3), .css-abc123）
 
 **关键点**：
 - 使用语义化的 HTML5 标签（header, nav, main, footer, form）
@@ -346,123 +533,87 @@ mcp_cursor-browser-extension_browser_evaluate({
 })
 ```
 
-**步骤2: 资源过滤与匹配**
+**步骤2: 资源过滤与匹配（通用规则）**
 
-根据需求文档中的关键词匹配资源：
+根据需求文档中的关键词匹配资源，以下是常见资源类型的匹配规则：
 
-| 关键词 | 匹配规则 |
-|--------|---------|
-| Logo | `alt` 包含 "logo" 或 "Logo" 或 "LOGO"<br>或位于 `header` 中的图片 |
-| 背景图片 | `backgrounds` 中尺寸最大的图片<br>或 `body`, `main` 的背景图 |
-| 二维码 | `alt` 包含 "二维码"/"QR"/"扫码"/"scan"<br>且图片接近正方形（宽高比 0.8-1.2） |
-| 友情链接 | 位于 `footer` 中的图片<br>或 `alt` 包含 "链接"/"link"/"partner" |
+| 资源类型 | 匹配规则 | 适用场景 |
+|---------|---------|---------|
+| **品牌类** | | |
+| Logo | `alt` 包含 "logo"（忽略大小写）<br>或位于 `header`, `nav` 中的图片<br>或文件名包含 "logo" | 所有页面 |
+| 品牌图标 | `alt` 包含 "icon", "favicon"<br>或 `<link rel="icon">` | 所有页面 |
+| **背景类** | | |
+| 背景图片 | `backgrounds` 中尺寸最大的图片<br>或 `body`, `main`, `.hero` 的背景图 | 所有页面 |
+| Banner图 | `alt` 包含 "banner"<br>或位于页面顶部且宽度>800px | 首页、活动页 |
+| **内容类** | | |
+| 商品图片 | `alt` 包含 "product", "商品"<br>或位于 `.product-card`, `article` 中<br>或在 Grid/Flex 布局的卡片中 | 电商列表页 |
+| 用户头像 | `alt` 包含 "avatar", "头像", "profile"<br>或图片接近正方形且尺寸较小（<200px）<br>或在 `.user-info`, `.profile` 中 | 个人中心、评论区 |
+| 文章配图 | 位于 `article`, `main` 中的大尺寸图片<br>或文件名包含 "post", "article" | 博客、新闻页 |
+| **交互类** | | |
+| 二维码 | `alt` 包含 "二维码", "QR", "扫码", "scan"<br>且图片接近正方形（宽高比 0.8-1.2）<br>且尺寸适中（100-300px） | 移动端引导页 |
+| 社交图标 | `alt` 包含 "social", "facebook", "twitter", "wechat"<br>或位于 `footer` 的小图标（<50px） | 页脚、分享区 |
+| 操作图标 | `alt` 包含 "icon", "图标"<br>且尺寸很小（<32px） | 按钮、菜单 |
+| **装饰类** | | |
+| 分隔线 | 高度很小（<10px）且宽度较大<br>或文件名包含 "divider", "separator" | 内容分隔区 |
+| 装饰图案 | `alt` 包含 "decoration", "装饰"<br>或背景图且不是主要内容 | 设计型页面 |
+
+**通用匹配策略**：
+
+```javascript
+function matchResourceType(image, keyword) {
+  // 1. 文本匹配（alt, title, filename）
+  const textMatches = 
+    image.alt?.toLowerCase().includes(keyword.toLowerCase()) ||
+    image.title?.toLowerCase().includes(keyword.toLowerCase()) ||
+    image.src?.toLowerCase().includes(keyword.toLowerCase());
+  
+  // 2. 位置匹配（parentSection）
+  const locationMatches = {
+    'header': image.parentSection === 'header',
+    'footer': image.parentSection === 'footer',
+    'main': image.parentSection === 'main'
+  };
+  
+  // 3. 尺寸匹配
+  const sizeMatches = {
+    'large': image.displayWidth > 800,
+    'medium': image.displayWidth >= 200 && image.displayWidth <= 800,
+    'small': image.displayWidth < 200,
+    'icon': image.displayWidth < 50 && image.displayHeight < 50,
+    'square': Math.abs(image.displayWidth / image.displayHeight - 1) < 0.2
+  };
+  
+  // 4. 组合规则
+  return textMatches || (locationMatches[某位置] && sizeMatches[某尺寸]);
+}
+```
+
+**⚠️ 注意**：
+- 优先使用**文本匹配**（alt, title最可靠）
+- **位置匹配**作为辅助（parentSection）
+- **尺寸匹配**用于消歧义（区分Logo和Banner）
+- 如果需求文档没有明确关键词，下载**所有**图片资源（供后续筛选）
 
 **步骤3: 创建下载脚本**
 
-```javascript
-write({
-  file_path: "requirements/download_resources.js",
-  contents: `const https = require('https');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const { URL } = require('url');
+使用 Node.js 创建下载脚本，关键要点：
 
-// 从浏览器分析得到的资源列表
+```javascript
+// 1. 构建资源列表（从步骤1-2获得）
 const resources = [
   {
-    src: 'https://www.12306.cn/index/images/pic/banner-login-20200924.jpg',
-    filename: '登录页-背景-新.jpg',
-    type: 'background',
-    metadata: {
-      naturalWidth: 1920,
-      naturalHeight: 600,
-      displayWidth: 1920,
-      displayHeight: 600,
-      cssStrategy: 'background-size: cover; background-position: center'
-    }
-  },
-  {
-    src: 'https://kyfw.12306.cn/otn/resources/images/logo.png',
-    filename: '登录页-顶部导航-Logo.png',
-    type: 'logo',
-    metadata: {
-      naturalWidth: 232,
-      naturalHeight: 71,
-      displayWidth: 147,
-      displayHeight: 45,
-      cssStrategy: 'height: 45px; width: auto; object-fit: contain'
-    }
+    src: '{URL}',
+    filename: '{页面名}-{组件名}-{用途}.{ext}',
+    metadata: { naturalWidth, naturalHeight, displayWidth, displayHeight, cssStrategy }
   }
-  // ... 更多资源
+  // ...
 ];
 
-const outputDir = path.join(__dirname, 'images');
-const metadataMap = {};
-
-function downloadImage(url, filename, metadata) {
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const protocol = urlObj.protocol === 'https:' ? https : http;
-    const filepath = path.join(outputDir, filename);
-    
-    const options = {
-      rejectUnauthorized: false // 忽略 SSL 证书验证
-    };
-    
-    protocol.get(url, options, (response) => {
-      if (response.statusCode === 200) {
-        const fileStream = fs.createWriteStream(filepath);
-        response.pipe(fileStream);
-        
-        fileStream.on('finish', () => {
-          fileStream.close();
-          // 保存 metadata
-          metadataMap[filename] = {
-            originalSize: {
-              width: metadata.naturalWidth,
-              height: metadata.naturalHeight
-            },
-            displaySize: {
-              width: metadata.displayWidth,
-              height: metadata.displayHeight
-            },
-            scale: (metadata.displayWidth / metadata.naturalWidth).toFixed(3),
-            cssStrategy: metadata.cssStrategy
-          };
-          console.log(\`✅ 已下载: \${filename}\`);
-          resolve();
-        });
-      } else {
-        reject(new Error(\`HTTP \${response.statusCode}: \${url}\`));
-      }
-    }).on('error', (err) => {
-      reject(err);
-    });
-  });
-}
-
-async function downloadAll() {
-  console.log(\`开始下载 \${resources.length} 个资源...\`);
-  
-  for (const resource of resources) {
-    try {
-      await downloadImage(resource.src, resource.filename, resource.metadata);
-    } catch (error) {
-      console.error(\`❌ 下载失败: \${resource.filename}\`, error.message);
-    }
-  }
-  
-  // 保存 metadata.json
-  const metadataPath = path.join(outputDir, 'metadata.json');
-  fs.writeFileSync(metadataPath, JSON.stringify(metadataMap, null, 2));
-  console.log(\`\\n✅ 完成！metadata 已保存到 \${metadataPath}\`);
-}
-
-downloadAll();
-`
-})
+// 2. 下载每个资源
+// 3. 保存 metadata.json（记录尺寸和CSS策略）
 ```
+
+**文件命名**: `{页面名}-{组件名}-{用途描述}.{扩展名}`
 
 **步骤4: 执行下载**
 
@@ -483,12 +634,39 @@ read_file({
 ```
 
 **文件命名规范**：
-- 格式：`{页面名}-{组件名}-{用途}.{扩展名}`
-- 示例：
-  - `登录页-背景-新.jpg`
-  - `登录页-顶部导航-Logo.png`
-  - `登录页-底部导航-中国铁路官方微信二维码.png`
-  - `登录页-底部导航-友情链接.png`
+- **格式**：`{页面名}-{组件名}-{用途描述}.{扩展名}`
+- **规则**：
+  - 使用中文，清晰易懂
+  - 组件名与需求文档中的组件名称对应
+  - 用途描述具体明确（如"商品主图01"而不是"图片1"）
+
+**多样化示例**：
+
+| 页面类型 | 文件名示例 | 说明 |
+|---------|-----------|------|
+| **电商列表页** | | |
+| | `商品列表页-背景-Hero横幅.jpg` | 页面顶部大横幅 |
+| | `商品列表页-商品卡片-商品主图01.jpg` | 第1个商品的主图 |
+| | `商品列表页-筛选侧边栏-品牌Logo-Nike.png` | 品牌筛选器的Logo |
+| **个人中心页** | | |
+| | `个人中心页-个人信息头部-用户头像.png` | 用户默认头像 |
+| | `个人中心页-背景-装饰图案.svg` | 页面背景装饰 |
+| | `个人中心页-会员卡片-VIP等级图标.png` | 会员等级徽章 |
+| **数据仪表板** | | |
+| | `数据仪表板-统计卡片-订单量图标.svg` | 订单统计的图标 |
+| | `数据仪表板-图表容器-销售趋势图.png` | 图表截图（如果是静态图） |
+| | `数据仪表板-顶部导航-Logo.png` | 后台系统Logo |
+| **博客首页** | | |
+| | `博客首页-文章卡片-特色图片01.jpg` | 第1篇文章的封面图 |
+| | `博客首页-作者信息-作者头像-张三.png` | 作者头像 |
+| | `博客首页-侧边栏-分类图标-技术.svg` | 分类图标 |
+
+**命名原则**：
+- ✅ 使用需求文档中的组件名称（保持一致性）
+- ✅ 用途描述具体（帮助开发者理解图片用途）
+- ✅ 如有多个同类图片，使用编号（如"商品主图01", "商品主图02"）
+- ✅ 如有特定属性，加入描述（如"品牌Logo-Nike", "作者头像-张三"）
+- ❌ 避免模糊命名（如"图片1.jpg", "pic.png"）
 
 **关键点**：
 - 同时记录原始尺寸和显示尺寸
@@ -688,6 +866,15 @@ mcp_cursor-browser-extension_browser_evaluate({
 1. 生成 ui-requirements.yaml（增强版）
 2. 生成 ui-style-guide.md（完整 CSS）
 
+**⚠️ 重要说明：交互状态截图的集成**
+
+如果 Phase 7 执行了交互场景截图，必须将这些截图信息**系统地**整合到最终文档中：
+
+**集成原则**：
+1. **ui-requirements.yaml**: 在对应组件的 description 中添加 "**交互状态截图**" 章节
+2. **ui-style-guide.md**: 在对应组件的样式代码中添加注释引用交互截图
+3. **用途说明**: 每个截图必须说明其用途（展示什么状态、用于什么目的）
+
 **步骤1: 生成 ui-requirements.yaml**
 
 基于初始需求文档，在每个节点的 description 中添加：
@@ -699,189 +886,225 @@ mcp_cursor-browser-extension_browser_evaluate({
 - 在 JSX 中的位置
 - 内部结构
 - 网页资源（带尺寸信息）
-- 参考图片路径
-- **交互状态截图**（如果 Phase 7 执行了交互场景）
+- 参考图片路径（整体截图或组件特写）
+- **交互状态截图**（如果 Phase 7 执行了交互场景，必须添加此章节）
 
-**示例输出**：
+**通用输出模板**：
 
 ```yaml
-- id: REQ-LOGIN-PAGE
-  name: 登录页面
+- id: REQ-{PAGE-ID}
+  name: {页面名称}
   description: |
-    用户登录主页面，包含登录表单和短信验证功能。
+    {页面功能描述}
     
     **整体布局分析**:
-    页面采用上中下三段式布局：
+    {描述页面的布局结构，使用ASCII图辅助说明}
     ```
     ┌─────────────────────────────────────────────────┐
-    │  TopNavigation (顶部导航)                       │ ← 第一个子元素，高度80px
+    │  {Component1}                                   │ ← {位置说明}
     ├─────────────────────────────────────────────────┤
-    │  MainContent (中间内容区域)                     │ ← 第二个子元素，flex: 1
+    │  {Component2}                                   │ ← {位置说明}
     │  ┌──────────────────┬────────────────────────┐  │
-    │  │  LeftPromotion   │  RightLoginForm        │  │
-    │  │  (左侧推广)      │  (右侧登录表单)        │  │
-    │  │                  │  - 350px宽白色卡片     │  │
+    │  │  {SubComponent1} │  {SubComponent2}       │  │
     │  └──────────────────┴────────────────────────┘  │
     ├─────────────────────────────────────────────────┤
-    │  BottomNavigation (底部导航)                    │ ← 第三个子元素，高度180px
+    │  {Component3}                                   │ ← {位置说明}
     └─────────────────────────────────────────────────┘
     ```
     
     **颜色体系**（从截图中提取）:
-    - 品牌红色: #E53935 (Logo颜色)
-    - 主题蓝色: #2196F3 (账号登录标签、链接)
-    - 主题橙色: #FF7518 (立即登录按钮)
-    - 文本主色: #333333 (标题、主要文本)
-    - 文本次色: #666666 (次要文本)
-    - 错误红色: #F44336 (错误提示)
+    - 品牌主色: {颜色值} ({用途说明})
+    - 主题色: {颜色值} ({用途说明})
+    - 文本主色: {颜色值} ({用途说明})
+    - 文本次色: {颜色值} ({用途说明})
+    - 状态色-成功: {颜色值}
+    - 状态色-警告: {颜色值}
+    - 状态色-错误: {颜色值}
     
     > 注：颜色值基于视觉分析，建议开发者使用浏览器取色器验证
     
     **页面尺寸参考**:
-    - 设计稿宽度: 1920px
-    - 登录表单宽度: 350px（固定宽度）
+    - 设计稿宽度: {宽度}px
+    - {关键组件}宽度: {宽度}px
     
     **CSS 布局方式**:
     ```css
-    .login-page-container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background-color: #f5f5f5;
-    }
-    
-    .main-content-area {
-      flex: 1;
-      display: flex;
-      align-items: stretch;
-      background-image: url('/images/登录页-背景-新.jpg');
-      background-size: cover;
-      background-position: center;
+    .{页面类名} {
+      {布局相关CSS属性}
     }
     ```
     
     **网页资源（直接用于实现）**:
-    - 背景图片: "/images/登录页-背景-新.jpg"
-      * 原始尺寸: 1920px × 600px
-      * 显示方式: background-size: cover; background-position: center
-      * 用途: 中间内容区域的背景图片
+    - {资源类型}: "/images/{文件名}"
+      * 原始尺寸: {width}px × {height}px
+      * 显示方式: {CSS策略}
+      * 用途: {使用位置和用途}
     
-    参考图片: "./images/整体页面截图/登录页面.png"
+    参考图片: "./images/整体页面截图/{页面名称}.png"
+```
+
+---
+
+**多样化示例（3种页面类型）**：
+
+#### 示例1: 电商产品列表页
+
+```yaml
+- id: REQ-PRODUCT-LIST-PAGE
+  name: 商品列表页
+  description: |
+    **整体布局分析**:
+    ```
+    ┌─────────────────────────────────────────┐
+    │  SearchBar (搜索栏)          高度60px  │
+    ├────────┬────────────────────────────────┤
+    │ Filter │  ProductGrid (商品网格)      │
+    │ Sidebar│  - 每行4个商品卡片            │
+    │ 250px  │  - Grid布局，gap:20px        │
+    └────────┴────────────────────────────────┘
+    ```
+    
+    **颜色体系**:
+    - 品牌主色: #FF6B00 (Logo、按钮)
+    - 价格红色: #E53935 (促销价格)
+    - 文本主色: #333333 (商品名称)
+    - 背景灰色: #F5F5F5 (页面背景)
+    
+    **网页资源**:
+    - 商品图片: "/images/商品列表页-商品卡片-商品主图01.jpg"
+      * 原始尺寸: 800px × 800px
+      * 显示尺寸: 280px × 280px
+      * 显示方式: width: 100%; aspect-ratio: 1; object-fit: cover
+```
+
+#### 示例2: 用户个人中心页
+
+```yaml
+- id: REQ-USER-PROFILE-PAGE
+  name: 个人中心页
+  description: |
+    **整体布局分析**:
+    ```
+    ┌────────────────────────────────────────┐
+    │  ProfileHeader (个人信息头部)         │
+    │  - 左侧: 头像80px × 80px              │
+    │  - 右侧: 昵称、会员等级                │
+    ├────────────────────────────────────────┤
+    │  EditForm (信息编辑表单)              │
+    │  - 垂直布局，每个字段间距20px          │
+    └────────────────────────────────────────┘
+    ```
+    
+    **颜色体系**:
+    - 会员金色: #FFD700 (VIP等级徽章)
+    - 主题蓝色: #1890FF (编辑按钮)
+    - 边框灰色: #D9D9D9 (输入框边框)
+    
+    **网页资源**:
+    - 用户头像: "/images/个人中心页-个人信息头部-用户头像.png"
+      * 原始尺寸: 200px × 200px
+      * 显示尺寸: 80px × 80px
+      * 显示方式: border-radius: 50%; object-fit: cover
+```
+
+#### 示例3: 数据仪表板页
+
+```yaml
+- id: REQ-DASHBOARD-PAGE
+  name: 数据仪表板
+  description: |
+    **整体布局分析**:
+    ```
+    ┌────┬────┬────┬────┐
+    │ 统计卡片 × 4个  │ ← 每个240px宽，高度120px
+    ├─────────┬───────┤
+    │ Chart1  │Chart2 │ ← 2列布局，图表容器
+    │ 折线图  │柱状图 │
+    └─────────┴───────┘
+    ```
+    
+    **颜色体系**:
+    - 数据蓝色: #1890FF (折线图主色)
+    - 数据绿色: #52C41A (增长指标)
+    - 数据红色: #FF4D4F (下降指标)
+    - 卡片背景: #FFFFFF (白色卡片)
+    
+    **网页资源**:
+    - 图表图标: "/images/数据仪表板-统计卡片-订单量图标.svg"
+      * 原始尺寸: 48px × 48px
+      * 显示尺寸: 32px × 32px
+      * 显示方式: width: 32px; height: 32px
+```
   
   dependencies: []
   scenarios: []
   
   children:
-    - id: REQ-TOP-NAV
-      name: 顶部导航
+    - id: REQ-{COMPONENT-ID}
+      name: {组件名称}
       description: |
-        页面顶部导航栏，包含品牌Logo和欢迎文字。
+        {组件功能描述}
         
         **位置信息**:
-        - 父容器: .login-page-container
-        - 位置: 页面最上方（第一个子元素）
-        - 宽度: 100% (占据整个页面宽度)
-        - 高度: 80px
-        - 布局: 作为父容器的第一个直接子元素
-        - z-index: 10 (保持在最上层)
+        - 父容器: {父组件类名}
+        - 位置: {相对父容器的位置描述}
+        - 尺寸: {width}px × {height}px
+        - 定位方式: {static/relative/absolute/fixed}
         
         **在 JSX 中的位置**:
         ```tsx
-        <div className="login-page-container">
-          <TopNavigation ... />           {/* ← 第一个子元素 */}
-          <div className="main-content-area">...</div>
-          <BottomNavigation />
-        </div>
+        <{父组件}>
+          <{组件名称} ... />           {/* ← 位置说明 */}
+          <{其他组件} />
+        </{父组件}>
         ```
         
         **CSS 布局方式**:
         ```css
-        .top-navigation {
-          width: 100%;
-          height: 80px;
-          background: #ffffff;
-          border-bottom: 1px solid #e0e0e0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0 40px;
+        .{组件类名} {
+          {关键CSS属性}
         }
         ```
         
-        **内部结构（从左到右）**:
-        1. Logo区域 - 左侧，高度45px
-        2. 欢迎文字 - 右侧，字体24px
+        **内部结构（从上到下/从左到右）**:
+        1. {子元素1} - {说明}
+        2. {子元素2} - {说明}
+        ...
         
-        **网页资源（直接用于实现）**:
-        - Logo图片: "/images/登录页-顶部导航-Logo.png"
-          * 原始尺寸: 232px × 71px
-          * 显示尺寸: 高度45px，宽度auto（约147px）
-          * 缩放方式: height: 45px; width: auto; object-fit: contain
-          * 宽高比: 3.27:1
+        **网页资源（如有）**:
+        - {资源类型}: "/images/{文件名}"
+          * 原始尺寸: {width}px × {height}px
+          * 显示尺寸: {width}px × {height}px
+          * 缩放方式: {CSS策略}
         
-        参考图片: "./images/组件特写截图/顶部导航.png"
-      
-      dependencies: []
-      scenarios: []
-      children: []
-    
-    - id: REQ-LOGIN-FORM
-      name: 登录表单
-      description: |
-        用户输入凭据进行登录的表单。
+        **交互状态截图**（如有 Phase 7 交互场景）:
         
-        **位置信息**:
-        - 父容器: .main-content-area
-        - 位置: 右侧，绝对定位
-        - 尺寸: 380px × 373px
-        - 坐标: right=0, top=19px
+        > 📸 **重要说明**：以下截图展示了登录表单在不同交互场景下的状态，包括错误提示的样式、位置、颜色等细节。这些截图是实现时的**重要参考**，确保前端验证逻辑和错误提示样式与实际网站一致。
         
-        **在 JSX 中的位置**:
-        ```tsx
-        <div className="main-content-area">
-          <div className="left-promotion">...</div>
-          <LoginForm />                {/* ← 右侧登录表单 */}
-        </div>
-        ```
+        1. **错误状态 - 用户名为空**
+           - 截图路径: `./images/交互状态截图/登录表单-错误-用户名为空.png`
+           - 触发场景: 用户不输入用户名直接点击"立即登录"按钮
+           - 展示内容: 红色错误提示"请输入用户名！"
+           - 用途: 展示前端验证的错误提示样式（颜色、字体、位置）
+           - 关键信息: 错误提示在用户名输入框上方，红色文字，小图标
         
-        **CSS 布局方式**:
-        ```css
-        .login-form {
-          position: absolute;
-          right: 0;
-          top: 19px;
-          width: 380px;
-          min-height: 373px;
-          background-color: #ffffff;
-          padding: 30px;
-          box-sizing: border-box;
-        }
-        ```
+        2. **错误状态 - 密码为空**
+           - 截图路径: `./images/交互状态截图/登录表单-错误-密码为空.png`
+           - 触发场景: 用户只输入用户名不输入密码
+           - 展示内容: 红色错误提示"请输入密码！"
+           - 用途: 展示不同字段的错误提示（位置和样式与用户名错误提示一致）
+           - 关键信息: 错误提示在密码输入框上方，样式与上一个一致
         
-        **内部结构（从上到下）**:
-        1. 标签切换 - "账号登录" / "扫码登录"
-        2. 用户名输入框 - 占位符"用户名/邮箱/手机号"
-        3. 密码输入框 - 占位符"密码"
-        4. 登录按钮 - 橙色背景#FF7518
-        5. 底部链接 - "注册12306账号" | "忘记密码？"
+        3. **错误状态 - 密码过短**
+           - 截图路径: `./images/交互状态截图/登录表单-错误-密码过短.png`
+           - 触发场景: 用户输入少于6位的密码（如"123"）
+           - 展示内容: 红色错误提示"密码长度不能少于6位！"
+           - 用途: 展示密码长度验证的错误提示
+           - 关键信息: 错误文案不同，但样式一致
         
-        **交互状态截图**（由 Phase 7 自动生成）:
-        - 错误状态 - 用户名为空: "./images/交互状态截图/登录表单-错误-用户名为空.png"
-          * 场景: 用户不输入用户名直接点击登录
-          * 展示内容: 红色错误提示"请输入用户名！"
-          * 用途: 展示前端验证的错误提示样式
-        
-        - 错误状态 - 密码为空: "./images/交互状态截图/登录表单-错误-密码为空.png"
-          * 场景: 用户只输入用户名不输入密码
-          * 展示内容: 红色错误提示"请输入密码！"
-          * 用途: 展示不同字段的错误提示
-        
-        - 错误状态 - 密码过短: "./images/交互状态截图/登录表单-错误-密码过短.png"
-          * 场景: 用户输入少于6位的密码
-          * 展示内容: 红色错误提示"密码长度不能少于6位！"
-          * 用途: 展示密码长度验证的错误提示
-        
-        参考图片: "./images/组件特写截图/登录表单.png"
+        **静态界面截图**（初始状态）:
+        - 组件特写: `./images/组件特写截图/登录表单.png`
+        - 用途: 展示登录表单的默认静态布局（无交互状态）
       
       dependencies: []
       scenarios: [...]
@@ -1139,6 +1362,13 @@ mcp_cursor-browser-extension_browser_evaluate({
 - 错误边框颜色: #f44336（从交互截图中提取）
 - 错误背景色: #fff1f0（从交互截图中提取）
 
+**📋 如何使用交互截图进行样式提取**:
+1. 打开交互截图 `登录表单-错误-用户名为空.png`
+2. 观察错误提示的位置（输入框上方/下方？）
+3. 观察错误提示的颜色（文字颜色、背景色、边框色）
+4. 观察错误提示的字体大小和图标
+5. 将这些参数精确地转换为 CSS 代码
+
 ---
 
 ## 5. 短信验证模态框 (SMSVerification)
@@ -1274,6 +1504,147 @@ write({
 3. 按顺序执行每个场景的 steps
 4. 保存截图到 `images/交互状态截图/`
 5. 更新 metadata.json 记录截图信息
+6. **将截图信息整合到 ui-requirements.yaml 和 ui-style-guide.md**
+
+---
+
+**🔑 关键原则：确保每个场景的初始状态一致**
+
+在执行交互场景时，必须遵循以下原则：
+
+1. **场景独立性**：每个场景应该从**干净的状态**开始
+   - 在每个场景的第一步，使用 `evaluate` action 清空所有相关输入框
+   - 确保不会因为上一个场景的残留数据而影响当前场景
+
+2. **凭证变量替换**：所有涉及敏感信息的字段必须使用变量
+   - 用户名：`${LOGIN_CREDENTIALS.username}`
+   - 密码：`${LOGIN_CREDENTIALS.password}`
+   - 证件号：`${LOGIN_CREDENTIALS.id_card_last4}`
+
+3. **场景命名规范**：
+   - 格式：`{组件名}-{状态}-{场景描述}.png`
+   - 示例：`登录表单-错误-用户名为空.png`
+
+**通用场景定义模板**
+
+```yaml
+- name: "{场景名称-状态描述}"
+  description: "{场景具体说明}"
+  steps:
+    # ✅ 第一步：清空所有相关输入框（确保干净状态）
+    - action: evaluate
+      script: |
+        document.querySelector('{字段1选择器}').value = '';
+        document.querySelector('{字段2选择器}').value = '';
+    
+    # ✅ 第二步：填写必要字段（使用凭证变量）
+    - action: type
+      target: "{字段描述}"
+      target_hint: "{CSS选择器}"
+      value: "${CREDENTIALS.{字段名}}"
+    
+    # ✅ 第三步：填写触发字段（触发目标错误/状态）
+    - action: type
+      target: "{字段描述}"
+      target_hint: "{CSS选择器}"
+      value: "{测试值}"
+    
+    # ✅ 第四步：触发交互
+    - action: click
+      target: "{按钮描述}"
+      target_hint: "{CSS选择器}"
+    
+    # ✅ 第五步：等待状态更新
+    - action: wait
+      duration: {秒数}
+    
+    # ✅ 第六步：截图
+    - action: screenshot
+      filename: "{组件名}-{状态}-{场景描述}.png"
+```
+
+---
+
+**多样化示例（3种页面类型）**：
+
+#### 示例1: 电商搜索表单验证
+
+```yaml
+- name: "搜索验证-关键词为空"
+  description: "测试不输入关键词直接点击搜索"
+  steps:
+    - action: evaluate
+      script: "document.querySelector('input[type=\"search\"]').value = ''"
+    - action: click
+      target: "搜索按钮"
+      target_hint: "button[type='submit'], .search-btn"
+    - action: wait
+      duration: 0.3
+    - action: screenshot
+      filename: "搜索栏-错误-关键词为空.png"
+```
+
+#### 示例2: 用户信息编辑验证
+
+```yaml
+- name: "个人信息-邮箱格式错误"
+  description: "测试输入错误格式的邮箱地址"
+  steps:
+    - action: evaluate
+      script: "document.querySelector('input[type=\"email\"]').value = ''"
+    - action: type
+      target: "邮箱输入框"
+      target_hint: "input[type='email']"
+      value: "invalid-email"
+    - action: click
+      target: "保存按钮"
+      target_hint: "button:has-text('保存')"
+    - action: wait
+      duration: 0.5
+    - action: screenshot
+      filename: "编辑表单-错误-邮箱格式错误.png"
+```
+
+#### 示例3: 筛选器交互状态
+
+```yaml
+- name: "价格筛选-选中状态"
+  description: "测试选中价格范围筛选器"
+  steps:
+    - action: click
+      target: "价格范围选项"
+      target_hint: "input[name='price-range'][value='100-500']"
+    - action: wait
+      duration: 0.3
+    - action: screenshot
+      filename: "筛选侧边栏-选中-价格范围100-500.png"
+```
+
+---
+
+**❌ 常见错误示例**
+
+```yaml
+# 错误1：没有清空输入框
+- name: "验证场景"
+  steps:
+    - action: type  # ❌ 直接输入，可能残留上一个场景的数据
+      target: "输入框"
+      value: "test"
+
+# 错误2：硬编码敏感信息
+- name: "登录成功"
+  steps:
+    - action: type
+      target: "用户名"
+      value: "real_username"  # ❌ 应该使用 ${CREDENTIALS.username}
+
+# 错误3：文件名不规范
+- name: "错误提示"
+  steps:
+    - action: screenshot
+      filename: "screenshot1.png"  # ❌ 应该是 "{组件名}-{状态}-{描述}.png"
+```
 
 ---
 
@@ -1864,6 +2235,97 @@ Phase 7 完成！
   }
 }
 ```
+
+---
+
+**步骤6: 将交互截图信息整合到文档**
+
+⚠️ **关键步骤**：Phase 7 完成后，必须返回修改 Phase 6 生成的文档，添加交互截图信息。
+
+**6.1 更新 ui-requirements.yaml**
+
+对于每个执行了交互场景的组件，在其 description 中添加 "**交互状态截图**" 章节：
+
+```yaml
+- id: REQ-LOGIN-FORM
+  name: 登录表单
+  description: |
+    ...（前面的内容保持不变）...
+    
+    **交互状态截图**（由 Phase 7 自动生成）:
+    
+    > 📸 **重要说明**：以下截图展示了登录表单在不同交互场景下的状态...
+    
+    1. **错误状态 - 用户名为空**
+       - 截图路径: `./images/交互状态截图/登录表单-错误-用户名为空.png`
+       - 触发场景: 用户不输入用户名直接点击"立即登录"按钮
+       - 展示内容: 红色错误提示"请输入用户名！"
+       - 用途: 展示前端验证的错误提示样式（颜色、字体、位置）
+       - 关键信息: 错误提示在用户名输入框上方，红色文字，小图标
+    
+    2. **错误状态 - 密码为空**
+       ...（类似格式）...
+    
+    **静态界面截图**（初始状态）:
+    - 组件特写: `./images/组件特写截图/登录表单.png`
+```
+
+**6.2 更新 ui-style-guide.md**
+
+在对应组件的样式代码中，添加引用交互截图的注释：
+
+```markdown
+## 4. 登录表单 (LoginForm)
+
+### 4.3 完整样式代码
+
+\```css
+/* ========== 4.2 错误提示（参考交互截图）========== */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-用户名为空.png */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-密码为空.png */
+/* 📸 参考截图: requirements/images/交互状态截图/登录表单-错误-密码过短.png */
+/* 
+ * 从交互截图中提取的样式信息：
+ * - 错误提示位置：输入框上方，margin-bottom: 8px
+ * - 错误提示颜色：#f44336（红色文字）
+ * - 错误提示背景：#fff1f0（浅红色背景）
+ * - 错误提示边框：1px solid #ffccc7
+ * - 错误提示圆角：4px
+ * - 错误提示内边距：10px 15px
+ * - 错误提示字体：13px
+ */
+.login-form-error {
+  padding: 10px 15px !important;
+  margin-bottom: 8px !important;
+  background-color: #fff1f0 !important;
+  color: #f44336 !important;
+  font-size: 13px !important;
+  border-radius: 4px !important;
+  border: 1px solid #ffccc7 !important;
+}
+\```
+
+**交互状态参考图片**:
+- 错误提示样式: 参考 `交互状态截图/登录表单-错误-*.png` 系列截图
+- 错误边框颜色: #f44336（从交互截图中提取）
+- 错误背景色: #fff1f0（从交互截图中提取）
+
+**📋 如何使用交互截图进行样式提取**:
+1. 打开交互截图 `登录表单-错误-用户名为空.png`
+2. 观察错误提示的位置（输入框上方/下方？）
+3. 观察错误提示的颜色（文字颜色、背景色、边框色）
+4. 观察错误提示的字体大小和图标
+5. 将这些参数精确地转换为 CSS 代码
+```
+
+**6.3 验证清单**
+
+完成文档整合后，检查：
+- [ ] 每个执行了交互场景的组件都添加了 "**交互状态截图**" 章节
+- [ ] 每个截图都有完整的说明（路径、场景、内容、用途、关键信息）
+- [ ] ui-style-guide.md 中引用了交互截图作为样式参考
+- [ ] CSS 注释中详细说明了从交互截图提取的样式参数
+- [ ] 所有截图文件路径使用相对路径（./images/交互状态截图/...）
 
 ---
 

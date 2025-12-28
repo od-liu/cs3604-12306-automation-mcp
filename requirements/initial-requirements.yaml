@@ -81,10 +81,14 @@
           - name: "前端验证-密码为空"
             description: "测试只输入用户名不输入密码"
             steps:
+              - action: evaluate
+                script: |
+                  document.querySelector('input[placeholder*="用户名"]').value = '';
+                  document.querySelector('input[type="password"]').value = '';
               - action: type
                 target: "用户名输入框"
                 target_hint: "input[placeholder*='用户名']"
-                value: "test_user"
+                value: "${LOGIN_CREDENTIALS.username}"
               - action: click
                 target: "立即登录按钮"
                 target_hint: "button:has-text('立即登录')"
@@ -97,7 +101,13 @@
             description: "测试输入少于6位的密码"
             steps:
               - action: evaluate
-                script: "document.querySelector('input[type=\"password\"]').value = ''"
+                script: |
+                  document.querySelector('input[placeholder*="用户名"]').value = '';
+                  document.querySelector('input[type="password"]').value = '';
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名']"
+                value: "${LOGIN_CREDENTIALS.username}"
               - action: type
                 target: "密码输入框"
                 target_hint: "input[type='password']"
