@@ -1,81 +1,90 @@
-/**
- * @module InitDatabase
- * @description 初始化数据库表结构和测试数据
- */
-
-import db from './db.js';
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 /**
- * 初始化数据库表
+ * @description 数据库初始化脚本
+ * 创建所需的数据表和初始化测试数据
+ * 
+ * 运行方式: npm run init-db
  */
-export const initDatabase = () => {
-  // 创建用户表
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT,
-      phone TEXT,
-      password TEXT NOT NULL,
-      id_card_last4 TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, (err) => {
+
+const DB_PATH = path.join(__dirname, '../../database.db');
+
+console.log('开始初始化数据库...');
+console.log('数据库路径:', DB_PATH);
+
+const db = new sqlite3.Database(DB_PATH, (err) => {
+  if (err) {
+    console.error('❌ 数据库连接失败:', err.message);
+    process.exit(1);
+  }
+  console.log('✅ 数据库连接成功');
+});
+
+// ========== 创建数据表 ==========
+
+const createUsersTable = `
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  id_card TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+// ========== 执行初始化 ==========
+
+db.serialize(() => {
+  // 创建users表
+  db.run(createUsersTable, (err) => {
     if (err) {
-      console.error('❌ 创建用户表失败:', err.message);
+      console.error('❌ 创建users表失败:', err.message);
     } else {
-      console.log('✅ 用户表创建成功');
-      insertTestData();
+      console.log('✅ users表创建成功');
     }
   });
 
-  // 创建验证码表
-  db.run(`
-    CREATE TABLE IF NOT EXISTS verification_codes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL,
-      code TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      expires_at DATETIME NOT NULL,
-      used BOOLEAN DEFAULT 0
-    )
-  `, (err) => {
-    if (err) {
-      console.error('❌ 创建验证码表失败:', err.message);
-    } else {
-      console.log('✅ 验证码表创建成功');
-    }
-  });
-};
+  // 插入测试数据
+  const insertTestUser = `
+    INSERT OR IGNORE INTO users (username, password, id_card, phone, email)
+    VALUES 
+      ('testuser', 'test123456', '110101199001011234', '13800138000', 'test@example.com'),
+      ('admin', 'admin123456', '110101199001014028', '13800138001', 'admin@example.com');
+  `;
 
-/**
- * 插入测试数据
- */
-const insertTestData = () => {
-  const testUser = {
-    username: 'testuser',
-    email: 'test@example.com',
-    phone: '19805819256',
-    password: 'password123',  // 在实际应用中应该加密
-    id_card_last4: '4028'
-  };
-
-  db.run(`
-    INSERT OR IGNORE INTO users (username, email, phone, password, id_card_last4)
-    VALUES (?, ?, ?, ?, ?)
-  `, [testUser.username, testUser.email, testUser.phone, testUser.password, testUser.id_card_last4], (err) => {
+  db.run(insertTestUser, (err) => {
     if (err) {
       console.error('❌ 插入测试数据失败:', err.message);
     } else {
       console.log('✅ 测试数据插入成功');
+      console.log('');
+      console.log('📝 测试账号信息：');
+      console.log('   账号1: testuser / test123456 (证件号后4位: 1234)');
+      console.log('   账号2: admin / admin123456 (证件号后4位: 4028)');
+      console.log('');
     }
   });
-};
 
-// 如果直接运行此文件，则初始化数据库
-if (import.meta.url === `file://${process.argv[1]}`) {
-  initDatabase();
-}
+  // 查询并显示所有用户
+  db.all('SELECT id, username, id_card, created_at FROM users', [], (err, rows) => {
+    if (err) {
+      console.error('❌ 查询用户失败:', err.message);
+    } else {
+      console.log('📊 当前数据库中的用户：');
+      console.table(rows);
+    }
 
-export default initDatabase;
-
+    // 关闭数据库连接
+    db.close((err) => {
+      if (err) {
+        console.error('❌ 关闭数据库失败:', err.message);
+      } else {
+        console.log('✅ 数据库初始化完成，连接已关闭');
+      }
+    });
+  });
+});

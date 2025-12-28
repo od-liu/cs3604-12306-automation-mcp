@@ -1,311 +1,146 @@
 {
-  "timestamp": "2025-12-28T02:45:45.811Z",
-  "generatedDocs": {
-    "uiRequirements": "ui-requirements.yaml",
-    "styleGuide": "ui-style-guide.md"
-  },
-  "screenshots": {
-    "fullPage": [
-      {
-        "filename": "整体页面截图/登录页面.png",
-        "description": "12306登录页面完整截图",
-        "dimensions": {
-          "width": 1497,
-          "height": 954
-        }
-      }
-    ],
-    "components": [
-      {
-        "filename": "组件特写截图/顶部导航.png",
-        "componentId": "REQ-TOP-NAV",
-        "description": "页面顶部导航栏，包含12306 Logo和欢迎文字"
-      },
-      {
-        "filename": "组件特写截图/登录表单.png",
-        "componentId": "REQ-LOGIN-FORM",
-        "description": "登录表单卡片，包含标签页、输入框、登录按钮和辅助链接"
-      },
-      {
-        "filename": "组件特写截图/底部导航.png",
-        "componentId": "REQ-BOTTOM-NAV",
-        "description": "页面底部区域，包含友情链接、二维码和版权信息"
-      }
-    ],
-    "interactions": [
-      {
-        "filename": "交互状态截图/登录表单-错误-用户名为空.png",
-        "componentId": "REQ-LOGIN-FORM",
-        "scenario": "用户名为空错误",
-        "description": "用户不输入用户名直接点击登录时的错误提示状态",
-        "keyFeatures": [
-          "错误提示位置：密码输入框下方",
-          "错误提示颜色：红色 (#FF4D4F)",
-          "错误提示图标：红色感叹号",
-          "错误提示文字：请输入用户名！"
-        ]
-      },
-      {
-        "filename": "交互状态截图/登录表单-错误-密码为空.png",
-        "componentId": "REQ-LOGIN-FORM",
-        "scenario": "密码为空错误",
-        "description": "用户输入用户名但不输入密码时的错误提示状态",
-        "keyFeatures": [
-          "用户名已填充：19805819256",
-          "错误提示位置：密码输入框下方",
-          "错误提示文字：请输入密码！"
-        ]
-      },
-      {
-        "filename": "交互状态截图/登录表单-错误-密码过短.png",
-        "componentId": "REQ-LOGIN-FORM",
-        "scenario": "密码长度不足错误",
-        "description": "用户输入少于6位密码时的错误提示状态",
-        "keyFeatures": [
-          "用户名已填充：19805819256",
-          "密码已输入但不可见",
-          "错误提示文字：密码长度不能少于6位！"
-        ]
-      },
-      {
-        "filename": "交互状态截图/短信验证-初始状态.png",
-        "componentId": "REQ-SMS-VERIFICATION",
-        "scenario": "弹窗初始状态",
-        "description": "用户登录成功后弹出的短信验证窗口初始状态",
-        "keyFeatures": [
-          "弹窗标题：选择验证方式",
-          "标签页：短信验证（激活状态）",
-          "证件号输入框：空",
-          "验证码输入框：空",
-          "获取验证码按钮：显示'获取验证码'",
-          "确定按钮：橙色"
-        ]
-      },
-      {
-        "filename": "交互状态截图/短信验证-错误-证件号为空.png",
-        "componentId": "REQ-SMS-VERIFICATION",
-        "scenario": "证件号为空错误",
-        "description": "用户未输入证件号直接点击获取验证码时的视觉反馈",
-        "keyFeatures": [
-          "获取验证码按钮：显示虚线边框（视觉反馈）",
-          "证件号输入框：空",
-          "无红色错误提示文字"
-        ]
-      },
-      {
-        "filename": "交互状态截图/短信验证-错误-证件号错误.png",
-        "componentId": "REQ-SMS-VERIFICATION",
-        "scenario": "证件号错误",
-        "description": "用户输入错误的证件号（9999）点击获取验证码时的错误状态",
-        "keyFeatures": [
-          "证件号输入框：显示'9999'",
-          "错误提示文字：请输入正确的用户信息！",
-          "错误提示位置：验证码区域下方",
-          "错误提示样式：红色文字+感叹号图标",
-          "获取验证码按钮：倒计时状态'重新发送(55)'"
-        ]
-      },
-      {
-        "filename": "交互状态截图/短信验证-成功-验证码已发送.png",
-        "componentId": "REQ-SMS-VERIFICATION",
-        "scenario": "验证码发送成功",
-        "description": "用户输入正确的证件号（9012）成功获取验证码后的状态",
-        "keyFeatures": [
-          "证件号输入框：显示'9012'",
-          "获取验证码按钮：倒计时状态'重新发送(28)'",
-          "按钮状态：虚线边框，不可点击",
-          "无错误提示"
-        ]
-      }
-    ]
-  },
+  "pageUrl": "https://kyfw.12306.cn/otn/resources/login.html",
+  "captureDate": "2025-12-28T13:26:15.385024",
   "resources": [
     {
-      "filename": "登录页面-顶部导航-12306Logo.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/logo.png",
-      "category": "logo",
-      "dimensions": {
-        "natural": {
-          "width": null,
-          "height": null
-        },
-        "display": {
-          "width": 200,
-          "height": 50
-        },
-        "scale": "N/A"
-      },
-      "cssStrategy": "background-image"
+      "filename": "登录页面-顶部导航-Logo.png",
+      "type": "logo",
+      "component": "顶部导航",
+      "usage": "CSS background-image",
+      "naturalWidth": 200,
+      "naturalHeight": 50,
+      "displayWidth": 200,
+      "displayHeight": 50,
+      "scaleX": 1.0,
+      "scaleY": 1.0,
+      "fileSize": 7156,
+      "cssStrategy": "background-size: contain; background-repeat: no-repeat;"
     },
     {
-      "filename": "登录页面-主内容区-背景图1.jpg",
-      "originalUrl": "https://www.12306.cn/index/images/pic/banner-login-20200924.jpg",
-      "category": "background",
-      "dimensions": {
-        "natural": {
-          "width": null,
-          "height": null
-        },
-        "display": {
-          "width": 1497,
-          "height": 600
-        },
-        "scale": "N/A"
-      },
-      "cssStrategy": "background-image, background-position: 50% 50%, background-repeat: no-repeat"
+      "filename": "登录页面-主内容区域-背景图片1.jpg",
+      "type": "background",
+      "component": "主内容区域",
+      "usage": "CSS background-image",
+      "naturalWidth": 2560,
+      "naturalHeight": 600,
+      "displayWidth": 1497,
+      "displayHeight": 600,
+      "scaleX": 1.71,
+      "scaleY": 1.0,
+      "fileSize": 182489,
+      "cssStrategy": "background-size: cover; background-position: center;"
     },
     {
-      "filename": "登录页面-主内容区-背景图2.jpg",
-      "originalUrl": "https://www.12306.cn/index/images/pic/banner-login-20200629.jpg",
-      "category": "background",
-      "dimensions": {
-        "natural": {
-          "width": null,
-          "height": null
-        },
-        "display": {
-          "width": 1497,
-          "height": 600
-        },
-        "scale": "N/A"
-      },
-      "cssStrategy": "background-image, background-position: 50% 50%, background-repeat: no-repeat"
+      "filename": "登录页面-底部导航-中国国家铁路集团.png",
+      "type": "partner_logo",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 300,
+      "naturalHeight": 51,
+      "displayWidth": 200,
+      "displayHeight": 34,
+      "scaleX": 1.5,
+      "scaleY": 1.5,
+      "fileSize": 9240,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
-      "filename": "登录页面-底部导航-中国国家铁路集团logo.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/link05.png",
-      "category": "partner-logo",
-      "dimensions": {
-        "natural": {
-          "width": 300,
-          "height": 51
-        },
-        "display": {
-          "width": 200,
-          "height": 34
-        },
-        "scale": "0.67"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "filename": "登录页面-底部导航-中国铁路财产保险.png",
+      "type": "partner_logo",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 400,
+      "naturalHeight": 68,
+      "displayWidth": 200,
+      "displayHeight": 34,
+      "scaleX": 2.0,
+      "scaleY": 2.0,
+      "fileSize": 17605,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
-      "filename": "登录页面-底部导航-中国铁路财产保险logo.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/link02.png",
-      "category": "partner-logo",
-      "dimensions": {
-        "natural": {
-          "width": 400,
-          "height": 68
-        },
-        "display": {
-          "width": 200,
-          "height": 34
-        },
-        "scale": "0.50"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "filename": "登录页面-底部导航-中国铁路95306网.png",
+      "type": "partner_logo",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 800,
+      "naturalHeight": 136,
+      "displayWidth": 200,
+      "displayHeight": 34,
+      "scaleX": 4.0,
+      "scaleY": 4.0,
+      "fileSize": 19177,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
-      "filename": "登录页面-底部导航-中国铁路95306网logo.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/link03.png",
-      "category": "partner-logo",
-      "dimensions": {
-        "natural": {
-          "width": 800,
-          "height": 136
-        },
-        "display": {
-          "width": 200,
-          "height": 34
-        },
-        "scale": "0.25"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
-    },
-    {
-      "filename": "登录页面-底部导航-中铁快运logo.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/link04.png",
-      "category": "partner-logo",
-      "dimensions": {
-        "natural": {
-          "width": 400,
-          "height": 68
-        },
-        "display": {
-          "width": 200,
-          "height": 34
-        },
-        "scale": "0.50"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "filename": "登录页面-底部导航-中铁快运.png",
+      "type": "partner_logo",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 400,
+      "naturalHeight": 68,
+      "displayWidth": 200,
+      "displayHeight": 34,
+      "scaleX": 2.0,
+      "scaleY": 2.0,
+      "fileSize": 16372,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
       "filename": "登录页面-底部导航-中国铁路官方微信二维码.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/zgtlwb.png",
-      "category": "qrcode",
-      "dimensions": {
-        "natural": {
-          "width": 344,
-          "height": 344
-        },
-        "display": {
-          "width": 80,
-          "height": 80
-        },
-        "scale": "0.23"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "type": "qrcode",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 344,
+      "naturalHeight": 344,
+      "displayWidth": 80,
+      "displayHeight": 80,
+      "scaleX": 4.3,
+      "scaleY": 4.3,
+      "fileSize": 29640,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
       "filename": "登录页面-底部导航-中国铁路官方微博二维码.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/zgtlwx.png",
-      "category": "qrcode",
-      "dimensions": {
-        "natural": {
-          "width": 800,
-          "height": 800
-        },
-        "display": {
-          "width": 80,
-          "height": 80
-        },
-        "scale": "0.10"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "type": "qrcode",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 800,
+      "naturalHeight": 800,
+      "displayWidth": 80,
+      "displayHeight": 80,
+      "scaleX": 10.0,
+      "scaleY": 10.0,
+      "fileSize": 159513,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
       "filename": "登录页面-底部导航-12306公众号二维码.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/public.png",
-      "category": "qrcode",
-      "dimensions": {
-        "natural": {
-          "width": 258,
-          "height": 258
-        },
-        "display": {
-          "width": 80,
-          "height": 80
-        },
-        "scale": "0.31"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "type": "qrcode",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 258,
+      "naturalHeight": 258,
+      "displayWidth": 80,
+      "displayHeight": 80,
+      "scaleX": 3.23,
+      "scaleY": 3.23,
+      "fileSize": 32189,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     },
     {
-      "filename": "登录页面-底部导航-铁路12306二维码.png",
-      "originalUrl": "https://kyfw.12306.cn/otn/resources/images/download.png",
-      "category": "qrcode",
-      "dimensions": {
-        "natural": {
-          "width": 258,
-          "height": 258
-        },
-        "display": {
-          "width": 80,
-          "height": 80
-        },
-        "scale": "0.31"
-      },
-      "cssStrategy": "img tag, object-fit: contain"
+      "filename": "登录页面-底部导航-铁路12306APP二维码.png",
+      "type": "qrcode",
+      "component": "底部导航",
+      "usage": "<img> tag",
+      "naturalWidth": 258,
+      "naturalHeight": 258,
+      "displayWidth": 80,
+      "displayHeight": 80,
+      "scaleX": 3.23,
+      "scaleY": 3.23,
+      "fileSize": 37113,
+      "cssStrategy": "width: auto; height: auto; max-width: 100%;"
     }
   ]
 }

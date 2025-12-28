@@ -1,150 +1,173 @@
-/**
- * @module APIRoutes
- * @description API路由定义
- */
-
-import express from 'express';
-import { 
-  verifyUserCredentials, 
-  verifyIdCard, 
-  generateVerificationCode, 
-  verifyCode,
-  checkVerificationRateLimit 
-} from '../database/operations.js';
-import { successResponse, errorResponse } from '../utils/response.js';
-
+const express = require('express');
 const router = express.Router();
+const authService = require('../services/authService');
 
 /**
  * @api API-LOGIN POST /api/auth/login
  * @summary 用户登录接口
- * @param {Object} body - 请求体 {username: string, password: string}
- * @returns {Object} response - 响应体 {success: boolean, message: string, data: Object}
- * @calls FUNC-VERIFY-USER-CREDENTIALS
- * 
- * 验证用户凭据并返回登录结果
+ * @param {Object} body - 请求体结构
+ * @param {string} body.username - 用户名/邮箱/手机号
+ * @param {string} body.password - 密码
+ * @returns {Object} response - 响应体结构
+ * @returns {boolean} response.success - 登录是否成功
+ * @returns {string} response.message - 提示信息
+ * @returns {boolean} response.requireSms - 是否需要短信验证
+ * @returns {number} response.userId - 用户ID（成功时返回）
+ * @calls FUNC-VALIDATE-CREDENTIALS - 委托给 authService.validateCredentials
  */
 router.post('/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // 前端验证已经完成，这里进行后端验证
+    // 基本参数验证
     if (!username || !password) {
-      return res.json(errorResponse('用户名和密码不能为空', 400));
+      return res.json({
+        success: false,
+        message: '用户名和密码不能为空'
+      });
     }
 
-    if (password.length < 6) {
-      return res.json(errorResponse('密码长度不能少于6位！', 400));
+    // 调用 Service 层验证凭据
+    const result = await authService.validateCredentials(username, password);
+
+    if (result.valid) {
+      // 登录成功，需要短信验证
+      return res.json({
+        success: true,
+        message: '登录成功，请进行短信验证',
+        requireSms: true,
+        userId: result.userId
+      });
+    } else {
+      // 登录失败
+      return res.json({
+        success: false,
+        message: '用户名或密码错误'
+      });
     }
-
-    // 调用 FUNC-VERIFY-USER-CREDENTIALS
-    const user = await verifyUserCredentials(username, password);
-
-    if (!user) {
-      return res.json(errorResponse('用户名或密码错误！', 401));
-    }
-
-    // 登录成功，返回用户信息（不包含敏感信息）
-    return res.json(successResponse({
-      username: user.username,
-      email: user.email,
-      phone: user.phone
-    }, '登录成功'));
-
   } catch (error) {
-    console.error('登录错误:', error);
-    return res.json(errorResponse('服务器错误，请稍后再试', 500));
+    console.error('Login error:', error);
+    return res.status(500).json({
+      success: false,
+      message: '服务器错误，请稍后再试'
+    });
   }
 });
 
 /**
- * @api API-SEND-VERIFICATION-CODE POST /api/auth/send-code
+ * @api API-GET-VERIFICATION-CODE POST /api/auth/send-verification-code
  * @summary 发送短信验证码接口
- * @param {Object} body - 请求体 {username: string, idCardLast4: string}
- * @returns {Object} response - 响应体 {success: boolean, message: string}
- * @calls FUNC-VERIFY-ID-CARD, FUNC-CHECK-VERIFICATION-RATE-LIMIT, FUNC-GENERATE-VERIFICATION-CODE
- * 
- * 验证证件号并发送验证码
+ * @param {Object} body - 请求体结构
+ * @param {number} body.userId - 用户ID
+ * @param {string} body.idCardLast4 - 证件号后4位
+ * @returns {Object} response - 响应体结构
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.message - 提示信息
+ * @calls FUNC-SEND-SMS-CODE - 委托给 authService.sendSmsCode
  */
-router.post('/auth/send-code', async (req, res) => {
+router.post('/auth/send-verification-code', async (req, res) => {
   try {
-    const { username, idCardLast4 } = req.body;
+    const { userId, idCardLast4 } = req.body;
 
-    if (!username || !idCardLast4) {
-      return res.json(errorResponse('用户名和证件号不能为空', 400));
+    // 基本参数验证
+    if (!userId || !idCardLast4) {
+      return res.json({
+        success: false,
+        message: '参数错误'
+      });
     }
 
-    if (idCardLast4.length !== 4) {
-      return res.json(errorResponse('请输入登录账号绑定的证件号后4位', 400));
+    // 调用 Service 层发送验证码
+    const result = await authService.sendSmsCode(userId, idCardLast4);
+
+    if (result.success) {
+      // 保存验证码到session (骨架代码中使用简单存储)
+      if (!req.session) {
+        req.session = {};
+      }
+      req.session.smsCode = result.code;
+      req.session.smsExpiry = Date.now() + 5 * 60 * 1000; // 5分钟有效期
+
+      return res.json({
+        success: true,
+        message: '获取手机验证码成功！'
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: result.message || '请输入正确的用户信息!'
+      });
     }
-
-    // 检查频率限制
-    const isRateLimited = await checkVerificationRateLimit(username);
-    if (isRateLimited) {
-      return res.json(errorResponse('请求验证码过于频繁，请稍后再试！', 429));
-    }
-
-    // 验证证件号
-    const isValid = await verifyIdCard(username, idCardLast4);
-    if (!isValid) {
-      return res.json(errorResponse('请输入正确的用户信息！', 400));
-    }
-
-    // 生成验证码
-    const code = await generateVerificationCode(username);
-    
-    // 在实际应用中，这里应该调用短信服务发送验证码
-    // 为了测试，我们将验证码输出到控制台
-    console.log(`📱 验证码已发送到用户 ${username}: ${code}`);
-
-    return res.json(successResponse(null, '获取手机验证码成功！'));
-
   } catch (error) {
-    console.error('发送验证码错误:', error);
-    return res.json(errorResponse('服务器错误，请稍后再试', 500));
+    console.error('Send SMS code error:', error);
+    return res.status(500).json({
+      success: false,
+      message: '服务器错误，请稍后再试'
+    });
   }
 });
 
 /**
- * @api API-VERIFY-CODE POST /api/auth/verify-code
+ * @api API-VERIFY-SMS POST /api/auth/verify-sms
  * @summary 验证短信验证码接口
- * @param {Object} body - 请求体 {username: string, idCardLast4: string, code: string}
- * @returns {Object} response - 响应体 {success: boolean, message: string}
- * @calls FUNC-VERIFY-CODE
- * 
- * 验证短信验证码
+ * @param {Object} body - 请求体结构
+ * @param {number} body.userId - 用户ID
+ * @param {string} body.code - 验证码
+ * @returns {Object} response - 响应体结构
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.token - JWT token（成功时返回）
+ * @returns {string} response.message - 提示信息
+ * @calls FUNC-VERIFY-SMS-CODE - 委托给 authService.verifySmsCode
  */
-router.post('/auth/verify-code', async (req, res) => {
+router.post('/auth/verify-sms', async (req, res) => {
   try {
-    const { username, idCardLast4, code } = req.body;
+    const { userId, code } = req.body;
 
-    if (!idCardLast4 || idCardLast4.length !== 4) {
-      return res.json(errorResponse('请输入登录账号绑定的证件号后4位', 400));
+    // 基本参数验证
+    if (!userId || !code) {
+      return res.json({
+        success: false,
+        message: '参数错误'
+      });
     }
 
-    if (!code) {
-      return res.json(errorResponse('请输入验证码', 400));
+    // 从session获取验证码
+    const sessionCode = req.session?.smsCode;
+    const sessionExpiry = req.session?.smsExpiry;
+
+    // 调用 Service 层验证验证码
+    const result = await authService.verifySmsCode(
+      userId,
+      code,
+      sessionCode,
+      sessionExpiry
+    );
+
+    if (result.success) {
+      // 清除session中的验证码
+      if (req.session) {
+        delete req.session.smsCode;
+        delete req.session.smsExpiry;
+      }
+
+      return res.json({
+        success: true,
+        token: result.token,
+        message: '验证成功'
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: result.message || '验证码错误'
+      });
     }
-
-    if (code.length !== 6) {
-      return res.json(errorResponse('请输入正确的验证码', 400));
-    }
-
-    // 验证验证码
-    const result = await verifyCode(username, code);
-
-    if (!result.valid) {
-      return res.json(errorResponse(result.message, 400));
-    }
-
-    // 验证成功
-    return res.json(successResponse(null, '验证通过，登录成功'));
-
   } catch (error) {
-    console.error('验证码验证错误:', error);
-    return res.json(errorResponse('服务器错误，请稍后再试', 500));
+    console.error('Verify SMS code error:', error);
+    return res.status(500).json({
+      success: false,
+      message: '服务器错误，请稍后再试'
+    });
   }
 });
 
-export default router;
-
+module.exports = router;
