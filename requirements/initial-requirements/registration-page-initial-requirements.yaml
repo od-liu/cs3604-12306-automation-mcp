@@ -1,0 +1,304 @@
+# 注册页面初始需求文档
+# 这是提供给 UI Analyzer Agent 的输入文档
+# Agent 会自动获取截图、图片资源和交互场景截图
+
+# ⚠️ 使用说明：
+# 1. 如果某个组件需要交互场景截图（如注册验证弹窗），请在 description 中添加 "**交互场景截图**:" 字段
+# 2. 如果交互场景需要测试数据，请在步骤中直接填写或引用环境变量
+# 3. Agent 会按照 steps 中定义的步骤自动执行交互并截图
+# 4. 支持的 action 类型: type, click, wait, wait_for_element, screenshot, evaluate, console_log 等
+
+- id: REQ-REGISTRATION-PAGE
+  name: 注册页面
+  description: |
+    用户注册主页面，包含注册表单和邮箱/手机验证功能。
+    
+    **网站地址**: https://kyfw.12306.cn/otn/regist/init
+    **页面宽度参考**: 1920px
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 背景图片（主内容区域，如有）
+    - 二维码（底部导航，4个：中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306）
+    - 友情链接（底部导航，4个：2行2列布局）
+    
+    **主要功能**：
+    - 用户可以注册新账号
+    - 支持邮箱注册和手机号注册
+    - 需要填写个人信息（姓名、证件类型、证件号、手机号/邮箱、密码等）
+    - 注册成功后需要邮箱/手机验证
+    - 提供登录入口
+  
+  dependencies: []
+  scenarios: []
+  
+  children:
+    - id: REQ-REG-TOP-NAV
+      name: 顶部导航
+      description: |
+        页面顶部导航栏，包含品牌Logo和标题文字。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最上方，横向占据整个页面宽度，高度约80px，白色背景
+        **定位提示**: header, nav, [role="banner"]
+        
+        **功能要求**：
+        - 显示12306品牌Logo和名称
+        - 显示标题文字（如"用户注册"或"欢迎注册12306"）
+        - Logo点击可跳转到首页
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-REG-FORM
+      name: 注册表单
+      description: |
+        用户填写注册信息的表单。
+        
+        **需要截图**: 是
+        **组件定位**: 页面中间区域，通常为居中或右侧白色卡片容器
+        **定位提示**: form, .register-form, .reg-form, [class*="regist"]
+        
+        **功能要求**：
+        - 支持用户名输入（6-30位字母/数字/下划线）
+        - 支持密码输入（6-20位，需要包含字母和数字）
+        - 支持确认密码输入
+        - 支持姓名输入（真实姓名）
+        - 支持证件类型选择（身份证、护照等）
+        - 支持证件号输入
+        - 支持手机号输入（11位数字）
+        - 支持邮箱输入（可选或必选）
+        - 支持验证码输入（图形验证码或短信验证码）
+        - 提供"立即注册"按钮
+        - 提供"已有账号？去登录"链接
+        
+        **交互场景截图**:
+          - name: "前端验证-用户名为空"
+            description: "测试不输入用户名直接点击注册"
+            steps:
+              - action: click
+                target: "立即注册按钮"
+                target_hint: "button:has-text('立即注册'), a:has-text('立即注册')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "注册表单-错误-用户名为空.png"
+                
+          - name: "前端验证-密码为空"
+            description: "测试只输入用户名不输入密码"
+            steps:
+              - action: evaluate
+                script: |
+                  const usernameInput = document.querySelector('input[placeholder*="用户名"], input[name*="user"], input[id*="user"]');
+                  if (usernameInput) usernameInput.value = '';
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名'], input[name*='user']"
+                value: "testuser123"
+              - action: click
+                target: "立即注册按钮"
+                target_hint: "button:has-text('立即注册'), a:has-text('立即注册')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "注册表单-错误-密码为空.png"
+                
+          - name: "前端验证-两次密码不一致"
+            description: "测试输入的两次密码不一致"
+            steps:
+              - action: evaluate
+                script: |
+                  const inputs = document.querySelectorAll('input');
+                  inputs.forEach(input => input.value = '');
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名'], input[name*='user']"
+                value: "testuser123"
+              - action: type
+                target: "密码输入框"
+                target_hint: "input[type='password']:first-of-type, input[placeholder*='密码']:first-of-type"
+                value: "password123"
+              - action: type
+                target: "确认密码输入框"
+                target_hint: "input[type='password']:last-of-type, input[placeholder*='确认'], input[placeholder*='再次']"
+                value: "password456"
+              - action: click
+                target: "立即注册按钮"
+                target_hint: "button:has-text('立即注册'), a:has-text('立即注册')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "注册表单-错误-两次密码不一致.png"
+                
+          - name: "前端验证-手机号格式错误"
+            description: "测试输入不合法的手机号"
+            steps:
+              - action: evaluate
+                script: |
+                  const inputs = document.querySelectorAll('input');
+                  inputs.forEach(input => input.value = '');
+              - action: type
+                target: "用户名输入框"
+                target_hint: "input[placeholder*='用户名'], input[name*='user']"
+                value: "testuser123"
+              - action: type
+                target: "密码输入框"
+                target_hint: "input[type='password']:first-of-type"
+                value: "password123"
+              - action: type
+                target: "确认密码输入框"
+                target_hint: "input[type='password']:last-of-type"
+                value: "password123"
+              - action: type
+                target: "手机号输入框"
+                target_hint: "input[placeholder*='手机'], input[name*='phone'], input[name*='mobile']"
+                value: "12345"
+              - action: click
+                target: "立即注册按钮"
+                target_hint: "button:has-text('立即注册'), a:has-text('立即注册')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "注册表单-错误-手机号格式错误.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 校验用户名为空
+          given: 用户在注册页面未输入用户名
+          when: 用户点击"立即注册"
+          then: 显示错误提示"请输入用户名！"
+          
+        - name: 校验用户名格式
+          given: 用户在注册页面输入了不符合格式的用户名（少于6位或包含非法字符）
+          when: 用户点击"立即注册"
+          then: 显示错误提示"用户名格式不正确！"
+          
+        - name: 校验密码为空
+          given: 用户在注册页面输入了用户名但未输入密码
+          when: 用户点击"立即注册"
+          then: 显示错误提示"请输入密码！"
+          
+        - name: 校验密码长度
+          given: 用户在注册页面输入了用户名和小于6位的密码
+          when: 用户点击"立即注册"
+          then: 显示错误提示"密码长度不能少于6位！"
+          
+        - name: 校验密码强度
+          given: 用户在注册页面输入了不符合强度要求的密码（如纯数字或纯字母）
+          when: 用户点击"立即注册"
+          then: 显示错误提示"密码必须包含字母和数字！"
+          
+        - name: 校验两次密码不一致
+          given: 用户在注册页面输入的两次密码不一致
+          when: 用户点击"立即注册"
+          then: 显示错误提示"两次输入的密码不一致！"
+          
+        - name: 校验姓名为空
+          given: 用户在注册页面未输入真实姓名
+          when: 用户点击"立即注册"
+          then: 显示错误提示"请输入真实姓名！"
+          
+        - name: 校验证件号为空
+          given: 用户在注册页面未输入证件号
+          when: 用户点击"立即注册"
+          then: 显示错误提示"请输入证件号！"
+          
+        - name: 校验证件号格式
+          given: 用户在注册页面输入了不符合格式的证件号
+          when: 用户点击"立即注册"
+          then: 显示错误提示"证件号格式不正确！"
+          
+        - name: 校验手机号为空
+          given: 用户在注册页面未输入手机号
+          when: 用户点击"立即注册"
+          then: 显示错误提示"请输入手机号！"
+          
+        - name: 校验手机号格式
+          given: 用户在注册页面输入了不符合格式的手机号
+          when: 用户点击"立即注册"
+          then: 显示错误提示"手机号格式不正确！"
+          
+        - name: 用户名已存在
+          given: 用户在注册页面输入了已被注册的用户名
+          when: 用户点击"立即注册"
+          then: 显示错误提示"用户名已存在！"
+          
+        - name: 注册成功
+          given: 用户在注册页面输入了符合要求的所有信息
+          when: 用户点击"立即注册"
+          then: 弹出验证窗口或显示注册成功提示
+      
+      children: []
+    
+    - id: REQ-REG-BOTTOM-NAV
+      name: 底部导航
+      description: |
+        页面底部的友情链接和二维码展示区域（与登录页共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最底部，横向占据整个页面宽度，高度约180px，白色背景
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **布局结构**：
+        - 上半部分：左右并排布局
+          * 左侧：友情链接区域（标题 + 4个合作伙伴Logo，2行2列排列）
+          * 右侧：二维码区域（4个官方平台二维码，横向排列，每个二维码上方有标题）
+        - 下半部分：版权信息区域（深灰色背景，包含版权声明、技术支持和ICP备案信息）
+        
+        **功能要求**：
+        - 显示友情链接（合作伙伴Logo）
+        - 显示四个官方平台二维码（中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306）
+        - 提供扫码关注入口
+        - 显示版权和备案信息
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-REG-VERIFICATION
+      name: 注册验证
+      description: |
+        注册成功后的邮箱/手机验证流程（如有独立验证页面或弹窗）。
+        
+        **需要截图**: 是（如有独立验证界面）
+        **组件定位**: 可能是新页面、弹窗或验证码输入区域
+        **定位提示**: .modal, [role="dialog"], .verify, .verification
+        
+        **功能要求**（如适用）：
+        - 显示验证提示信息
+        - 提供验证码输入框
+        - 提供重新发送验证码按钮
+        - 限制验证码发送频率
+        - 验证成功后跳转到登录页或首页
+        
+        **前置条件**:
+          - 完成 REQ-REG-FORM 的成功注册
+      
+      dependencies:
+        - REQ-REG-FORM
+      
+      scenarios:
+        - name: 验证码为空
+          given: 用户在验证页面未输入验证码
+          when: 用户点击"确定"或"验证"
+          then: 显示错误提示"请输入验证码"
+          
+        - name: 验证码错误
+          given: 用户在验证页面输入了错误的验证码
+          when: 用户点击"确定"或"验证"
+          then: 显示错误提示"验证码错误"
+          
+        - name: 验证码过期
+          given: 用户在验证页面输入了已过期的验证码
+          when: 用户点击"确定"或"验证"
+          then: 显示错误提示"验证码已过期"
+          
+        - name: 验证成功
+          given: 用户在验证页面输入了正确且未过期的验证码
+          when: 用户点击"确定"或"验证"
+          then: 验证通过，跳转到登录页或首页，显示注册成功提示
+      
+      children: []
+

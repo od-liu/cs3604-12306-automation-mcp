@@ -290,11 +290,14 @@
    - 在 API 测试中，如果涉及外部服务，请适当 Mock
    - 对于数据库操作，优先使用 SQLite 测试文件库进行真实集成测试
 
-3. **视觉还原验证（强制执行）**：
+3. **🆕 视觉还原验证（强制执行，使用页面专属路径）**：
+   - **🆕 提取页面标识符**：从需求文档的 `description` 中提取 `**页面标识**:` 字段，或从 `name` 推导
    - 在 UI 实现阶段，**必须**先使用 read_file 读取 `requirements/ui-style-guide.md`
    - 查找当前组件的详细 CSS 样式规范和位置说明
    - **必须**使用 read_file 读取需求的 `description` 中的"位置信息"、"CSS 布局方式"章节
-   - 转换图片路径为绝对路径：`项目根目录/requirements/images/文件名.扩展名`
+   - **🆕 转换图片路径为页面专属路径**：
+     * 参考图片：`项目根目录/requirements/images/{page_slug}/组件特写截图/xxx.png`
+     * 交互截图：`项目根目录/requirements/images/{page_slug}/交互状态截图/xxx.png`
    - 确保生成的 CSS 样式与 ui-style-guide.md 中的代码一致
    - 确保 JSX 结构顺序与 requirements 中的"在 JSX 中的位置"示例一致
    - **CSS 命名空间规范（强制添加）**：
@@ -313,10 +316,13 @@
    - 使用 run_terminal_cmd 执行 SQL 插入语句
    - 确保用户启动应用后能立即看到效果
 
-5. **参考图片访问规范**：
-   - 参考图片位于 `requirements/images/` 目录
+5. **🆕 参考图片访问规范（按页面分类）**：
+   - **🆕 提取页面标识符**：从需求文档中获取 `page_slug`
+   - 参考图片位于 `requirements/images/{page_slug}/` 目录
    - 图片路径在需求的 `description` 字段中声明（相对路径）
-   - 转换为绝对路径：`项目根目录/requirements/images/文件名.扩展名`
+   - **🆕 转换为绝对路径**：
+     * 组件特写：`项目根目录/requirements/images/{page_slug}/组件特写截图/文件名.扩展名`
+     * 交互截图：`项目根目录/requirements/images/{page_slug}/交互状态截图/文件名.扩展名`
    - 使用 read_file 工具读取图片进行对比
 
 ## 4. 执行检查清单（每个需求必须完成）

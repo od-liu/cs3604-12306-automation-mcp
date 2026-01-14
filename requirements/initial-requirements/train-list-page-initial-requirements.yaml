@@ -1,0 +1,240 @@
+# 车次列表页初始需求文档
+# 这是提供给 UI Analyzer Agent 的输入文档
+# Agent 会自动获取截图、图片资源和交互场景截图
+
+# ⚠️ 使用说明：
+# 1. 如果某个组件需要交互场景截图，请在 description 中添加 "**交互场景截图**:" 字段
+# 2. Agent 会按照 steps 中定义的步骤自动执行交互并截图
+# 3. 支持的 action 类型: type, click, wait, wait_for_element, screenshot, evaluate 等
+
+- id: REQ-TRAIN-LIST-PAGE
+  name: 车次列表页
+  description: |
+    显示查询结果的车次列表页面，用户可以筛选和选择车次。
+    
+    **网站地址**: https://kyfw.12306.cn/otn/leftTicket/init (需要先从首页查询后跳转)
+    **页面宽度参考**: 1920px
+    
+    **访问方式**:
+    1. 先访问首页 https://www.12306.cn/index/index.html
+    2. 填写查询条件（如：北京 -> 上海，明天日期）
+    3. 点击查询按钮
+    4. 自动跳转到车次列表页
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 导航菜单图标（如有）
+    - 筛选图标（如有）
+    - 无结果提示图片（如有）
+    
+    **主要功能**：
+    - 显示查询条件摘要
+    - 支持修改查询条件（出发地、目的地、日期）
+    - 显示车次列表（车次号、出发/到达时间、历时、余票等）
+    - 支持多维度筛选（车次类型、出发时间段、车站、席别等）
+    - 支持排序（出发时间、历时、票价等）
+    - 点击车次可以预订
+  
+  dependencies: []
+  scenarios: []
+  
+  children:
+    - id: REQ-TRAIN-LIST-TOP-NAV
+      name: 顶部导航栏
+      description: |
+        页面顶部导航栏（与首页共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最上方，横向占据整个页面宽度
+        **定位提示**: header, nav, .header, [role="banner"]
+        
+        **功能要求**：
+        - 显示12306品牌Logo
+        - 显示主导航菜单
+        - 显示用户登录状态
+        - Logo点击返回首页
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-TRAIN-SEARCH-BAR
+      name: 查询条件栏
+      description: |
+        显示当前查询条件，支持快速修改。
+        
+        **需要截图**: 是
+        **组件定位**: 页面顶部导航下方，横向占据页面宽度，高度约60-80px
+        **定位提示**: .search-bar, .query-bar, .ticket-search, [class*="search"]
+        
+        **功能要求**：
+        - 显示当前出发地、目的地、日期
+        - 支持点击修改出发地、目的地、日期
+        - 提供出发地和目的地互换按钮
+        - 提供"重新查询"或"查询"按钮
+        - 显示前一天/后一天日期切换按钮
+        
+        **交互场景截图**:
+          - name: "修改查询条件"
+            description: "测试点击出发地修改查询条件"
+            steps:
+              - action: click
+                target: "出发地区域"
+                target_hint: ".from-station, [class*='from'], input[placeholder*='出发']"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "查询条件栏-修改出发地.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-TRAIN-FILTER
+      name: 筛选条件区域
+      description: |
+        车次筛选条件，支持多维度筛选。
+        
+        **需要截图**: 是
+        **组件定位**: 位于车次列表上方或左侧，通常为多行横向布局
+        **定位提示**: .filter, .screen, [class*="filter"]
+        
+        **功能要求**：
+        - 车次类型筛选（高铁/动车、普通列车、D字头、G字头、K字头等）
+        - 出发时间段筛选（00:00-06:00、06:00-12:00、12:00-18:00、18:00-24:00）
+        - 出发车站筛选（如有多个车站）
+        - 到达车站筛选（如有多个车站）
+        - 席别筛选（商务座、一等座、二等座、硬座、硬卧、软卧等）
+        - 是否只看有票
+        - 支持多选和取消选择
+        - 显示筛选结果数量
+        
+        **交互场景截图**:
+          - name: "车次类型筛选"
+            description: "测试点击高铁/动车筛选"
+            steps:
+              - action: click
+                target: "高铁/动车筛选按钮"
+                target_hint: "button:has-text('高铁'), .filter-item:has-text('高铁'), [data-type='高铁']"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "筛选条件-高铁筛选激活.png"
+                
+          - name: "出发时间段筛选"
+            description: "测试点击早上时间段筛选"
+            steps:
+              - action: click
+                target: "早上时间段筛选按钮"
+                target_hint: "button:has-text('06:00-12:00'), [data-time='morning']"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "筛选条件-时间段筛选激活.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-TRAIN-LIST
+      name: 车次列表
+      description: |
+        显示符合条件的车次列表，每行是一个车次。
+        
+        **需要截图**: 是
+        **组件定位**: 页面主内容区域，占据大部分空间
+        **定位提示**: .train-list, .ticket-list, table, [class*="list"]
+        
+        **功能要求**：
+        - 显示车次号（如G1、D101等）
+        - 显示出发车站、到达车站、出发时间、到达时间
+        - 显示历时（如2小时15分）
+        - 显示各席别余票数量（商务座、一等座、二等座等）
+        - 余票不足时显示"无"或"--"
+        - 提供"预订"按钮（每行一个）
+        - 无票时"预订"按钮置灰不可点击
+        - 支持点击车次号查看详情（停靠站信息）
+        - 支持悬停高亮当前行
+        
+        **交互场景截图**:
+          - name: "车次列表正常显示"
+            description: "获取车次列表的正常显示状态"
+            steps:
+              - action: wait
+                duration: 2
+              - action: screenshot
+                filename: "车次列表-正常显示.png"
+                
+          - name: "悬停车次行"
+            description: "测试鼠标悬停在某一车次上的效果"
+            steps:
+              - action: evaluate
+                script: |
+                  const firstRow = document.querySelector('.train-list tr:first-child, .ticket-item:first-child');
+                  if (firstRow) {
+                    firstRow.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+                  }
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "车次列表-悬停高亮.png"
+                
+          - name: "点击车次号查看详情"
+            description: "测试点击车次号展开停靠站信息"
+            steps:
+              - action: click
+                target: "第一个车次号"
+                target_hint: ".train-number:first-child, a:has-text('G'), a:has-text('D')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "车次列表-车次详情展开.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 无符合条件的车次
+          given: 用户筛选条件过严或查询的线路当天无车次
+          when: 页面加载完成
+          then: 显示"抱歉，未找到符合条件的车次"提示
+          
+        - name: 车次加载中
+          given: 用户刚进入车次列表页，数据还在加载
+          when: 页面正在加载
+          then: 显示加载动画或"正在查询，请稍候..."提示
+          
+        - name: 点击预订按钮（已登录）
+          given: 用户已登录且选择了有票的车次
+          when: 用户点击"预订"按钮
+          then: 跳转到订单填写页
+          
+        - name: 点击预订按钮（未登录）
+          given: 用户未登录且选择了有票的车次
+          when: 用户点击"预订"按钮
+          then: 跳转到登录页或弹出登录弹窗
+          
+        - name: 点击预订按钮（无票）
+          given: 用户选择了无票的车次
+          when: 用户点击"预订"按钮
+          then: 按钮不可点击或显示"无票"提示
+      
+      children: []
+    
+    - id: REQ-TRAIN-LIST-BOTTOM
+      name: 底部导航
+      description: |
+        页面底部的友情链接和版权信息区域（与首页共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最底部
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **功能要求**：
+        - 显示友情链接
+        - 显示二维码
+        - 显示版权和备案信息
+      
+      dependencies: []
+      scenarios: []
+      children: []
+

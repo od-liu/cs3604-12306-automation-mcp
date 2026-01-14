@@ -1,0 +1,331 @@
+# 支付页和购票成功页初始需求文档
+# 这是提供给 UI Analyzer Agent 的输入文档
+# Agent 会自动获取截图、图片资源和交互场景截图
+
+# ⚠️ 使用说明：
+# 1. 如果某个组件需要交互场景截图，请在 description 中添加 "**交互场景截图**:" 字段
+# 2. 如果交互场景需要登录凭证，请在 "**登录凭证**:" 中填写或引用环境变量
+# 3. Agent 会按照 steps 中定义的步骤自动执行交互并截图
+# 4. 支持的 action 类型: type, click, wait, wait_for_element, screenshot, evaluate 等
+
+- id: REQ-PAYMENT-AND-SUCCESS-PAGE
+  name: 支付页和购票成功页
+  description: |
+    用户提交订单后的支付页面，以及支付成功后的购票成功页面。
+    
+    **网站地址**: 
+    - 支付页: https://kyfw.12306.cn/otn/payOrder/init (需要先提交订单)
+    - 成功页: https://kyfw.12306.cn/otn/payOrder/paySuccess (支付成功后跳转)
+    
+    **页面宽度参考**: 1920px
+    
+    **访问方式**:
+    1. 需要先登录
+    2. 从订单填写页提交订单
+    3. 自动跳转到支付页
+    4. 支付成功后跳转到成功页
+    
+    **前置条件**:
+    - 用户已登录
+    - 用户已提交订单
+    
+    **登录凭证**:
+    ⚠️ 凭证从环境变量读取，Agent 会自动从 credentials.env 文件加载：
+    - username: 从 ${LOGIN_USERNAME} 环境变量读取
+    - password: 从 ${LOGIN_PASSWORD} 环境变量读取
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 支付方式图标（微信支付、支付宝、银行卡等）
+    - 成功图标（绿色对勾）
+    - 二维码（扫码支付，如有）
+  
+  dependencies:
+    - REQ-LOGIN-PAGE
+    - REQ-ORDER-FILL-PAGE
+  scenarios: []
+  
+  children:
+    - id: REQ-PAYMENT-PAGE
+      name: 支付页面
+      description: |
+        用户选择支付方式并完成支付的页面。
+        
+        **网站地址**: https://kyfw.12306.cn/otn/payOrder/init (需要先提交订单)
+        
+        **需要截图**: 是
+        **组件定位**: 整个页面
+        **定位提示**: body, .payment-page, [class*="pay"]
+        
+        **主要功能**：
+        - 显示订单摘要信息（订单号、车次、乘客、金额）
+        - 显示支付倒计时（如30分钟内完成支付）
+        - 提供多种支付方式选择（微信支付、支付宝、银行卡、12306钱包等）
+        - 显示支付金额
+        - 提供"确认支付"或"立即支付"按钮
+        - 提供"返回订单"或"取消支付"链接
+      
+      dependencies:
+        - REQ-ORDER-FILL-PAGE
+      scenarios: []
+      
+      children:
+        - id: REQ-PAYMENT-TOP-NAV
+          name: 顶部导航栏
+          description: |
+            支付页面的顶部导航栏（简化版或与其他页面共用）。
+            
+            **需要截图**: 是
+            **组件定位**: 页面最上方
+            **定位提示**: header, nav, .header
+            
+            **功能要求**：
+            - 显示12306品牌Logo
+            - 显示页面标题（如"订单支付"）
+            - 可能显示安全提示
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-PAYMENT-ORDER-INFO
+          name: 订单信息摘要
+          description: |
+            显示需要支付的订单信息。
+            
+            **需要截图**: 是
+            **组件定位**: 页面顶部或左侧，通常为卡片形式
+            **定位提示**: .order-info, .order-summary, [class*="order"]
+            
+            **功能要求**：
+            - 显示订单号
+            - 显示车次信息（车次号、出发/到达站、日期时间）
+            - 显示乘客信息（姓名、席别）
+            - 显示订单金额（醒目显示）
+            - 显示订单创建时间
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-PAYMENT-COUNTDOWN
+          name: 支付倒计时
+          description: |
+            显示支付倒计时，提醒用户在规定时间内完成支付。
+            
+            **需要截图**: 是
+            **组件定位**: 页面顶部醒目位置，可能为横幅或提示条
+            **定位提示**: .countdown, .timer, [class*="time"]
+            
+            **功能要求**：
+            - 显示剩余支付时间（如"剩余 29:45"）
+            - 倒计时动态更新
+            - 时间即将耗尽时变色提醒（如红色）
+            - 超时后自动取消订单并跳转
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-PAYMENT-METHODS
+          name: 支付方式选择区域
+          description: |
+            用户选择支付方式的区域。
+            
+            **需要截图**: 是
+            **组件定位**: 页面中间主要区域，通常为多个支付方式选项
+            **定位提示**: .payment-methods, .pay-type, [class*="method"]
+            
+            **功能要求**：
+            - 显示多种支付方式选项（单选按钮或卡片形式）：
+              * 微信支付（显示微信图标）
+              * 支付宝（显示支付宝图标）
+              * 银行卡支付（显示银行卡图标）
+              * 12306钱包（如有）
+            - 当前选中的支付方式高亮显示
+            - 点击选择不同支付方式
+            - 根据选择的支付方式显示不同的支付界面（如二维码或跳转提示）
+            
+            **交互场景截图**:
+              - name: "默认支付方式选择"
+                description: "支付页面初始状态，默认选中第一个支付方式"
+                steps:
+                  - action: wait
+                    duration: 2
+                  - action: screenshot
+                    filename: "支付页面-默认状态.png"
+                    
+              - name: "切换支付方式"
+                description: "点击选择不同的支付方式"
+                steps:
+                  - action: click
+                    target: "支付宝支付方式"
+                    target_hint: "label:has-text('支付宝'), input[value*='alipay'], .payment-item:has-text('支付宝')"
+                  - action: wait
+                    duration: 1
+                  - action: screenshot
+                    filename: "支付页面-切换支付方式.png"
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-PAYMENT-SUBMIT
+          name: 确认支付按钮区域
+          description: |
+            确认支付按钮和相关说明。
+            
+            **需要截图**: 是
+            **组件定位**: 页面底部或支付方式选择下方，醒目位置
+            **定位提示**: .submit-payment, .pay-btn, [class*="submit"]
+            
+            **功能要求**：
+            - 显示"确认支付"或"立即支付"按钮（醒目的橙色或蓝色）
+            - 显示支付金额（再次确认）
+            - 显示支付协议或温馨提示
+            - 提供"返回订单"或"取消支付"链接
+            - 点击确认支付后：
+              * 微信/支付宝：显示二维码或跳转到支付页面
+              * 银行卡：跳转到银行支付页面
+          
+          dependencies: []
+          scenarios: []
+          children: []
+    
+    - id: REQ-SUCCESS-PAGE
+      name: 购票成功页面
+      description: |
+        支付成功后的购票成功页面。
+        
+        **网站地址**: https://kyfw.12306.cn/otn/payOrder/paySuccess (支付成功后跳转)
+        
+        **需要截图**: 是
+        **组件定位**: 整个页面
+        **定位提示**: body, .success-page, [class*="success"]
+        
+        **主要功能**：
+        - 显示成功图标和提示文字
+        - 显示订单信息（订单号、车次、乘客等）
+        - 提供查看订单详情按钮
+        - 提供返回首页按钮
+        - 提供继续购票按钮
+        - 显示温馨提示（如取票方式、退改签规则等）
+      
+      dependencies:
+        - REQ-PAYMENT-PAGE
+      scenarios: []
+      
+      children:
+        - id: REQ-SUCCESS-TOP-NAV
+          name: 顶部导航栏
+          description: |
+            成功页面的顶部导航栏（简化版或与其他页面共用）。
+            
+            **需要截图**: 是
+            **组件定位**: 页面最上方
+            **定位提示**: header, nav, .header
+            
+            **功能要求**：
+            - 显示12306品牌Logo
+            - 显示页面标题（如"购票成功"）
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-SUCCESS-MESSAGE
+          name: 成功提示区域
+          description: |
+            显示购票成功的提示信息。
+            
+            **需要截图**: 是
+            **组件定位**: 页面顶部中间，醒目位置
+            **定位提示**: .success-message, .result-info, [class*="success"]
+            
+            **功能要求**：
+            - 显示大型成功图标（绿色对勾或类似）
+            - 显示成功提示文字（如"购票成功！"或"支付成功！"）
+            - 显示订单号（醒目显示，便于用户记录）
+            - 样式友好，传递正向情绪
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-SUCCESS-ORDER-DETAIL
+          name: 订单详情区域
+          description: |
+            显示购买成功的订单详细信息。
+            
+            **需要截图**: 是
+            **组件定位**: 页面中间主要区域，通常为卡片形式
+            **定位提示**: .order-detail, .ticket-info, [class*="detail"]
+            
+            **功能要求**：
+            - 显示车次信息（车次号、出发/到达站、日期时间）
+            - 显示乘客信息（姓名、证件号部分、席别、座位号）
+            - 显示支付金额
+            - 显示支付方式
+            - 显示支付时间
+            - 信息清晰完整，便于用户核对
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-SUCCESS-ACTIONS
+          name: 操作按钮区域
+          description: |
+            购票成功后的操作按钮。
+            
+            **需要截图**: 是
+            **组件定位**: 页面底部或订单详情下方，居中排列
+            **定位提示**: .actions, .btn-group, [class*="action"]
+            
+            **功能要求**：
+            - 提供"查看订单详情"按钮（可能跳转到订单详情页或个人中心）
+            - 提供"返回首页"按钮（跳转到首页）
+            - 提供"继续购票"按钮（跳转到首页或车票查询页）
+            - 按钮样式清晰，主次分明
+          
+          dependencies: []
+          scenarios: []
+          children: []
+        
+        - id: REQ-SUCCESS-TIPS
+          name: 温馨提示区域
+          description: |
+            显示取票、退改签等温馨提示信息。
+            
+            **需要截图**: 是
+            **组件定位**: 页面底部或侧边，通常为提示框形式
+            **定位提示**: .tips, .notice, [class*="tip"]
+            
+            **功能要求**：
+            - 显示取票方式提示（如自助取票机、人工窗口等）
+            - 显示退改签规则提示
+            - 显示乘车注意事项
+            - 样式友好，信息清晰
+          
+          dependencies: []
+          scenarios: []
+          children: []
+    
+    - id: REQ-PAYMENT-BOTTOM-NAV
+      name: 底部导航
+      description: |
+        支付页和成功页的底部导航区域（简化版或与其他页面共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最底部
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **功能要求**：
+        - 显示版权信息
+        - 显示备案信息
+        - 可能包含客服联系方式
+      
+      dependencies: []
+      scenarios: []
+      children: []
+

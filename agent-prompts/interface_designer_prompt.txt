@@ -67,21 +67,28 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 **(A) UI 组件层 (Visual Skeleton)**
 
 **📋 必读文档清单**（设计前必须阅读）：
-1. **requirements 中的组件位置信息**：
+1. **🆕 从需求文档中提取页面标识符**：
+   - 读取 `description` 中的"**页面标识**"字段（如 "login", "registration"）
+   - 如果没有，从需求的 `name` 字段推导（如 "登录页面" → "login"）
+   - 所有图片资源路径都将使用此标识符
+
+2. **requirements 中的组件位置信息**：
    - 查找 `description` 中的"**位置信息**"章节
    - 查找"**CSS 布局方式**"代码示例
    - 查找"**在 JSX 中的位置**"示例
    - 查找"**内部结构（从上到下）**"说明
 
-2. **ui-style-guide.md 中的详细样式规范**：
+3. **ui-style-guide.md 中的详细样式规范**：
    - 使用 `read_file` 读取 `requirements/ui-style-guide.md`
    - 查找对应组件的"组件位置说明"章节（如 "3.0 组件位置说明"）
    - 查找对应组件的完整 CSS 代码（可直接复制使用）
    - 查找颜色体系、尺寸规范
 
-3. **🆕 参考图片验证**（强制执行，防止需求文档错误）：
-   - 使用 `read_file` 读取 requirements 中标注的参考图片（如 `./images/组件特写截图/短信验证-初始状态.png`）
+4. **🆕 参考图片验证**（强制执行，防止需求文档错误）：
+   - 使用 `read_file` 读取 requirements 中标注的参考图片
+   - **🆕 图片路径格式**：`./images/{page_slug}/组件特写截图/{组件名}.png`
    - 使用 `read_file` 读取 ui-style-guide.md 中的交互状态截图（如有）
+   - **交互截图路径格式**：`./images/{page_slug}/交互状态截图/{场景}.png`
    - **对照图片和文档，检测严重不符的情况**
    - 如发现严重不符，自动修正并记录修正原因
 
@@ -90,6 +97,7 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 - **验证机制**：读取图片 → 对比文档 → 检测严重不符 → 自动修正
 - **CSS 代码来源**：优先从 ui-style-guide.md 中复制完整 CSS，但**必须验证**是否与图片一致
 - **结构顺序**：JSX 中的组件顺序必须与 requirements 中的"在 JSX 中的位置"示例完全一致（**除非图片显示不同**）
+- **🆕 图片路径**：所有参考图片都位于 `requirements/images/{page_slug}/` 目录下
 
 ---
 
@@ -102,16 +110,22 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 **Step 1: 读取参考图片**
 
 ```typescript
-// 1.1 从 requirements 中找到参考图片路径
-// 例如：requirements/images/组件特写截图/短信验证-初始状态.png
+// 🆕 1.0 从需求文档中提取页面标识符
+// 例如：从 description 中读取 **页面标识**: login
+// 或从 name 推导：name: "登录页面" → page_slug: "login"
+const pageSlug = extractPageSlug(requirement);
+
+// 🆕 1.1 构建页面专属的图片路径
+// 例如：requirements/images/{page_slug}/组件特写截图/短信验证-初始状态.png
+const componentImagePath = `requirements/images/${pageSlug}/组件特写截图/短信验证-初始状态.png`;
 
 // 1.2 使用 read_file 读取图片
-const referenceImage = read_file("requirements/images/组件特写截图/短信验证-初始状态.png");
+const referenceImage = read_file(componentImagePath);
 
-// 1.3 如果有交互状态截图，也要读取
+// 🆕 1.3 如果有交互状态截图，也要读取（使用页面专属路径）
 const interactionImages = [
-  "requirements/images/交互状态截图/短信验证-错误-证件号错误.png",
-  "requirements/images/交互状态截图/短信验证-成功-获取验证码成功.png"
+  `requirements/images/${pageSlug}/交互状态截图/短信验证-错误-证件号错误.png`,
+  `requirements/images/${pageSlug}/交互状态截图/短信验证-成功-获取验证码成功.png`
 ];
 ```
 
@@ -165,7 +179,7 @@ const interactionImages = [
 /**
  * 🆕 @visual_verification_result
  * 
- * 参考图片: requirements/images/交互状态截图/短信验证-初始状态.png
+ * 参考图片: requirements/images/{page_slug}/交互状态截图/短信验证-初始状态.png
  * 
  * ❌ 检测到严重不符（已自动修正）:
  * 
@@ -257,16 +271,23 @@ const interactionImages = [
 
 在生成任何骨架代码之前，**必须先**执行网页资源复制（包括图片和字体文件）：
 
+### 🆕 前置步骤：提取页面标识符
+
+**0.1 从需求文档中提取页面标识符**：
+   - 读取当前需求的 `description` 字段，查找 `**页面标识**:` 
+   - 如果没有，从 `name` 字段推导（如 "登录页面" → "login"）
+   - 记录为 `page_slug`，用于后续所有路径操作
+
 ### 第一步：识别所有网页资源
 
-**1.1 读取 metadata.json（最可靠的来源）**：
-   - 使用 `read_file` 读取 `requirements/images/metadata.json`
-   - metadata.json 包含 UI Analyzer 下载的所有网页资源的完整信息
+**🆕 1.1 读取页面专属的 metadata.json（最可靠的来源）**：
+   - 使用 `read_file` 读取 `requirements/images/{page_slug}/metadata.json`
+   - metadata.json 包含 UI Analyzer 为该页面下载的所有网页资源
    - 包括图片资源和 icon 字体文件
 
 **1.2 读取 ui-requirements.yaml**：
    - 使用 `read_file` 读取 `requirements/ui-requirements.yaml`
-   - 查找所有标记为"网页资源"、"页面资源"、"组件资源"的内容
+   - 查找当前页面及其组件的"网页资源"、"页面资源"、"组件资源"
    - 这些是实际在网页中显示的资源（Logo、背景、二维码、图标等）
 
 **1.3 需要复制的资源类型**：
@@ -295,137 +316,144 @@ const interactionImages = [
 
 **1.5 列出完整的资源清单**：
 
-**示例 1：图片资源**
+**🆕 示例 1：图片资源（登录页面）**
 ```
-图片资源（从 requirements/images/ 复制到 frontend/public/images/）：
-- 登录页-背景-新.jpg (背景图)
-- 登录页-顶部导航区域-中国铁路Logo.png (Logo)
-- 登录页-底部导航-友情链接.png (友情链接)
-- 登录页-底部导航-中国铁路官方微信二维码.png
-- 登录页-底部导航-中国铁路官方微博二维码.png
-- 登录页-底部导航-12306公众号二维码.png
-- 登录页-底部导航-铁路12306二维码.png
+源路径: requirements/images/login/
+目标路径: frontend/public/images/login/
+
+图片资源：
+- 登录页面-背景-新.jpg (背景图)
+- 登录页面-顶部导航-Logo.png (Logo)
+- 登录页面-底部导航-友情链接.png (友情链接)
+- 登录页面-底部导航-中国铁路官方微信二维码.png
+- 登录页面-底部导航-中国铁路官方微博二维码.png
+- 登录页面-底部导航-12306公众号二维码.png
+- 登录页面-底部导航-铁路12306二维码.png
 ```
 
-**示例 2：字体资源** 🆕
+**🆕 示例 2：字体资源（登录页面）**
 ```
-字体资源（从 requirements/images/fonts/ 复制到 frontend/public/fonts/）：
+源路径: requirements/images/login/fonts/
+目标路径: frontend/public/fonts/login/
+
+字体资源：
 - iconfont.woff2 (icon 字体 - WOFF2 格式)
 - iconfont.woff (icon 字体 - WOFF 格式)
 - iconfont.ttf (icon 字体 - TTF 格式)
 ```
 
-### 第二步：检查并创建目标目录
+### 第二步：检查并创建目标目录（🆕 按页面分类）
 
-**2.1 检查图片目录**：
-   - 使用 `list_dir` 检查 `frontend/public/images/` 目录
-   - 如果目录不存在，先创建：`mkdir -p frontend/public/images/`
+**🆕 2.1 检查页面专属图片目录**：
+   - 使用 `list_dir` 检查 `frontend/public/images/{page_slug}/` 目录
+   - 如果目录不存在，先创建：`mkdir -p frontend/public/images/{page_slug}/`
 
-**2.2 🆕 检查字体目录**：
-   - 使用 `list_dir` 检查 `frontend/public/fonts/` 目录
-   - 如果目录不存在，先创建：`mkdir -p frontend/public/fonts/`
+**🆕 2.2 检查页面专属字体目录**：
+   - 使用 `list_dir` 检查 `frontend/public/fonts/{page_slug}/` 目录
+   - 如果该页面有字体资源且目录不存在，先创建：`mkdir -p frontend/public/fonts/{page_slug}/`
 
 **2.3 对比资源清单**：
-   - 识别哪些网页资源图片缺失
-   - 识别哪些字体文件缺失
+   - 识别哪些网页资源图片缺失（在该页面专属目录下）
+   - 识别哪些字体文件缺失（在该页面专属字体目录下）
 
-### 第三步：执行复制操作（关键步骤）
+### 第三步：执行复制操作（🆕 按页面分类，关键步骤）
 
-**3.1 复制图片资源**：
+**🆕 3.1 复制图片资源到页面专属目录**：
 
 对每个缺失的网页资源图片：
 ```bash
 # 使用 run_terminal_cmd 执行复制命令
-cp requirements/images/图片文件名 frontend/public/images/
+cp requirements/images/{page_slug}/图片文件名 frontend/public/images/{page_slug}/
 ```
 
-**示例**：
+**示例（登录页面）**：
 ```bash
 # 复制背景图
-cp requirements/images/登录页-背景-新.jpg frontend/public/images/
+cp requirements/images/login/登录页面-背景-新.jpg frontend/public/images/login/
 
 # 复制 Logo
-cp requirements/images/登录页-顶部导航区域-中国铁路Logo.png frontend/public/images/
+cp requirements/images/login/登录页面-顶部导航-Logo.png frontend/public/images/login/
 
 # 复制二维码
-cp requirements/images/登录页-底部导航-中国铁路官方微信二维码.png frontend/public/images/
-cp requirements/images/登录页-底部导航-中国铁路官方微博二维码.png frontend/public/images/
-cp requirements/images/登录页-底部导航-12306公众号二维码.png frontend/public/images/
-cp requirements/images/登录页-底部导航-铁路12306二维码.png frontend/public/images/
+cp requirements/images/login/登录页面-底部导航-中国铁路官方微信二维码.png frontend/public/images/login/
+cp requirements/images/login/登录页面-底部导航-中国铁路官方微博二维码.png frontend/public/images/login/
+cp requirements/images/login/登录页面-底部导航-12306公众号二维码.png frontend/public/images/login/
+cp requirements/images/login/登录页面-底部导航-铁路12306二维码.png frontend/public/images/login/
 
 # 复制其他图片资源
-cp requirements/images/登录页-底部导航-友情链接.png frontend/public/images/
+cp requirements/images/login/登录页面-底部导航-友情链接.png frontend/public/images/login/
 ```
 
-**3.2 🆕 复制字体资源**（如果存在）：
+**🆕 3.2 复制字体资源到页面专属目录**（如果存在）：
 
 对每个缺失的字体文件：
 ```bash
 # 使用 run_terminal_cmd 执行复制命令
-cp requirements/images/fonts/字体文件名 frontend/public/fonts/
+cp requirements/images/{page_slug}/fonts/字体文件名 frontend/public/fonts/{page_slug}/
 ```
 
-**示例**：
+**示例（登录页面）**：
 ```bash
 # 复制 icon 字体文件
-cp requirements/images/fonts/iconfont.woff2 frontend/public/fonts/
-cp requirements/images/fonts/iconfont.woff frontend/public/fonts/
-cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
+cp requirements/images/login/fonts/iconfont.woff2 frontend/public/fonts/login/
+cp requirements/images/login/fonts/iconfont.woff frontend/public/fonts/login/
+cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 ```
 
 **⚠️ 注意**：
-- 如果 `requirements/images/fonts/` 目录不存在，说明页面没有使用字体图标，可以跳过
+- 如果 `requirements/images/{page_slug}/fonts/` 目录不存在，说明该页面没有使用字体图标，可以跳过
 - 如果 metadata.json 中有 `fonts` 字段，则必须复制字体文件
+- **每个页面的资源都保存在其专属目录下**
 
-### 第四步：验证复制结果
+### 第四步：验证复制结果（🆕 按页面检查）
 
-**4.1 验证图片资源**：
-   - 再次使用 `list_dir` 检查 `frontend/public/images/`
-   - 确认所有网页资源图片已存在
+**🆕 4.1 验证页面专属图片资源**：
+   - 再次使用 `list_dir` 检查 `frontend/public/images/{page_slug}/`
+   - 确认该页面的所有网页资源图片已存在
 
-**4.2 🆕 验证字体资源**（如果有）：
-   - 再次使用 `list_dir` 检查 `frontend/public/fonts/`
-   - 确认所有字体文件已存在
+**🆕 4.2 验证页面专属字体资源**（如果有）：
+   - 再次使用 `list_dir` 检查 `frontend/public/fonts/{page_slug}/`
+   - 确认该页面的所有字体文件已存在
 
-**4.3 在响应中输出复制结果**：
+**🆕 4.3 在响应中输出复制结果**：
    ```
-   ✅ 网页资源复制完成：
+   ✅ 网页资源复制完成（{page_name}）：
    
-   图片资源 (frontend/public/images/)：
-   - 登录页-背景-新.jpg (81KB)
-   - 登录页-顶部导航区域-中国铁路Logo.png (8.3KB)
-   - 登录页-底部导航-友情链接.png (89KB)
-   - 登录页-底部导航-中国铁路官方微信二维码.png (12KB)
-   - 登录页-底部导航-中国铁路官方微博二维码.png (11KB)
-   - 登录页-底部导航-12306公众号二维码.png (13KB)
-   - 登录页-底部导航-铁路12306二维码.png (14KB)
+   图片资源 (frontend/public/images/{page_slug}/)：
+   - 登录页面-背景-新.jpg (81KB)
+   - 登录页面-顶部导航-Logo.png (8.3KB)
+   - 登录页面-底部导航-友情链接.png (89KB)
+   - 登录页面-底部导航-中国铁路官方微信二维码.png (12KB)
+   - 登录页面-底部导航-中国铁路官方微博二维码.png (11KB)
+   - 登录页面-底部导航-12306公众号二维码.png (13KB)
+   - 登录页面-底部导航-铁路12306二维码.png (14KB)
    共 7 个图片
    
-   字体资源 (frontend/public/fonts/)：
+   字体资源 (frontend/public/fonts/{page_slug}/)：
    - iconfont.woff2 (15KB)
    - iconfont.woff (18KB)
    - iconfont.ttf (24KB)
    共 3 个字体文件
    ```
 
-### 第五步：在代码中引用资源
+### 第五步：在代码中引用资源（🆕 使用页面专属路径）
 
 **只有在资源复制完成后**，才能在代码中引用。
 
-**5.1 引用图片资源**：
+**🆕 5.1 引用图片资源**（使用页面专属路径）：
 
-使用路径 `/images/文件名.扩展名`：
+使用路径 `/images/{page_slug}/文件名.扩展名`：
 
 ```css
 /* CSS 中引用背景图 */
 .page-container {
-  background-image: url('/images/登录页-背景-新.jpg');
+  background-image: url('/images/login/登录页面-背景-新.jpg');
   background-size: cover;
 }
 
 /* CSS 中引用 Logo */
 .logo {
-  background-image: url('/images/登录页-顶部导航区域-中国铁路Logo.png');
+  background-image: url('/images/login/登录页面-顶部导航-Logo.png');
   width: 200px;
   height: 50px;
 }
@@ -434,17 +462,17 @@ cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 ```tsx
 {/* React 组件中引用图片 */}
 <img 
-  src="/images/中国铁路官方微信二维码.png" 
+  src="/images/login/登录页面-底部导航-中国铁路官方微信二维码.png" 
   alt="中国铁路官方微信二维码" 
 />
 
 <img 
-  src="/images/登录页-底部导航-友情链接.png" 
+  src="/images/login/登录页面-底部导航-友情链接.png" 
   alt="友情链接" 
 />
 ```
 
-**5.2 🆕 引用字体资源**：
+**🆕 5.2 引用字体资源**（使用页面专属路径）：
 
 **在 CSS 文件顶部添加 @font-face 声明**：
 
@@ -452,18 +480,18 @@ cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 /* frontend/src/styles/fonts.css 或 frontend/src/App.css */
 
 @font-face {
-  font-family: 'iconfont';
-  src: url('/fonts/iconfont.woff2') format('woff2'),
-       url('/fonts/iconfont.woff') format('woff'),
-       url('/fonts/iconfont.ttf') format('truetype');
+  font-family: 'iconfont-login';  /* 🆕 页面专属字体名 */
+  src: url('/fonts/login/iconfont.woff2') format('woff2'),
+       url('/fonts/login/iconfont.woff') format('woff'),
+       url('/fonts/login/iconfont.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 /* 定义 icon 基础样式 */
-.icon {
-  font-family: 'iconfont' !important;
+.icon-login {  /* 🆕 页面专属 icon 类 */
+  font-family: 'iconfont-login' !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
@@ -471,11 +499,11 @@ cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 }
 
 /* 具体的 icon 类（根据 ui-style-guide.md 中的定义） */
-.icon-user::before {
+.icon-login.icon-user::before {
   content: '\e001'; /* 字符码需要从实际字体文件中获取 */
 }
 
-.icon-pwd::before {
+.icon-login.icon-pwd::before {
   content: '\e002';
 }
 ```
@@ -485,13 +513,13 @@ cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 ```tsx
 {/* 用户名输入框图标 */}
 <div className="input-wrapper">
-  <i className="icon icon-user"></i>
+  <i className="icon-login icon-user"></i>
   <input type="text" placeholder="用户名/邮箱/手机号" />
 </div>
 
 {/* 密码输入框图标 */}
 <div className="input-wrapper">
-  <i className="icon icon-pwd"></i>
+  <i className="icon-login icon-pwd"></i>
   <input type="password" placeholder="密码" />
 </div>
 ```
@@ -500,18 +528,19 @@ cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 - ❌ **不要**使用base64内联图片（会导致文件过大）
 - ❌ **不要**使用base64内联字体（会导致首次加载缓慢）
 - ❌ **不要**在代码中引用 `requirements/images/` 目录（前端无法访问）
-- ❌ **不要**在代码中引用 `requirements/images/fonts/` 目录（前端无法访问）
+- ❌ **不要**在代码中引用 `requirements/images/{page_slug}/fonts/` 目录（前端无法访问）
 - ❌ **不要**跳过资源复制步骤
 
 **✅ 正确流程**：
 ```
-1. 读取 metadata.json 识别所有资源（图片+字体）
-2. 创建目标目录 (frontend/public/images/, frontend/public/fonts/)
-3. 复制图片到 frontend/public/images/ (使用 cp 命令)
-4. 复制字体到 frontend/public/fonts/ (使用 cp 命令)
-5. 验证资源已存在 (使用 list_dir)
-6. 在 CSS 中添加 @font-face 声明（如果有字体）
-7. 在代码中引用 /images/文件名 和 /fonts/文件名 (生成骨架代码)
+1. 🆕 提取页面标识符 (page_slug)
+2. 🆕 读取 metadata.json 识别该页面的所有资源（图片+字体）
+3. 🆕 创建页面专属目录 (frontend/public/images/{page_slug}/, frontend/public/fonts/{page_slug}/)
+4. 🆕 复制图片到 frontend/public/images/{page_slug}/ (使用 cp 命令)
+5. 🆕 复制字体到 frontend/public/fonts/{page_slug}/ (使用 cp 命令)
+6. 验证资源已存在 (使用 list_dir)
+7. 在 CSS 中添加 @font-face 声明（使用页面专属字体名）
+8. 🆕 在代码中引用 /images/{page_slug}/文件名 和 /fonts/{page_slug}/文件名 (生成骨架代码)
 ```
 
 **布局精确定位规则** 📐
