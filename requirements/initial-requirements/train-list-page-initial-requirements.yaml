@@ -14,6 +14,7 @@
     
     **网站地址**: https://kyfw.12306.cn/otn/leftTicket/init (需要先从首页查询后跳转)
     **页面宽度参考**: 1920px
+    **页面标识**: train-list
     
     **访问方式**:
     1. 先访问首页 https://www.12306.cn/index/index.html

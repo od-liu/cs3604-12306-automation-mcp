@@ -18,6 +18,7 @@
     - 成功页: https://kyfw.12306.cn/otn/payOrder/paySuccess (支付成功后跳转)
     
     **页面宽度参考**: 1920px
+    **页面标识**: payment-success
     
     **访问方式**:
     1. 需要先登录

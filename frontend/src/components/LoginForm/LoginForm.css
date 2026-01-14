@@ -7,9 +7,9 @@
 /* ========== Icon字体引入 ========== */
 @font-face {
   font-family: 'icon';
-  src: url('/images/fonts/iconfont.woff2') format('woff2'),
-       url('/images/fonts/iconfont.woff') format('woff'),
-       url('/images/fonts/iconfont.ttf') format('truetype');
+  src: url('/fonts/login/iconfont.woff2') format('woff2'),
+       url('/fonts/login/iconfont.woff') format('woff'),
+       url('/fonts/login/iconfont.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

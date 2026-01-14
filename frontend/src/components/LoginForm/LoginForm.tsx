@@ -29,8 +29,8 @@
  * 
  * @resources:
  *   images: [
- *     "/images/登录页面-主内容-背景图1.jpg",
- *     "/images/登录页面-主内容-背景图2.jpg"
+ *     "/images/login/登录页面-主内容-背景图1.jpg",
+ *     "/images/login/登录页面-主内容-背景图2.jpg"
  *   ]
  *   fonts: [
  *     "/fonts/iconfont.woff2",
@@ -184,11 +184,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               transition: 'left 0.5s ease'
             }}>
               <li style={{ 
-                backgroundImage: 'url(/images/登录页面-主内容-背景图1.jpg)',
+                backgroundImage: 'url(/images/login/登录页面-主内容-背景图1.jpg)',
                 width: '50%'
               }}></li>
               <li style={{ 
-                backgroundImage: 'url(/images/登录页面-主内容-背景图2.jpg)',
+                backgroundImage: 'url(/images/login/登录页面-主内容-背景图2.jpg)',
                 width: '50%'
               }}></li>
             </ul>

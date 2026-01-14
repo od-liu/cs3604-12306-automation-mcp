@@ -25,15 +25,15 @@
  * 
  * @resources:
  *   images: [
- *     "/images/登录页面-底部导航-中国国家铁路集团Logo.png",
- *     "/images/登录页面-底部导航-中国铁路财产保险Logo.png",
- *     "/images/登录页面-底部导航-中国铁路95306网Logo.png",
- *     "/images/登录页面-底部导航-中铁快运Logo.png",
- *     "/images/登录页面-底部导航-中国铁路官方微信二维码.png",
- *     "/images/登录页面-底部导航-中国铁路官方微博二维码.png",
- *     "/images/登录页面-底部导航-12306公众号二维码.png",
- *     "/images/登录页面-底部导航-铁路12306二维码.png",
- *     "/images/登录页面-底部导航-无障碍服务Logo.jpg"
+ *     "/images/login/登录页面-底部导航-中国国家铁路集团Logo.png",
+ *     "/images/login/登录页面-底部导航-中国铁路财产保险Logo.png",
+ *     "/images/login/登录页面-底部导航-中国铁路95306网Logo.png",
+ *     "/images/login/登录页面-底部导航-中铁快运Logo.png",
+ *     "/images/login/登录页面-底部导航-中国铁路官方微信二维码.png",
+ *     "/images/login/登录页面-底部导航-中国铁路官方微博二维码.png",
+ *     "/images/login/登录页面-底部导航-12306公众号二维码.png",
+ *     "/images/login/登录页面-底部导航-铁路12306二维码.png",
+ *     "/images/login/登录页面-底部导航-无障碍服务Logo.jpg"
  *   ]
  * ==========================================
  */
@@ -52,7 +52,7 @@ const BottomNavigation: React.FC = () => {
             <li>
               <a href="http://www.china-railway.com.cn/" target="_blank" rel="noopener noreferrer">
                 <img 
-                  src="/images/登录页面-底部导航-中国国家铁路集团Logo.png" 
+                  src="/images/login/登录页面-底部导航-中国国家铁路集团Logo.png" 
                   alt="中国国家铁路集团有限公司"
                 />
               </a>
@@ -60,7 +60,7 @@ const BottomNavigation: React.FC = () => {
             <li>
               <a href="http://www.china-ric.com/" target="_blank" rel="noopener noreferrer">
                 <img 
-                  src="/images/登录页面-底部导航-中国铁路财产保险Logo.png" 
+                  src="/images/login/登录页面-底部导航-中国铁路财产保险Logo.png" 
                   alt="中国铁路财产保险自保有限公司"
                 />
               </a>
@@ -68,7 +68,7 @@ const BottomNavigation: React.FC = () => {
             <li>
               <a href="http://www.95306.cn/" target="_blank" rel="noopener noreferrer">
                 <img 
-                  src="/images/登录页面-底部导航-中国铁路95306网Logo.png" 
+                  src="/images/login/登录页面-底部导航-中国铁路95306网Logo.png" 
                   alt="中国铁路95306网"
                 />
               </a>
@@ -76,7 +76,7 @@ const BottomNavigation: React.FC = () => {
             <li>
               <a href="http://www.95572.com/" target="_blank" rel="noopener noreferrer">
                 <img 
-                  src="/images/登录页面-底部导航-中铁快运Logo.png" 
+                  src="/images/login/登录页面-底部导航-中铁快运Logo.png" 
                   alt="中铁快运股份有限公司"
                 />
               </a>
@@ -91,7 +91,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">中国铁路官方微信</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/登录页面-底部导航-中国铁路官方微信二维码.png" 
+                src="/images/login/登录页面-底部导航-中国铁路官方微信二维码.png" 
                 alt="中国铁路官方微信"
               />
             </div>
@@ -100,7 +100,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">中国铁路官方微博</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/登录页面-底部导航-中国铁路官方微博二维码.png" 
+                src="/images/login/登录页面-底部导航-中国铁路官方微博二维码.png" 
                 alt="中国铁路官方微博"
               />
             </div>
@@ -109,7 +109,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">12306 公众号</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/登录页面-底部导航-12306公众号二维码.png" 
+                src="/images/login/登录页面-底部导航-12306公众号二维码.png" 
                 alt="12306 公众号"
               />
             </div>
@@ -118,7 +118,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">铁路12306</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/登录页面-底部导航-铁路12306二维码.png" 
+                src="/images/login/登录页面-底部导航-铁路12306二维码.png" 
                 alt="铁路12306"
               />
               <div className="bottom-navigation-code-tips">
@@ -144,7 +144,7 @@ const BottomNavigation: React.FC = () => {
           <span>ICP证：京B2-20202537</span>
         </p>
         <img 
-          src="/images/登录页面-底部导航-无障碍服务Logo.jpg" 
+          src="/images/login/登录页面-底部导航-无障碍服务Logo.jpg" 
           alt="无障碍服务"
         />
       </div>

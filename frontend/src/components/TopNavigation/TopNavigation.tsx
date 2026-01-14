@@ -24,7 +24,7 @@
  *   - 布局: position: relative, z-index: 2000
  * 
  * @resources:
- *   images: ["/images/登录页面-顶部导航-Logo.png"]
+ *   images: ["/images/login/登录页面-顶部导航-Logo.png"]
  * ==========================================
  */
 
