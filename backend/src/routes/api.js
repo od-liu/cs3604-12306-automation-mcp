@@ -4,7 +4,18 @@
  */
 
 import express from 'express';
-import { authenticateUser, generateVerificationCode, verifyCode } from '../database/operations.js';
+import { 
+  authenticateUser, 
+  generateVerificationCode, 
+  verifyCode,
+  registerUser,
+  sendRegistrationVerificationCode,
+  verifyRegistrationCode,
+  checkUsername,
+  checkPhone,
+  checkIdNumber,
+  checkEmail
+} from '../database/operations.js';
 
 const router = express.Router();
 
@@ -120,6 +131,234 @@ router.post('/api/auth/verify-code', async (req, res) => {
       message: result.message
     });
   }
+});
+
+/**
+ * @api API-REGISTER POST /api/auth/register
+ * @summary 用户注册接口
+ * @param {Object} body - 请求体
+ * @param {string} body.username - 用户名（6-30位，字母开头）
+ * @param {string} body.password - 密码（6-20位）
+ * @param {string} body.name - 真实姓名
+ * @param {string} body.idType - 证件类型（1=身份证，2=护照等）
+ * @param {string} body.idNumber - 证件号码
+ * @param {string} body.phone - 手机号码
+ * @param {string} body.email - 邮箱（可选）
+ * @param {string} body.passengerType - 乘客类型（1=成人，2=学生，3=儿童）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 注册是否成功
+ * @returns {string} response.message - 响应消息
+ * @returns {string} response.userId - 用户ID（成功时）
+ * @calls FUNC-REGISTER-USER
+ */
+router.post('/api/auth/register', async (req, res) => {
+  const { username, password, name, idType, idNumber, phone, email, passengerType } = req.body;
+  
+  // 参数验证
+  if (!username || !password || !name || !idNumber || !phone) {
+    return res.status(400).json({
+      success: false,
+      message: '必填字段不能为空'
+    });
+  }
+  
+  // 调用 FUNC-REGISTER-USER
+  const result = await registerUser({
+    username,
+    password,
+    name,
+    idType: idType || '1',
+    idNumber,
+    phone,
+    email: email || '',
+    passengerType: passengerType || '1'
+  });
+  
+  if (result.success) {
+    return res.status(200).json({
+      success: true,
+      userId: result.userId,
+      message: '注册成功，请进行手机验证'
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: result.message
+    });
+  }
+});
+
+/**
+ * @api API-SEND-REGISTRATION-CODE POST /api/auth/send-registration-code
+ * @summary 发送注册验证码
+ * @param {Object} body - 请求体
+ * @param {string} body.phoneNumber - 手机号码
+ * @param {Object} body.userData - 用户注册信息（用于验证和临时存储）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否发送成功
+ * @returns {string} response.message - 响应消息
+ * @calls FUNC-SEND-REGISTRATION-CODE
+ */
+router.post('/api/auth/send-registration-code', async (req, res) => {
+  const { phoneNumber, userData } = req.body;
+  
+  if (!phoneNumber) {
+    return res.status(400).json({
+      success: false,
+      message: '手机号码不能为空'
+    });
+  }
+  
+  // 调用 FUNC-SEND-REGISTRATION-CODE
+  const result = await sendRegistrationVerificationCode(phoneNumber, userData);
+  
+  if (result.success) {
+    return res.status(200).json({
+      success: true,
+      message: '验证码已发送'
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: result.message
+    });
+  }
+});
+
+/**
+ * @api API-VERIFY-REGISTRATION-CODE POST /api/auth/verify-registration-code
+ * @summary 验证注册验证码并完成注册
+ * @param {Object} body - 请求体
+ * @param {string} body.phoneNumber - 手机号码
+ * @param {string} body.code - 验证码
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 验证是否成功
+ * @returns {string} response.message - 响应消息
+ * @returns {string} response.userId - 用户ID（成功时）
+ * @calls FUNC-VERIFY-REGISTRATION-CODE
+ */
+router.post('/api/auth/verify-registration-code', async (req, res) => {
+  const { phoneNumber, code } = req.body;
+  
+  if (!phoneNumber || !code) {
+    return res.status(400).json({
+      success: false,
+      message: '参数不完整'
+    });
+  }
+  
+  // 调用 FUNC-VERIFY-REGISTRATION-CODE
+  const result = await verifyRegistrationCode(phoneNumber, code);
+  
+  if (result.success) {
+    return res.status(200).json({
+      success: true,
+      userId: result.userId,
+      message: '注册完成'
+    });
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: result.message
+    });
+  }
+});
+
+/**
+ * @api API-CHECK-USERNAME POST /api/auth/check-username
+ * @summary 检查用户名是否可用
+ * @param {Object} body - 请求体
+ * @param {string} body.username - 用户名
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.available - 用户名是否可用
+ * @returns {string} response.message - 错误消息（不可用时）
+ * @calls FUNC-CHECK-USERNAME
+ */
+router.post('/api/auth/check-username', async (req, res) => {
+  const { username } = req.body;
+  
+  if (!username) {
+    return res.status(400).json({
+      available: false,
+      message: '用户名不能为空'
+    });
+  }
+  
+  const result = await checkUsername(username);
+  return res.status(200).json(result);
+});
+
+/**
+ * @api API-CHECK-PHONE POST /api/auth/check-phone
+ * @summary 检查手机号是否可用
+ * @param {Object} body - 请求体
+ * @param {string} body.phone - 手机号
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.available - 手机号是否可用
+ * @returns {string} response.message - 错误消息（不可用时）
+ * @calls FUNC-CHECK-PHONE
+ */
+router.post('/api/auth/check-phone', async (req, res) => {
+  const { phone } = req.body;
+  
+  if (!phone) {
+    return res.status(400).json({
+      available: false,
+      message: '手机号不能为空'
+    });
+  }
+  
+  const result = await checkPhone(phone);
+  return res.status(200).json(result);
+});
+
+/**
+ * @api API-CHECK-ID-NUMBER POST /api/auth/check-id-number
+ * @summary 检查证件号码是否可用
+ * @param {Object} body - 请求体
+ * @param {string} body.idNumber - 证件号码
+ * @param {string} body.idType - 证件类型
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.available - 证件号码是否可用
+ * @returns {string} response.message - 错误消息（不可用时）
+ * @calls FUNC-CHECK-ID-NUMBER
+ */
+router.post('/api/auth/check-id-number', async (req, res) => {
+  const { idNumber, idType } = req.body;
+  
+  if (!idNumber || !idType) {
+    return res.status(400).json({
+      available: false,
+      message: '证件号码和证件类型不能为空'
+    });
+  }
+  
+  const result = await checkIdNumber(idNumber, idType);
+  return res.status(200).json(result);
+});
+
+/**
+ * @api API-CHECK-EMAIL POST /api/auth/check-email
+ * @summary 检查邮箱是否可用
+ * @param {Object} body - 请求体
+ * @param {string} body.email - 邮箱
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.available - 邮箱是否可用
+ * @returns {string} response.message - 错误消息（不可用时）
+ * @calls FUNC-CHECK-EMAIL
+ */
+router.post('/api/auth/check-email', async (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({
+      available: false,
+      message: '邮箱不能为空'
+    });
+  }
+  
+  const result = await checkEmail(email);
+  return res.status(200).json(result);
 });
 
 export default router;

@@ -9,6 +9,14 @@
 - ✅ 完整的用户交互流程（点击、输入、提交、验证、跳转）
 - ✅ 前后端完整集成，数据流畅通
 
+**🆕 多页面应用架构说明**：
+- 本项目是一个**多页面应用**（Multi-Page Application），包含多个独立的页面（如登录页、注册页、首页等）
+- 使用 **React Router** 进行客户端路由管理，路由配置在 `frontend/src/App.tsx` 中
+- 某些组件（如 TopNavigation、BottomNavigation）是**跨页面共享组件**，在 `artifacts/ui_interface.yaml` 中标记为 `pages: [login, registration, ...]`
+- 每个页面的组件在 artifacts 文件中都有 `page` 字段标识其所属页面（如 `page: login` 或 `page: registration` 或 `page: shared`）
+- **端口配置**：Backend运行在端口 **5175**，Frontend运行在端口 **5174**
+- **路由示例**：`/login` 对应 LoginPage，`/register` 对应 RegistrationPage
+
 **⚠️ 明确禁止交付半成品**：
 - ❌ 不允许只实现测试而不实现功能
 - ❌ 不允许组件只有骨架/占位符而没有真实内容

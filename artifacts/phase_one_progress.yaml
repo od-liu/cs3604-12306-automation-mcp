@@ -1,15 +1,25 @@
+# ========================================
+# 登录页面需求 (Phase 1 已完成)
+# ========================================
 - id: REQ-LOGIN-PAGE
   status: processed
+  page: login
   artifacts:
     ui_ids:
       - UI-LOGIN-PAGE
+      - UI-TOP-NAV
+      - UI-BOTTOM-NAV
+
 - id: REQ-TOP-NAV
   status: processed
+  page: shared
   artifacts:
     ui_ids:
       - UI-TOP-NAV
+
 - id: REQ-LOGIN-FORM
   status: processed
+  page: login
   artifacts:
     ui_ids:
       - UI-LOGIN-FORM
@@ -17,8 +27,10 @@
       - API-LOGIN
     func_ids:
       - FUNC-AUTH-LOGIN
+
 - id: REQ-SMS-VERIFICATION
   status: processed
+  page: login
   artifacts:
     ui_ids:
       - UI-SMS-VERIFICATION
@@ -28,8 +40,46 @@
     func_ids:
       - FUNC-SEND-VERIFICATION-CODE
       - FUNC-VERIFY-CODE
+
 - id: REQ-BOTTOM-NAV
   status: processed
+  page: shared
   artifacts:
     ui_ids:
       - UI-BOTTOM-NAV
+
+# ========================================
+# 注册页面需求 (Phase 1 设计完成)
+# ========================================
+- id: REQ-REG-PAGE
+  status: processed
+  page: registration
+  artifacts:
+    ui_ids:
+      - UI-REG-PAGE
+      - UI-TOP-NAV
+      - UI-BOTTOM-NAV
+
+- id: REQ-REG-FORM
+  status: processed
+  page: registration
+  artifacts:
+    ui_ids:
+      - UI-REG-FORM
+    api_ids:
+      - API-REGISTER
+    func_ids:
+      - FUNC-REGISTER-USER
+
+- id: REQ-REG-VERIFICATION
+  status: processed
+  page: registration
+  artifacts:
+    ui_ids:
+      - UI-REG-VERIFICATION
+    api_ids:
+      - API-SEND-REGISTRATION-CODE
+      - API-VERIFY-REGISTRATION-CODE
+    func_ids:
+      - FUNC-SEND-REGISTRATION-CODE
+      - FUNC-VERIFY-REGISTRATION-CODE

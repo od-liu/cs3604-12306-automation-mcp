@@ -14,7 +14,11 @@ const createUsersTable = `
     email TEXT UNIQUE,
     phone TEXT UNIQUE,
     password_hash TEXT NOT NULL,
+    name TEXT,
+    id_type TEXT DEFAULT '1',
+    id_number TEXT,
     id_card_last4 TEXT NOT NULL,
+    passenger_type TEXT DEFAULT '1',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `;
@@ -23,9 +27,11 @@ const createUsersTable = `
 const createVerificationCodesTable = `
   CREATE TABLE IF NOT EXISTS verification_codes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER,
+    phone TEXT,
     code TEXT NOT NULL,
     expires_at DATETIME NOT NULL,
+    user_data TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
   )
@@ -99,20 +105,25 @@ export async function insertDemoData() {
     const passwordHash = bcrypt.hashSync('password123', 10);
     const passwordHash2 = bcrypt.hashSync('admin123', 10);
     
-    // Insert demo users
+    // Insert demo users (use INSERT OR IGNORE to avoid conflicts in parallel tests)
     await db.runAsync(`
-      INSERT INTO users (username, email, phone, password_hash, id_card_last4)
-      VALUES (?, ?, ?, ?, ?)
-    `, 'testuser', 'test@12306.cn', '13800138000', passwordHash, '1234');
+      INSERT OR IGNORE INTO users (username, email, phone, password_hash, name, id_type, id_number, id_card_last4, passenger_type)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, 'testuser', 'test@12306.cn', '13800138000', passwordHash, '张三', '1', '110101199001011234', '1234', '1');
     console.log('✓ Demo user inserted: testuser / password123 / 证件号后4位: 1234');
     
     await db.runAsync(`
-      INSERT INTO users (username, email, phone, password_hash, id_card_last4)
-      VALUES (?, ?, ?, ?, ?)
-    `, 'admin', 'admin@12306.cn', '13900139000', passwordHash2, '5678');
+      INSERT OR IGNORE INTO users (username, email, phone, password_hash, name, id_type, id_number, id_card_last4, passenger_type)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, 'admin', 'admin@12306.cn', '13900139000', passwordHash2, '李四', '1', '110101199002025678', '5678', '1');
     console.log('✓ Demo user inserted: admin / admin123 / 证件号后4位: 5678');
     
   } catch (err) {
+    // Ignore UNIQUE constraint errors (happens in parallel tests)
+    if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE')) {
+      console.log('✓ Demo users already exist (parallel test detected)');
+      return;
+    }
     console.error('Error inserting demo data:', err.message);
     throw err;
   }

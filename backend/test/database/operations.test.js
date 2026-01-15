@@ -5,7 +5,14 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getDb } from '../../src/database/db.js';
-import { authenticateUser, generateVerificationCode, verifyCode } from '../../src/database/operations.js';
+import { 
+  authenticateUser, 
+  generateVerificationCode, 
+  verifyCode,
+  registerUser,
+  sendRegistrationVerificationCode,
+  verifyRegistrationCode
+} from '../../src/database/operations.js';
 
 describe('FUNC-AUTH-LOGIN: authenticateUser', () => {
   beforeEach(async () => {
@@ -132,6 +139,329 @@ describe('FUNC-VERIFY-CODE: verifyCode', () => {
   it('应该拒绝过期的验证码', async () => {
     // This test would require manipulating time or waiting
     // Skipping for now, can be implemented with proper time mocking
+  });
+});
+
+describe('FUNC-REGISTER-USER: registerUser', () => {
+  beforeEach(async () => {
+    const db = getDb();
+    // Clean up test users (but keep testuser for other tests)
+    await db.runAsync("DELETE FROM users WHERE username LIKE 'testreg%'");
+    await db.runAsync("DELETE FROM users WHERE phone LIKE '13800138%'");
+  });
+
+  it('应该成功注册新用户', async () => {
+    const userData = {
+      username: 'testreg001',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138001',
+      email: 'testreg001@12306.cn',
+      passengerType: '1'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(true);
+    expect(result.userId).toBeDefined();
+    expect(typeof result.userId).toBe('number');
+
+    // Verify user was created in database
+    const db = getDb();
+    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', result.userId);
+    expect(user).toBeDefined();
+    expect(user.username).toBe('testreg001');
+    expect(user.name).toBe('测试用户');
+    expect(user.phone).toBe('13800138001');
+    expect(user.id_card_last4).toBe('1234');
+  });
+
+  it('应该拒绝空必填字段', async () => {
+    const userData = {
+      username: '',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138002'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('不能为空');
+  });
+
+  it('应该拒绝用户名长度不足6位', async () => {
+    const userData = {
+      username: 'test',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138003'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('6-30位');
+  });
+
+  it('应该拒绝用户名长度超过30位', async () => {
+    const userData = {
+      username: 'a'.repeat(31),
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138004'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('6-30位');
+  });
+
+  it('应该拒绝用户名不以字母开头', async () => {
+    const userData = {
+      username: '123test',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138005'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('字母开头');
+  });
+
+  it('应该拒绝密码长度不足6位', async () => {
+    const userData = {
+      username: 'testreg002',
+      password: '12345',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138006'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('6-20位');
+  });
+
+  it('应该拒绝密码长度超过20位', async () => {
+    const userData = {
+      username: 'testreg003',
+      password: 'a'.repeat(21),
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138007'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('6-20位');
+  });
+
+  it('应该拒绝无效的手机号格式', async () => {
+    const userData = {
+      username: 'testreg004',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '1234567890'
+    };
+
+    const result = await registerUser(userData);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('手机号码格式');
+  });
+
+  it('应该拒绝已存在的用户名', async () => {
+    // First registration
+    const userData1 = {
+      username: 'testreg005',
+      password: 'password123',
+      name: '测试用户1',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138008'
+    };
+    await registerUser(userData1);
+
+    // Try to register with same username
+    const userData2 = {
+      username: 'testreg005',
+      password: 'password456',
+      name: '测试用户2',
+      idType: '1',
+      idNumber: '110101199001011235',
+      phone: '13800138009'
+    };
+
+    const result = await registerUser(userData2);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('已被注册');
+  });
+
+  it('应该拒绝已存在的手机号', async () => {
+    // First registration
+    const userData1 = {
+      username: 'testreg006',
+      password: 'password123',
+      name: '测试用户1',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138010'
+    };
+    await registerUser(userData1);
+
+    // Try to register with same phone
+    const userData2 = {
+      username: 'testreg007',
+      password: 'password456',
+      name: '测试用户2',
+      idType: '1',
+      idNumber: '110101199001011235',
+      phone: '13800138010'
+    };
+
+    const result = await registerUser(userData2);
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('已被注册');
+  });
+});
+
+describe('FUNC-SEND-REGISTRATION-CODE: sendRegistrationVerificationCode', () => {
+  beforeEach(async () => {
+    const db = getDb();
+    await db.runAsync("DELETE FROM verification_codes WHERE phone LIKE '13800138%'");
+    await db.runAsync("DELETE FROM users WHERE phone LIKE '13800138%' OR username LIKE 'testreg%'");
+  });
+
+  it('应该成功发送注册验证码', async () => {
+    const phoneNumber = '13800138020';
+    const userData = {
+      username: 'testreg008',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: phoneNumber
+    };
+
+    const result = await sendRegistrationVerificationCode(phoneNumber, userData);
+    expect(result.success).toBe(true);
+    expect(result.code).toBeDefined();
+    expect(result.code.length).toBe(6);
+    expect(/^\d{6}$/.test(result.code)).toBe(true);
+
+    // Verify code was stored in database
+    const db = getDb();
+    const codeRecord = await db.getAsync(
+      'SELECT * FROM verification_codes WHERE phone = ?',
+      phoneNumber
+    );
+    expect(codeRecord).toBeDefined();
+    expect(codeRecord.code).toBe(result.code);
+  });
+
+  it('应该拒绝无效的手机号格式', async () => {
+    const result = await sendRegistrationVerificationCode('1234567890', {});
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('手机号码格式');
+  });
+
+  it('应该拒绝已注册的手机号', async () => {
+    // First register a user
+    const userData = {
+      username: 'testreg009',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: '13800138021'
+    };
+    await registerUser(userData);
+
+    // Try to send code for already registered phone
+    const result = await sendRegistrationVerificationCode('13800138021', {});
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('已被注册');
+  });
+});
+
+describe('FUNC-VERIFY-REGISTRATION-CODE: verifyRegistrationCode', () => {
+  beforeEach(async () => {
+    const db = getDb();
+    await db.runAsync("DELETE FROM verification_codes WHERE phone LIKE '13800138%'");
+    await db.runAsync("DELETE FROM users WHERE phone LIKE '13800138%' OR username LIKE 'testreg%'");
+  });
+
+  it('应该成功验证注册验证码并完成注册', async () => {
+    const phoneNumber = '13800138030';
+    const userData = {
+      username: 'testreg010',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: phoneNumber,
+      email: 'testreg010@12306.cn',
+      passengerType: '1'
+    };
+
+    // Send verification code
+    const sendResult = await sendRegistrationVerificationCode(phoneNumber, userData);
+    expect(sendResult.success).toBe(true);
+
+    // Verify code
+    const verifyResult = await verifyRegistrationCode(phoneNumber, sendResult.code);
+    expect(verifyResult.success).toBe(true);
+    expect(verifyResult.userId).toBeDefined();
+
+    // Verify user was created
+    const db = getDb();
+    const user = await db.getAsync('SELECT * FROM users WHERE id = ?', verifyResult.userId);
+    expect(user).toBeDefined();
+    expect(user.username).toBe('testreg010');
+    expect(user.phone).toBe(phoneNumber);
+
+    // Verify code was deleted
+    const codeRecord = await db.getAsync(
+      'SELECT * FROM verification_codes WHERE phone = ?',
+      phoneNumber
+    );
+    expect(codeRecord).toBeUndefined();
+  });
+
+  it('应该拒绝错误的验证码', async () => {
+    const phoneNumber = '13800138031';
+    const userData = {
+      username: 'testreg011',
+      password: 'password123',
+      name: '测试用户',
+      idType: '1',
+      idNumber: '110101199001011234',
+      phone: phoneNumber
+    };
+
+    await sendRegistrationVerificationCode(phoneNumber, userData);
+
+    const result = await verifyRegistrationCode(phoneNumber, '000000');
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('错误或已过期');
+  });
+
+  it('应该拒绝不存在的验证码', async () => {
+    const result = await verifyRegistrationCode('13800138032', '123456');
+    expect(result.success).toBe(false);
+    expect(result.message).toContain('错误或已过期');
   });
 });
 

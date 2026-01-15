@@ -74,30 +74,7 @@
         - 提供"已有账号？去登录"链接
         
         **交互场景截图**:    
-          - name: "前端验证-密码为空"
-            description: "测试只输入用户名不输入密码"
-            steps:
-              - action: evaluate
-                script: |
-                  const usernameInput = document.querySelector('input[placeholder*="用户名"], input[name*="user"], input[id*="user"]');
-                  if (usernameInput) usernameInput.value = '';
-              - action: type
-                target: "用户名输入框"
-                target_hint: "input[placeholder*='用户名'], input[name*='user']"
-                value: "testuser123123"
-              - action: evaluate
-                script: |
-                  const confirmPasswordInput = document.querySelector("input[type='password']:last-of-type") || 
-                                               document.querySelector("input[placeholder*='确认']") ||
-                                               document.querySelector("input[placeholder*='再次']");
-                  if (confirmPasswordInput) {
-                    confirmPasswordInput.blur();
-                  }
-              - action: wait
-                duration: 0.5
-              - action: screenshot
-                filename: "注册表单-错误-密码为空.png"
-                
+  
           - name: "前端验证-两次密码不一致"
             description: "测试输入的两次密码不一致"
             steps:
@@ -149,6 +126,32 @@
                 target: "确认密码输入框"
                 target_hint: "input[type='password']:last-of-type"
                 value: "password123"
+
+              - action: evaluate
+                script: |
+                  const idTypeSelect = document.querySelector('select[name*="idType"], select[name*="证件"], [class*="id-type"] select');
+                  if (idTypeSelect) {
+                    idTypeSelect.value = '1'; // 假设1代表身份证
+                    idTypeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                  }
+              
+              - action: type
+                target: "姓名输入框"
+                target_hint: "input[placeholder*='姓名'], input[name*='name'], input[name*='realName']"
+                value: "武大"
+              
+              - action: type
+                target: "证件号码输入框"
+                target_hint: "input[placeholder*='证件'], input[name*='idCard'], input[name*='idNumber']"
+                value: "430602196211261431"
+              
+              - action: evaluate
+                script: |
+                  const passengerTypeSelect = document.querySelector('select[name*="passengerType"], select[name*="优待"], [class*="passenger-type"] select');
+                  if (passengerTypeSelect) {
+                    passengerTypeSelect.value = '1'; // 假设1代表成人
+                    passengerTypeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                  }
               - action: type
                 target: "手机号输入框"
                 target_hint: "input[placeholder*='手机'], input[name*='phone'], input[name*='mobile']"

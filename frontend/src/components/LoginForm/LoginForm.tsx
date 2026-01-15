@@ -41,6 +41,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './LoginForm.css';
 
 interface LoginFormProps {
@@ -184,11 +185,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               transition: 'left 0.5s ease'
             }}>
               <li style={{ 
-                backgroundImage: 'url(/images/login/登录页面-主内容-背景图1.jpg)',
+                backgroundImage: "url('/images/login/登录页面-主内容-背景图1.jpg')",
                 width: '50%'
               }}></li>
               <li style={{ 
-                backgroundImage: 'url(/images/login/登录页面-主内容-背景图2.jpg)',
+                backgroundImage: "url('/images/login/登录页面-主内容-背景图2.jpg')",
                 width: '50%'
               }}></li>
             </ul>
@@ -281,9 +282,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
               {/* @feature "提供注册和忘记密码链接" */}
               <div className="login-other">
-                <a href="https://kyfw.12306.cn/otn/regist/init" target="_blank" rel="noopener noreferrer">
+                <Link to="/register">
                   注册12306账号
-                </a>
+                </Link>
                 {' | '}
                 <a href="https://kyfw.12306.cn/otn/view/find_my_password.html" target="_blank" rel="noopener noreferrer">
                   忘记密码？

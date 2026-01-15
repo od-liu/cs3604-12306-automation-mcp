@@ -9,8 +9,60 @@ API接口：后端暴露的API；
 函数接口：后端API调用的
 保证它们之间的连通性，显式地确定每个接口的输入输出、副作用，以及接口间的调用关系。不需要任何测试。
 
+**🆕 多页面应用架构说明**：
+- 本项目是一个**多页面应用**（Multi-Page Application），包含多个独立的页面（如登录页、注册页、首页等）
+- 使用 **React Router** 进行客户端路由管理，路由配置在 `frontend/src/App.tsx` 中
+- 某些组件（如 TopNavigation、BottomNavigation）是**跨页面共享组件**，在 `artifacts/ui_interface.yaml` 中标记为 `pages: [login, registration, ...]`
+- 每个页面的组件在 artifacts 文件中都有 `page` 字段标识其所属页面（如 `page: login` 或 `page: registration` 或 `page: shared`）
+- **端口配置**：Backend运行在端口 **5175**，Frontend运行在端口 **5174**
+
 ### 输出
 包含相应接口的代码文件
+
+**🆕 Artifacts 文件结构说明**：
+- `artifacts/ui_interface.yaml`: 所有UI组件的接口定义，使用 `page` 字段区分页面（login/registration/shared）
+- `artifacts/api_interface.yaml`: 所有API接口的定义，使用 `page` 字段区分页面
+- `artifacts/func_interface.yaml`: 所有后端函数的定义，使用 `page` 字段区分页面
+- `artifacts/phase_one_progress.yaml`: 记录所有需求的处理状态，使用 `page` 字段区分页面
+
+**🔄 Artifacts 文件管理原则**：
+
+1. **累积式更新**：artifacts 文件记录**所有页面**的接口信息
+   - ❌ 不要删除旧页面的接口定义
+   - ✅ 新增需求时追加新接口，更新共享组件
+
+2. **共享组件标识**：
+   - 使用 `pages: [page1, page2, ...]` 字段标记跨页面组件
+   - 示例：`UI-TOP-NAV` 的 `pages: [login, registration]` 表示该组件在登录页和注册页都使用
+
+3. **页面专属组件标识**：
+   - 使用 `page: page_name` 字段标记页面专属组件
+   - 示例：`UI-LOGIN-FORM` 的 `page: login` 表示仅登录页使用
+
+4. **增量注册策略**：
+   - 处理新需求文档时，先读取现有 artifacts 文件
+   - 对于共享组件：更新 `pages` 字段而非重新注册
+   - 对于新组件：调用 `register_*` 工具注册
+
+**示例（ui_interface.yaml）**：
+```yaml
+UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation/TopNavigation.tsx
+  description: 顶部导航栏（共享组件）
+  pages:
+    - login
+    - registration
+  downstream_ids: []
+
+UI-LOGIN-FORM:
+  related_req_id: REQ-LOGIN-FORM
+  path: frontend/src/components/LoginForm/LoginForm.tsx
+  description: 登录表单组件
+  page: login
+  downstream_ids:
+    - API-LOGIN
+```
 
 ### 工具返回格式
 requirement:
@@ -40,6 +92,67 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 1. 确认用户已提供 `project_root` 和 `requirements_path`。
 2. 调用工具 `init_top_down_queue` 初始化设计队列。
 
+**🆕 新增需求场景处理**：
+
+如果是处理**新的需求文档**（例如从登录页切换到注册页），需要执行以下步骤：
+
+**Step 1: 检查现有 Artifacts 文件**
+
+使用 `read_file` 读取以下文件，了解已有的接口定义：
+- `artifacts/ui_interface.yaml` - 查看已有的 UI 组件
+- `artifacts/api_interface.yaml` - 查看已有的 API 接口
+- `artifacts/func_interface.yaml` - 查看已有的后端函数
+- `artifacts/phase_one_progress.yaml` - 查看已处理的需求
+
+**Step 2: 识别共享组件**
+
+对比新需求文档和现有 artifacts，识别：
+- **已存在的共享组件**（如 TopNavigation、BottomNavigation）：
+  - 在 `ui_interface.yaml` 中更新 `pages` 字段，添加新页面（如 `pages: [login, registration]`）
+  - **不要重新生成代码**，只需在现有组件中验证是否满足新页面需求
+  - 如需修改，使用 `StrReplace` 更新现有代码
+
+- **新增的页面专属组件**（如 RegistrationForm）：
+  - 按正常流程调用 `register_ui_component` 注册
+  - 确保 `page` 字段标识为新页面（如 `page: registration`）
+
+**Step 3: 更新 Artifacts 文件**
+
+对于共享组件，使用 `StrReplace` 更新对应的 artifacts 文件：
+
+```yaml
+# 示例：更新 ui_interface.yaml 中的共享组件
+UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation/TopNavigation.tsx
+  description: 顶部导航栏（跨页面共享组件）
+  pages:  # ✅ 更新此字段
+    - login
+    - registration  # 🆕 新增页面标识
+  downstream_ids: []
+```
+
+**Step 4: 验证共享组件代码**
+
+读取共享组件的现有代码，检查：
+- ✅ 是否满足新页面的设计要求（对比参考图片）
+- ✅ 样式是否一致（颜色、尺寸、布局）
+- ✅ 功能是否完整（导航链接、交互逻辑）
+
+如需调整，使用 `StrReplace` 修改代码，**不要重新创建文件**。
+
+**Step 5: 处理页面路由**
+
+检查 `frontend/src/App.tsx` 中的路由配置：
+- 添加新页面的路由（如 `/register`）
+- 确保路由路径与需求文档一致
+
+**关键原则**：
+- ✅ **复用优先**：共享组件只需更新 `pages` 字段，不重新生成代码
+- ✅ **最小修改**：仅在必要时修改共享组件代码
+- ✅ **一致性保证**：所有页面使用相同的共享组件版本
+- ✅ **artifacts 同步**：任何新增需求都必须更新 artifacts 文件中的页面标识
+
 ### 第二阶段：迭代设计
 **重复执行以下步骤，直到工具返回 "All requirements... completed"：**
 #### Step 1: 获取任务 (Fetch)
@@ -67,28 +180,21 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 **(A) UI 组件层 (Visual Skeleton)**
 
 **📋 必读文档清单**（设计前必须阅读）：
-1. **🆕 从需求文档中提取页面标识符**：
-   - 读取 `description` 中的"**页面标识**"字段（如 "login", "registration"）
-   - 如果没有，从需求的 `name` 字段推导（如 "登录页面" → "login"）
-   - 所有图片资源路径都将使用此标识符
-
-2. **requirements 中的组件位置信息**：
+1. **requirements 中的组件位置信息**：
    - 查找 `description` 中的"**位置信息**"章节
    - 查找"**CSS 布局方式**"代码示例
    - 查找"**在 JSX 中的位置**"示例
    - 查找"**内部结构（从上到下）**"说明
 
-3. **ui-style-guide.md 中的详细样式规范**：
+2. **ui-style-guide.md 中的详细样式规范**：
    - 使用 `read_file` 读取 `requirements/ui-style-guide.md`
    - 查找对应组件的"组件位置说明"章节（如 "3.0 组件位置说明"）
    - 查找对应组件的完整 CSS 代码（可直接复制使用）
    - 查找颜色体系、尺寸规范
 
-4. **🆕 参考图片验证**（强制执行，防止需求文档错误）：
-   - 使用 `read_file` 读取 requirements 中标注的参考图片
-   - **🆕 图片路径格式**：`./images/{page_slug}/组件特写截图/{组件名}.png`
+3. **🆕 参考图片验证**（强制执行，防止需求文档错误）：
+   - 使用 `read_file` 读取 requirements 中标注的参考图片（如 `./images/组件特写截图/短信验证-初始状态.png`）
    - 使用 `read_file` 读取 ui-style-guide.md 中的交互状态截图（如有）
-   - **交互截图路径格式**：`./images/{page_slug}/交互状态截图/{场景}.png`
    - **对照图片和文档，检测严重不符的情况**
    - 如发现严重不符，自动修正并记录修正原因
 
@@ -97,7 +203,6 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 - **验证机制**：读取图片 → 对比文档 → 检测严重不符 → 自动修正
 - **CSS 代码来源**：优先从 ui-style-guide.md 中复制完整 CSS，但**必须验证**是否与图片一致
 - **结构顺序**：JSX 中的组件顺序必须与 requirements 中的"在 JSX 中的位置"示例完全一致（**除非图片显示不同**）
-- **🆕 图片路径**：所有参考图片都位于 `requirements/images/{page_slug}/` 目录下
 
 ---
 
@@ -110,22 +215,16 @@ images: { //description中相对路径下的图片内容，以base64格式编码
 **Step 1: 读取参考图片**
 
 ```typescript
-// 🆕 1.0 从需求文档中提取页面标识符
-// 例如：从 description 中读取 **页面标识**: login
-// 或从 name 推导：name: "登录页面" → page_slug: "login"
-const pageSlug = extractPageSlug(requirement);
-
-// 🆕 1.1 构建页面专属的图片路径
-// 例如：requirements/images/{page_slug}/组件特写截图/短信验证-初始状态.png
-const componentImagePath = `requirements/images/${pageSlug}/组件特写截图/短信验证-初始状态.png`;
+// 1.1 从 requirements 中找到参考图片路径
+// 例如：requirements/images/组件特写截图/短信验证-初始状态.png
 
 // 1.2 使用 read_file 读取图片
-const referenceImage = read_file(componentImagePath);
+const referenceImage = read_file("requirements/images/组件特写截图/短信验证-初始状态.png");
 
-// 🆕 1.3 如果有交互状态截图，也要读取（使用页面专属路径）
+// 1.3 如果有交互状态截图，也要读取
 const interactionImages = [
-  `requirements/images/${pageSlug}/交互状态截图/短信验证-错误-证件号错误.png`,
-  `requirements/images/${pageSlug}/交互状态截图/短信验证-成功-获取验证码成功.png`
+  "requirements/images/交互状态截图/短信验证-错误-证件号错误.png",
+  "requirements/images/交互状态截图/短信验证-成功-获取验证码成功.png"
 ];
 ```
 
@@ -179,7 +278,7 @@ const interactionImages = [
 /**
  * 🆕 @visual_verification_result
  * 
- * 参考图片: requirements/images/{page_slug}/交互状态截图/短信验证-初始状态.png
+ * 参考图片: requirements/images/交互状态截图/短信验证-初始状态.png
  * 
  * ❌ 检测到严重不符（已自动修正）:
  * 
@@ -271,23 +370,16 @@ const interactionImages = [
 
 在生成任何骨架代码之前，**必须先**执行网页资源复制（包括图片和字体文件）：
 
-### 🆕 前置步骤：提取页面标识符
-
-**0.1 从需求文档中提取页面标识符**：
-   - 读取当前需求的 `description` 字段，查找 `**页面标识**:` 
-   - 如果没有，从 `name` 字段推导（如 "登录页面" → "login"）
-   - 记录为 `page_slug`，用于后续所有路径操作
-
 ### 第一步：识别所有网页资源
 
-**🆕 1.1 读取页面专属的 metadata.json（最可靠的来源）**：
-   - 使用 `read_file` 读取 `requirements/images/{page_slug}/metadata.json`
-   - metadata.json 包含 UI Analyzer 为该页面下载的所有网页资源
+**1.1 读取 metadata.json（最可靠的来源）**：
+   - 使用 `read_file` 读取 `requirements/images/metadata.json`
+   - metadata.json 包含 UI Analyzer 下载的所有网页资源的完整信息
    - 包括图片资源和 icon 字体文件
 
 **1.2 读取 ui-requirements.yaml**：
    - 使用 `read_file` 读取 `requirements/ui-requirements.yaml`
-   - 查找当前页面及其组件的"网页资源"、"页面资源"、"组件资源"
+   - 查找所有标记为"网页资源"、"页面资源"、"组件资源"的内容
    - 这些是实际在网页中显示的资源（Logo、背景、二维码、图标等）
 
 **1.3 需要复制的资源类型**：
@@ -316,144 +408,137 @@ const interactionImages = [
 
 **1.5 列出完整的资源清单**：
 
-**🆕 示例 1：图片资源（登录页面）**
+**示例 1：图片资源**
 ```
-源路径: requirements/images/login/
-目标路径: frontend/public/images/login/
-
-图片资源：
-- 登录页面-背景-新.jpg (背景图)
-- 登录页面-顶部导航-Logo.png (Logo)
-- 登录页面-底部导航-友情链接.png (友情链接)
-- 登录页面-底部导航-中国铁路官方微信二维码.png
-- 登录页面-底部导航-中国铁路官方微博二维码.png
-- 登录页面-底部导航-12306公众号二维码.png
-- 登录页面-底部导航-铁路12306二维码.png
+图片资源（从 requirements/images/ 复制到 frontend/public/images/）：
+- 登录页-背景-新.jpg (背景图)
+- 登录页-顶部导航区域-中国铁路Logo.png (Logo)
+- 登录页-底部导航-友情链接.png (友情链接)
+- 登录页-底部导航-中国铁路官方微信二维码.png
+- 登录页-底部导航-中国铁路官方微博二维码.png
+- 登录页-底部导航-12306公众号二维码.png
+- 登录页-底部导航-铁路12306二维码.png
 ```
 
-**🆕 示例 2：字体资源（登录页面）**
+**示例 2：字体资源** 🆕
 ```
-源路径: requirements/images/login/fonts/
-目标路径: frontend/public/fonts/login/
-
-字体资源：
+字体资源（从 requirements/images/fonts/ 复制到 frontend/public/fonts/）：
 - iconfont.woff2 (icon 字体 - WOFF2 格式)
 - iconfont.woff (icon 字体 - WOFF 格式)
 - iconfont.ttf (icon 字体 - TTF 格式)
 ```
 
-### 第二步：检查并创建目标目录（🆕 按页面分类）
+### 第二步：检查并创建目标目录
 
-**🆕 2.1 检查页面专属图片目录**：
-   - 使用 `list_dir` 检查 `frontend/public/images/{page_slug}/` 目录
-   - 如果目录不存在，先创建：`mkdir -p frontend/public/images/{page_slug}/`
+**2.1 检查图片目录**：
+   - 使用 `list_dir` 检查 `frontend/public/images/` 目录
+   - 如果目录不存在，先创建：`mkdir -p frontend/public/images/`
 
-**🆕 2.2 检查页面专属字体目录**：
-   - 使用 `list_dir` 检查 `frontend/public/fonts/{page_slug}/` 目录
-   - 如果该页面有字体资源且目录不存在，先创建：`mkdir -p frontend/public/fonts/{page_slug}/`
+**2.2 🆕 检查字体目录**：
+   - 使用 `list_dir` 检查 `frontend/public/fonts/` 目录
+   - 如果目录不存在，先创建：`mkdir -p frontend/public/fonts/`
 
 **2.3 对比资源清单**：
-   - 识别哪些网页资源图片缺失（在该页面专属目录下）
-   - 识别哪些字体文件缺失（在该页面专属字体目录下）
+   - 识别哪些网页资源图片缺失
+   - 识别哪些字体文件缺失
 
-### 第三步：执行复制操作（🆕 按页面分类，关键步骤）
+### 第三步：执行复制操作（关键步骤）
 
-**🆕 3.1 复制图片资源到页面专属目录**：
+**3.1 复制图片资源**：
 
 对每个缺失的网页资源图片：
 ```bash
 # 使用 run_terminal_cmd 执行复制命令
-cp requirements/images/{page_slug}/图片文件名 frontend/public/images/{page_slug}/
+cp requirements/images/图片文件名 frontend/public/images/
 ```
 
-**示例（登录页面）**：
+**示例**：
 ```bash
 # 复制背景图
-cp requirements/images/login/登录页面-背景-新.jpg frontend/public/images/login/
+cp requirements/images/登录页-背景-新.jpg frontend/public/images/
 
 # 复制 Logo
-cp requirements/images/login/登录页面-顶部导航-Logo.png frontend/public/images/login/
+cp requirements/images/登录页-顶部导航区域-中国铁路Logo.png frontend/public/images/
 
 # 复制二维码
-cp requirements/images/login/登录页面-底部导航-中国铁路官方微信二维码.png frontend/public/images/login/
-cp requirements/images/login/登录页面-底部导航-中国铁路官方微博二维码.png frontend/public/images/login/
-cp requirements/images/login/登录页面-底部导航-12306公众号二维码.png frontend/public/images/login/
-cp requirements/images/login/登录页面-底部导航-铁路12306二维码.png frontend/public/images/login/
+cp requirements/images/登录页-底部导航-中国铁路官方微信二维码.png frontend/public/images/
+cp requirements/images/登录页-底部导航-中国铁路官方微博二维码.png frontend/public/images/
+cp requirements/images/登录页-底部导航-12306公众号二维码.png frontend/public/images/
+cp requirements/images/登录页-底部导航-铁路12306二维码.png frontend/public/images/
 
 # 复制其他图片资源
-cp requirements/images/login/登录页面-底部导航-友情链接.png frontend/public/images/login/
+cp requirements/images/登录页-底部导航-友情链接.png frontend/public/images/
 ```
 
-**🆕 3.2 复制字体资源到页面专属目录**（如果存在）：
+**3.2 🆕 复制字体资源**（如果存在）：
 
 对每个缺失的字体文件：
 ```bash
 # 使用 run_terminal_cmd 执行复制命令
-cp requirements/images/{page_slug}/fonts/字体文件名 frontend/public/fonts/{page_slug}/
+cp requirements/images/fonts/字体文件名 frontend/public/fonts/
 ```
 
-**示例（登录页面）**：
+**示例**：
 ```bash
 # 复制 icon 字体文件
-cp requirements/images/login/fonts/iconfont.woff2 frontend/public/fonts/login/
-cp requirements/images/login/fonts/iconfont.woff frontend/public/fonts/login/
-cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
+cp requirements/images/fonts/iconfont.woff2 frontend/public/fonts/
+cp requirements/images/fonts/iconfont.woff frontend/public/fonts/
+cp requirements/images/fonts/iconfont.ttf frontend/public/fonts/
 ```
 
 **⚠️ 注意**：
-- 如果 `requirements/images/{page_slug}/fonts/` 目录不存在，说明该页面没有使用字体图标，可以跳过
+- 如果 `requirements/images/fonts/` 目录不存在，说明页面没有使用字体图标，可以跳过
 - 如果 metadata.json 中有 `fonts` 字段，则必须复制字体文件
-- **每个页面的资源都保存在其专属目录下**
 
-### 第四步：验证复制结果（🆕 按页面检查）
+### 第四步：验证复制结果
 
-**🆕 4.1 验证页面专属图片资源**：
-   - 再次使用 `list_dir` 检查 `frontend/public/images/{page_slug}/`
-   - 确认该页面的所有网页资源图片已存在
+**4.1 验证图片资源**：
+   - 再次使用 `list_dir` 检查 `frontend/public/images/`
+   - 确认所有网页资源图片已存在
 
-**🆕 4.2 验证页面专属字体资源**（如果有）：
-   - 再次使用 `list_dir` 检查 `frontend/public/fonts/{page_slug}/`
-   - 确认该页面的所有字体文件已存在
+**4.2 🆕 验证字体资源**（如果有）：
+   - 再次使用 `list_dir` 检查 `frontend/public/fonts/`
+   - 确认所有字体文件已存在
 
-**🆕 4.3 在响应中输出复制结果**：
+**4.3 在响应中输出复制结果**：
    ```
-   ✅ 网页资源复制完成（{page_name}）：
+   ✅ 网页资源复制完成：
    
-   图片资源 (frontend/public/images/{page_slug}/)：
-   - 登录页面-背景-新.jpg (81KB)
-   - 登录页面-顶部导航-Logo.png (8.3KB)
-   - 登录页面-底部导航-友情链接.png (89KB)
-   - 登录页面-底部导航-中国铁路官方微信二维码.png (12KB)
-   - 登录页面-底部导航-中国铁路官方微博二维码.png (11KB)
-   - 登录页面-底部导航-12306公众号二维码.png (13KB)
-   - 登录页面-底部导航-铁路12306二维码.png (14KB)
+   图片资源 (frontend/public/images/)：
+   - 登录页-背景-新.jpg (81KB)
+   - 登录页-顶部导航区域-中国铁路Logo.png (8.3KB)
+   - 登录页-底部导航-友情链接.png (89KB)
+   - 登录页-底部导航-中国铁路官方微信二维码.png (12KB)
+   - 登录页-底部导航-中国铁路官方微博二维码.png (11KB)
+   - 登录页-底部导航-12306公众号二维码.png (13KB)
+   - 登录页-底部导航-铁路12306二维码.png (14KB)
    共 7 个图片
    
-   字体资源 (frontend/public/fonts/{page_slug}/)：
+   字体资源 (frontend/public/fonts/)：
    - iconfont.woff2 (15KB)
    - iconfont.woff (18KB)
    - iconfont.ttf (24KB)
    共 3 个字体文件
    ```
 
-### 第五步：在代码中引用资源（🆕 使用页面专属路径）
+### 第五步：在代码中引用资源
 
 **只有在资源复制完成后**，才能在代码中引用。
 
-**🆕 5.1 引用图片资源**（使用页面专属路径）：
+**5.1 引用图片资源**：
 
-使用路径 `/images/{page_slug}/文件名.扩展名`：
+使用路径 `/images/文件名.扩展名`：
 
 ```css
 /* CSS 中引用背景图 */
 .page-container {
-  background-image: url('/images/login/登录页面-背景-新.jpg');
+  background-image: url('/images/登录页-背景-新.jpg');
   background-size: cover;
 }
 
 /* CSS 中引用 Logo */
 .logo {
-  background-image: url('/images/login/登录页面-顶部导航-Logo.png');
+  background-image: url('/images/登录页-顶部导航区域-中国铁路Logo.png');
   width: 200px;
   height: 50px;
 }
@@ -462,17 +547,17 @@ cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 ```tsx
 {/* React 组件中引用图片 */}
 <img 
-  src="/images/login/登录页面-底部导航-中国铁路官方微信二维码.png" 
+  src="/images/中国铁路官方微信二维码.png" 
   alt="中国铁路官方微信二维码" 
 />
 
 <img 
-  src="/images/login/登录页面-底部导航-友情链接.png" 
+  src="/images/登录页-底部导航-友情链接.png" 
   alt="友情链接" 
 />
 ```
 
-**🆕 5.2 引用字体资源**（使用页面专属路径）：
+**5.2 🆕 引用字体资源**：
 
 **在 CSS 文件顶部添加 @font-face 声明**：
 
@@ -480,18 +565,18 @@ cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 /* frontend/src/styles/fonts.css 或 frontend/src/App.css */
 
 @font-face {
-  font-family: 'iconfont-login';  /* 🆕 页面专属字体名 */
-  src: url('/fonts/login/iconfont.woff2') format('woff2'),
-       url('/fonts/login/iconfont.woff') format('woff'),
-       url('/fonts/login/iconfont.ttf') format('truetype');
+  font-family: 'iconfont';
+  src: url('/fonts/iconfont.woff2') format('woff2'),
+       url('/fonts/iconfont.woff') format('woff'),
+       url('/fonts/iconfont.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 /* 定义 icon 基础样式 */
-.icon-login {  /* 🆕 页面专属 icon 类 */
-  font-family: 'iconfont-login' !important;
+.icon {
+  font-family: 'iconfont' !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
@@ -499,11 +584,11 @@ cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 }
 
 /* 具体的 icon 类（根据 ui-style-guide.md 中的定义） */
-.icon-login.icon-user::before {
+.icon-user::before {
   content: '\e001'; /* 字符码需要从实际字体文件中获取 */
 }
 
-.icon-login.icon-pwd::before {
+.icon-pwd::before {
   content: '\e002';
 }
 ```
@@ -513,13 +598,13 @@ cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 ```tsx
 {/* 用户名输入框图标 */}
 <div className="input-wrapper">
-  <i className="icon-login icon-user"></i>
+  <i className="icon icon-user"></i>
   <input type="text" placeholder="用户名/邮箱/手机号" />
 </div>
 
 {/* 密码输入框图标 */}
 <div className="input-wrapper">
-  <i className="icon-login icon-pwd"></i>
+  <i className="icon icon-pwd"></i>
   <input type="password" placeholder="密码" />
 </div>
 ```
@@ -528,19 +613,18 @@ cp requirements/images/login/fonts/iconfont.ttf frontend/public/fonts/login/
 - ❌ **不要**使用base64内联图片（会导致文件过大）
 - ❌ **不要**使用base64内联字体（会导致首次加载缓慢）
 - ❌ **不要**在代码中引用 `requirements/images/` 目录（前端无法访问）
-- ❌ **不要**在代码中引用 `requirements/images/{page_slug}/fonts/` 目录（前端无法访问）
+- ❌ **不要**在代码中引用 `requirements/images/fonts/` 目录（前端无法访问）
 - ❌ **不要**跳过资源复制步骤
 
 **✅ 正确流程**：
 ```
-1. 🆕 提取页面标识符 (page_slug)
-2. 🆕 读取 metadata.json 识别该页面的所有资源（图片+字体）
-3. 🆕 创建页面专属目录 (frontend/public/images/{page_slug}/, frontend/public/fonts/{page_slug}/)
-4. 🆕 复制图片到 frontend/public/images/{page_slug}/ (使用 cp 命令)
-5. 🆕 复制字体到 frontend/public/fonts/{page_slug}/ (使用 cp 命令)
-6. 验证资源已存在 (使用 list_dir)
-7. 在 CSS 中添加 @font-face 声明（使用页面专属字体名）
-8. 🆕 在代码中引用 /images/{page_slug}/文件名 和 /fonts/{page_slug}/文件名 (生成骨架代码)
+1. 读取 metadata.json 识别所有资源（图片+字体）
+2. 创建目标目录 (frontend/public/images/, frontend/public/fonts/)
+3. 复制图片到 frontend/public/images/ (使用 cp 命令)
+4. 复制字体到 frontend/public/fonts/ (使用 cp 命令)
+5. 验证资源已存在 (使用 list_dir)
+6. 在 CSS 中添加 @font-face 声明（如果有字体）
+7. 在代码中引用 /images/文件名 和 /fonts/文件名 (生成骨架代码)
 ```
 
 **布局精确定位规则** 📐
@@ -943,6 +1027,15 @@ function serviceName(args) {
    - [ ] CSS 样式符合 ui-style-guide.md
    - [ ] 图片资源路径正确
    - [ ] JSX 结构顺序正确
+   
+   **🆕 Artifacts 文件更新**（新增需求场景）：
+   - [ ] 已读取现有的 `artifacts/ui_interface.yaml` 等文件
+   - [ ] 已识别共享组件（TopNavigation、BottomNavigation 等）
+   - [ ] 对于共享组件：已使用 `StrReplace` 更新 `pages` 字段（不重新注册）
+   - [ ] 对于新组件：已调用 `register_*` 工具注册，并标注 `page` 字段
+   - [ ] 验证共享组件代码是否满足新页面需求（读取代码 + 对比参考图片）
+   - [ ] 如需修改共享组件：使用 `StrReplace` 而非重新生成文件
+   - [ ] 确保 artifacts 文件包含所有页面的接口信息（累积式，不删除旧页面）
 
 ---
 
@@ -1006,6 +1099,7 @@ function serviceName(args) {
 - ✅ **功能完整性**：100% scenarios 覆盖 + 100% features 实现
 - ✅ **UI 视觉精确**：像素级复刻（以图片为准）+ CSS 规范遵守（已验证）
 - ✅ **代码可用性**：可运行 + 逻辑完整 + 可追溯
+- ✅ **🆕 Artifacts 管理**：共享组件已更新 `pages` 字段 + 新组件已注册 + 文件累积式维护
 
 **评判标准**：
 ```
@@ -1013,6 +1107,7 @@ function serviceName(args) {
 功能完整性：   100% ← 必须
 UI 视觉还原：   100% ← 必须（以图片为准）
 代码质量：    ≥90% ← 必须
+🆕 Artifacts：  100% ← 必须（新增需求场景）
 
 任何一项不达标 → 不允许注册接口
 ```
@@ -1024,3 +1119,145 @@ UI 视觉还原：   100% ← 必须（以图片为准）
 > 两者同等重要，缺一不可！  
 > 不能只追求"好看"而忽略"能用"！  
 > **🚨 严重不符必须修正，不能盲目相信文档！**
+
+---
+
+## 🔄 新增需求处理完整示例
+
+**场景**：已完成登录页（login），现在处理注册页（registration）
+
+### Step 1: 读取现有 Artifacts
+
+```javascript
+// 读取所有 artifacts 文件
+const uiInterfaces = read_file('artifacts/ui_interface.yaml');
+const apiInterfaces = read_file('artifacts/api_interface.yaml');
+const funcInterfaces = read_file('artifacts/func_interface.yaml');
+```
+
+**识别结果**：
+```yaml
+# ui_interface.yaml 中已存在的组件
+UI-TOP-NAV:          # ✅ 共享组件
+  pages: [login]     # 🆕 需要添加 registration
+  
+UI-BOTTOM-NAV:       # ✅ 共享组件
+  pages: [login]     # 🆕 需要添加 registration
+  
+UI-LOGIN-FORM:       # ❌ 登录页专属，不修改
+  page: login
+```
+
+### Step 2: 处理共享组件
+
+**对于 TopNavigation（共享组件）**：
+
+```typescript
+// ✅ 正确做法：使用 StrReplace 更新 pages 字段
+StrReplace({
+  path: 'artifacts/ui_interface.yaml',
+  old_string: `UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation/TopNavigation.tsx
+  description: 顶部导航栏
+  pages:
+    - login
+  downstream_ids: []`,
+  new_string: `UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation/TopNavigation.tsx
+  description: 顶部导航栏
+  pages:
+    - login
+    - registration  # 🆕 新增
+  downstream_ids: []`
+});
+
+// ✅ 验证共享组件代码是否满足新页面需求
+const topNavCode = read_file('frontend/src/components/TopNavigation/TopNavigation.tsx');
+const registrationStyleGuide = read_file('requirements/generated-requirements/registration-ui-style-guide.md');
+
+// 对比参考图片和代码，确认是否需要修改
+// 如需修改，使用 StrReplace 更新代码（不重新生成文件）
+```
+
+### Step 3: 处理新组件
+
+**对于 RegistrationForm（注册页专属组件）**：
+
+```typescript
+// ✅ 正确做法：按正常流程注册新组件
+register_ui_component({
+  project_root: '/path/to/project',
+  id: 'UI-REGISTRATION-FORM',
+  path: 'frontend/src/components/RegistrationForm/RegistrationForm.tsx',
+  description: '注册表单组件',
+  page: 'registration',  // 🆕 标注页面
+  related_req_id: 'REQ-REGISTRATION-FORM',
+  downstream_ids: ['API-REGISTER']
+});
+```
+
+### Step 4: 更新路由配置
+
+```typescript
+// 在 frontend/src/App.tsx 中添加注册页路由
+StrReplace({
+  path: 'frontend/src/App.tsx',
+  old_string: `function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </Router>
+  );
+}`,
+  new_string: `function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
+      </Routes>
+    </Router>
+  );
+}`
+});
+```
+
+### Step 5: 验证 Artifacts 最终状态
+
+```yaml
+# artifacts/ui_interface.yaml（累积式维护）
+
+# 共享组件（已更新 pages 字段）
+UI-TOP-NAV:
+  pages: [login, registration]  # ✅ 包含两个页面
+  
+UI-BOTTOM-NAV:
+  pages: [login, registration]  # ✅ 包含两个页面
+
+# 登录页专属组件（保持不变）
+UI-LOGIN-FORM:
+  page: login  # ❌ 不删除旧页面组件
+
+# 注册页专属组件（新增）
+UI-REGISTRATION-FORM:
+  page: registration  # 🆕 新页面组件
+```
+
+### 关键要点
+
+✅ **DO**（正确做法）：
+- 读取现有 artifacts 文件，识别共享组件
+- 使用 `StrReplace` 更新共享组件的 `pages` 字段
+- 验证共享组件代码是否满足新页面需求
+- 新组件按正常流程注册，标注 `page` 字段
+- 保持 artifacts 文件的累积式维护（不删除旧页面）
+
+❌ **DON'T**（错误做法）：
+- ❌ 删除旧页面的组件定义
+- ❌ 重新注册共享组件（会导致重复或覆盖）
+- ❌ 重新生成共享组件的代码文件
+- ❌ 在新页面需求中省略 `page` 字段标识

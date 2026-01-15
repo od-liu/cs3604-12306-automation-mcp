@@ -10,6 +10,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
     },
     setupFiles: ['./test/setup.js'],
+    fileParallelism: false,
   },
 });
 

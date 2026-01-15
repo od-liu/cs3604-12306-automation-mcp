@@ -1,19 +1,42 @@
+# ========================================
+# 共享组件（跨页面复用）
+# ========================================
+UI-TOP-NAV:
+  related_req_id: REQ-TOP-NAV
+  path: frontend/src/components/TopNavigation/TopNavigation.tsx
+  description: 顶部导航栏，包含品牌Logo和欢迎文字（登录页和注册页共享）
+  downstream_ids: []
+  pages:
+    - login
+    - registration
+
+UI-BOTTOM-NAV:
+  related_req_id: REQ-BOTTOM-NAV
+  path: frontend/src/components/BottomNavigation/BottomNavigation.tsx
+  description: 底部导航，包含友情链接、二维码和版权信息（登录页和注册页共享）
+  downstream_ids: []
+  pages:
+    - login
+    - registration
+
+# ========================================
+# 登录页面组件
+# ========================================
 UI-LOGIN-PAGE:
   related_req_id: REQ-LOGIN-PAGE
   path: frontend/src/pages/LoginPage.tsx
   description: 登录页面容器组件，整合顶部导航、登录表单和底部导航
   downstream_ids: []
-UI-TOP-NAV:
-  related_req_id: REQ-TOP-NAV
-  path: frontend/src/components/TopNavigation/TopNavigation.tsx
-  description: 顶部导航栏，包含品牌Logo和欢迎文字
-  downstream_ids: []
+  page: login
+
 UI-LOGIN-FORM:
   related_req_id: REQ-LOGIN-FORM
   path: frontend/src/components/LoginForm/LoginForm.tsx
   description: 登录表单组件，包含轮播图背景和登录卡片，实现用户名密码验证
   downstream_ids:
     - API-LOGIN
+  page: login
+
 UI-SMS-VERIFICATION:
   related_req_id: REQ-SMS-VERIFICATION
   path: frontend/src/components/SmsVerification/SmsVerification.tsx
@@ -21,8 +44,30 @@ UI-SMS-VERIFICATION:
   downstream_ids:
     - API-SEND-VERIFICATION-CODE
     - API-VERIFY-CODE
-UI-BOTTOM-NAV:
-  related_req_id: REQ-BOTTOM-NAV
-  path: frontend/src/components/BottomNavigation/BottomNavigation.tsx
-  description: 底部导航，包含友情链接、二维码和版权信息
+  page: login
+
+# ========================================
+# 注册页面组件
+# ========================================
+UI-REG-PAGE:
+  related_req_id: REQ-REG-PAGE
+  path: frontend/src/pages/RegistrationPage.tsx
+  description: 注册页面容器组件，整合顶部导航、注册表单和底部导航
   downstream_ids: []
+  page: registration
+
+UI-REG-FORM:
+  related_req_id: REQ-REG-FORM
+  path: frontend/src/components/RegistrationForm/RegistrationForm.tsx
+  description: 注册表单组件，包含账户信息输入和前端验证
+  downstream_ids:
+    - API-REGISTER
+  page: registration
+
+UI-REG-VERIFICATION:
+  related_req_id: REQ-REG-VERIFICATION
+  path: frontend/src/components/RegistrationVerificationModal/RegistrationVerificationModal.tsx
+  description: 注册验证模态弹窗，用于手机验证码输入
+  downstream_ids:
+    - API-VERIFY-REGISTRATION-CODE
+  page: registration

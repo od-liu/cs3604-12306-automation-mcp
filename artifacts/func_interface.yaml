@@ -1,3 +1,6 @@
+# ========================================
+# 登录页面函数
+# ========================================
 FUNC-AUTH-LOGIN:
   related_req_id: REQ-LOGIN-FORM
   path: backend/src/database/operations.js
@@ -6,6 +9,8 @@ FUNC-AUTH-LOGIN:
     - API-LOGIN
   db_tables:
     - users
+  page: login
+
 FUNC-SEND-VERIFICATION-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
@@ -15,6 +20,8 @@ FUNC-SEND-VERIFICATION-CODE:
   db_tables:
     - users
     - verification_codes
+  page: login
+
 FUNC-VERIFY-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
@@ -24,3 +31,39 @@ FUNC-VERIFY-CODE:
   db_tables:
     - verification_codes
     - sessions
+  page: login
+
+# ========================================
+# 注册页面函数
+# ========================================
+FUNC-REGISTER-USER:
+  related_req_id: REQ-REG-FORM
+  path: backend/src/database/operations.js
+  signature: registerUser(userData)
+  upstream_ids:
+    - API-REGISTER
+  db_tables:
+    - users
+  page: registration
+
+FUNC-SEND-REGISTRATION-CODE:
+  related_req_id: REQ-REG-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: sendRegistrationVerificationCode(phoneNumber, userData)
+  upstream_ids:
+    - API-SEND-REGISTRATION-CODE
+  db_tables:
+    - users
+    - verification_codes
+  page: registration
+
+FUNC-VERIFY-REGISTRATION-CODE:
+  related_req_id: REQ-REG-VERIFICATION
+  path: backend/src/database/operations.js
+  signature: verifyRegistrationCode(phoneNumber, code)
+  upstream_ids:
+    - API-VERIFY-REGISTRATION-CODE
+  db_tables:
+    - verification_codes
+    - users
+  page: registration

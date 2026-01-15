@@ -1,3 +1,6 @@
+# ========================================
+# 登录页面 API
+# ========================================
 API-LOGIN:
   related_req_id: REQ-LOGIN-FORM
   path: backend/src/routes/api.js
@@ -6,6 +9,8 @@ API-LOGIN:
     - UI-LOGIN-FORM
   downstream_ids:
     - FUNC-AUTH-LOGIN
+  page: login
+
 API-SEND-VERIFICATION-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/routes/api.js
@@ -14,6 +19,8 @@ API-SEND-VERIFICATION-CODE:
     - UI-SMS-VERIFICATION
   downstream_ids:
     - FUNC-SEND-VERIFICATION-CODE
+  page: login
+
 API-VERIFY-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/routes/api.js
@@ -22,3 +29,37 @@ API-VERIFY-CODE:
     - UI-SMS-VERIFICATION
   downstream_ids:
     - FUNC-VERIFY-CODE
+  page: login
+
+# ========================================
+# 注册页面 API
+# ========================================
+API-REGISTER:
+  related_req_id: REQ-REG-FORM
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/register
+  upstream_ids:
+    - UI-REG-FORM
+  downstream_ids:
+    - FUNC-REGISTER-USER
+  page: registration
+
+API-SEND-REGISTRATION-CODE:
+  related_req_id: REQ-REG-VERIFICATION
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/send-registration-code
+  upstream_ids:
+    - UI-REG-VERIFICATION
+  downstream_ids:
+    - FUNC-SEND-REGISTRATION-CODE
+  page: registration
+
+API-VERIFY-REGISTRATION-CODE:
+  related_req_id: REQ-REG-VERIFICATION
+  path: backend/src/routes/api.js
+  signature: POST /api/auth/verify-registration-code
+  upstream_ids:
+    - UI-REG-VERIFICATION
+  downstream_ids:
+    - FUNC-VERIFY-REGISTRATION-CODE
+  page: registration

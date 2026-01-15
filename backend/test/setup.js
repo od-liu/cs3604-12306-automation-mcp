@@ -23,7 +23,8 @@ beforeEach(async () => {
   // Clear all data except demo users
   const db = getDb();
   await db.runAsync('DELETE FROM sessions');
-  await db.runAsync('DELETE FROM verification_codes');
+  // Only delete verification codes by phone (registration), keep user_id based codes (login)
+  await db.runAsync("DELETE FROM verification_codes WHERE phone IS NOT NULL");
 });
 
 // Close database after all tests

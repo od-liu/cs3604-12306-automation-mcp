@@ -29,6 +29,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './TopNavigation.css';
 
 const TopNavigation: React.FC = () => {
@@ -38,7 +39,7 @@ const TopNavigation: React.FC = () => {
         <div className="top-navigation-header-con">
           {/* Logo区域 - 使用CSS背景图实现 */}
           <h1 className="top-navigation-logo" role="banner">
-            <a href="https://www.12306.cn/index/index.html">中国铁路12306</a>
+            <Link to="/">中国铁路12306</Link>
           </h1>
           
           {/* 欢迎文字 */}
