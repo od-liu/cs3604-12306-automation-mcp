@@ -1,0 +1,1264 @@
+# 注册页面 UI 需求文档
+# 生成日期: 2026-01-15
+# 页面URL: http://localhost:5174/register
+# 实际页面尺寸: 1512px × 1142px (从DOM获取)
+
+- id: REQ-REGISTRATION-PAGE
+  name: 注册页面
+  description: |
+    用户注册主页面，包含注册表单和邮箱/手机验证功能。
+    
+    **网站地址**: http://localhost:5173/register
+    **页面宽度参考**: 1512px (从实际DOM获取)
+    **页面高度**: 1142px (从实际DOM获取)
+    **Viewport**: width=device-width, initial-scale=1.0
+    
+    **整体布局分析** (ASCII示意图):
+    
+    ```
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                          顶部导航 (84px)                             │
+    │ Logo │ 搜索框 │ 无障碍 │ 敬老版 │ English │ 我的12306 │ 登录 │ 注册 │
+    ├─────────────────────────────────────────────────────────────────────┤
+    │                         主导航栏 (45px)                              │
+    │ 首页 │ 车票 │ 团购服务 │ 会员服务 │ 站车服务 │ 商旅服务 │...        │
+    ├─────────────────────────────────────────────────────────────────────┤
+    │ 您现在的位置：客运首页 > 注册                                         │
+    ├─────────────────────────────────────────────────────────────────────┤
+    │                                                                      │
+    │                         账户信息 (标题)                              │
+    │                                                                      │
+    │              ┌────────注册表单 (950px × 619px)────────┐             │
+    │              │ * 用户名: [__________________]  提示    │             │
+    │              │ * 登录密码: [__________________] ███    │             │
+    │              │ * 确认密码: [__________________]       │             │
+    │              │ * 证件类型: [居民身份证 ▼]             │             │
+    │              │ * 姓名: [__________________]  提示      │             │
+    │              │ * 证件号码: [__________________] 提示   │             │
+    │              │ 优惠类型: [成人 ▼]                     │             │
+    │              │ 邮箱: [__________________]            │             │
+    │              │ * 手机号码: [+86▼][__________] 提示    │             │
+    │              │ □ 我已阅读并同意遵守《服务条款》...    │             │
+    │              │                                        │             │
+    │              │           [   下一步   ]              │             │
+    │              └────────────────────────────────────────┘             │
+    │                                                                      │
+    ├─────────────────────────────────────────────────────────────────────┤
+    │                        底部导航 (120px)                              │
+    │ 友情链接:  [Logo1] [Logo2]    │  二维码:  [QR1] [QR2] [QR3] [QR4] │
+    │            [Logo3] [Logo4]    │           官方APP下载提示文字       │
+    └─────────────────────────────────────────────────────────────────────┘
+    ```
+    
+    **颜色体系** (基于视觉分析):
+    
+    1. **品牌色/主题色**:
+       - 主蓝色: #0066cc (Logo、搜索按钮、主导航激活态、提交按钮)
+       - 浅蓝色: #e6f2ff (主导航背景、输入框焦点边框)
+    
+    2. **文本颜色**:
+       - 深色文本: #333333 (表单标签、主要文字)
+       - 中等灰色: #666666 (提示文字、辅助信息)
+       - 浅灰色: #999999 (占位符文字、次要信息)
+       - 链接蓝色: #0066cc (文字链接、协议链接)
+    
+    3. **状态颜色**:
+       - 错误红色: #ff4d4f (错误提示文字)
+       - 错误背景: #fff1f0 (错误提示背景)
+       - 错误边框: #ffccc7 (错误提示边框)
+       - 成功绿色: #52c41a (验证通过勾勾)
+       - 必填星号: #ff4d4f (红色)
+    
+    4. **背景和边框**:
+       - 页面背景: #f5f5f5 (浅灰色)
+       - 白色容器: #ffffff (表单容器、卡片背景)
+       - 边框颜色: #d9d9d9 (输入框边框)
+       - 焦点边框: #0066cc (输入框焦点时)
+    
+    > ⚠️ 注意：颜色值基于视觉分析，建议开发者使用浏览器取色器验证精确值。
+    
+    **CSS 布局方式**:
+    - 顶部导航: Flexbox（水平排列，justify-content: space-between）
+    - 主导航栏: Flexbox（水平排列，居中对齐）
+    - 注册表单: Block布局，垂直堆叠的表单行
+    - 表单行: Flexbox（label在左，input在右）
+    - 底部导航: Flexbox（左右分栏布局）
+    - 友情链接: Grid布局（2行2列）
+    - 二维码区域: Flexbox（水平排列4个二维码）
+    
+    参考图片: "./images/registration/整体页面截图/注册页面.png"
+  
+  dependencies: []
+  scenarios: []
+  
+  children:
+    - id: REQ-REG-TOP-NAV
+      name: 顶部导航
+      description: |
+        页面最顶部的导航栏，包含Logo、搜索框和用户入口链接。
+        
+        **位置信息**:
+        - 父容器: body > div.App > div.train-list-top-container
+        - 位置: 页面最上方，x=106px, y=0px
+        - 尺寸: 1300px × 84px (从 DOM 测量)
+        - 布局: Flexbox，justify-content: space-between
+        - 背景色: #ffffff
+        
+        **HTML 结构** (基于实际HTML源代码):
+        
+        > ⚠️ 以下是从浏览器读取的实际 HTML 结构（已简化，保留关键信息）
+        
+        ```html
+        <div class="train-list-top-container">
+          <!-- 左侧：Logo区域 -->
+          <div class="logo-section">
+            <img src="./logo.png" alt="中国铁路12306" />
+            <div class="logo-text">
+              <div class="logo-title">中国铁路12306</div>
+              <div class="logo-subtitle">12306 CHINA RAILWAY</div>
+            </div>
+          </div>
+          
+          <!-- 中间：搜索框区域 -->
+          <div class="search-section">
+            <input type="text" placeholder="搜索车票、餐饮、常旅客、相关规章" />
+            <button class="search-button">
+              <img src="./search-icon.png" alt="搜索" />
+            </button>
+          </div>
+          
+          <!-- 右侧：链接区域 -->
+          <div class="user-links-section">
+            <a href="#">无障碍</a>
+            <a href="#">敬老版</a>
+            <a href="#">English</a>
+            <a href="#">我的12306</a>
+            <span>您好，请 <a href="/login">登录</a></span>
+            <a href="/register">注册</a>
+          </div>
+        </div>
+        ```
+        
+        **文本内容清单** (从HTML提取):
+        
+        > 📝 以下是组件中所有实际的文本内容，请在实现时使用完全相同的文字：
+        
+        - "中国铁路12306" - Logo主标题
+        - "12306 CHINA RAILWAY" - Logo副标题
+        - "搜索车票、餐饮、常旅客、相关规章" - 搜索框占位符
+        - "无障碍" - 右侧第1个链接
+        - "敬老版" - 右侧第2个链接
+        - "English" - 右侧第3个链接
+        - "我的12306" - 右侧第4个链接
+        - "您好，请" - 登录前文字
+        - "登录" - 登录链接
+        - "注册" - 注册链接
+        
+        **实现说明**:
+        
+        1. `.train-list-top-container` - 顶部容器
+           - HTML标签: `<div>`
+           - 布局: Flexbox, justify-content: space-between, align-items: center
+           - 高度: 84px
+           - 背景: #ffffff
+           - 内边距: 0 106px
+        
+        2. `.logo-section` - Logo区域
+           - HTML标签: `<div>`
+           - 布局: Flexbox, align-items: center
+           - 包含: Logo图片 + 文字
+           - 光标: pointer (可点击)
+        
+        3. `.search-section` - 搜索框区域
+           - HTML标签: `<div>`
+           - 布局: Flexbox
+           - 包含: 输入框 + 搜索按钮
+           - 输入框宽度: 约400px
+        
+        4. `.user-links-section` - 右侧链接区域
+           - HTML标签: `<div>`
+           - 布局: Flexbox, gap: 15px
+           - 链接颜色: #666666
+           - 悬停颜色: #0066cc
+        
+        **网页资源**:
+        - Logo图片: "/images/registration/注册页面-顶部导航-Logo.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 约150px × 50px
+          * 来源: 复用自登录页面
+        
+        参考图片: "./images/registration/组件特写截图/顶部导航.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-REG-FORM
+      name: 注册表单
+      description: |
+        用户填写注册信息的表单，包含9个输入字段和1个提交按钮。
+        
+        **位置信息**:
+        - 父容器: main > div.register-container
+        - 位置: 页面中间偏左，x=281px, y=50px (相对于表单容器)
+        - 尺寸: 950px × 619px (从 DOM 测量)
+        - 布局: Block布局，垂直堆叠表单行
+        - 背景色: transparent (白色背景由父容器提供)
+        
+        **HTML 结构** (基于实际HTML源代码):
+        
+        > ⚠️ 以下是从浏览器读取的实际 HTML 结构（已简化，保留关键信息）
+        
+        ```html
+        <form class="register-form">
+          <!-- 用户名字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>用户名：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="text" 
+                       placeholder="用户名设置成功后不可修改" />
+                <span class="form-hint-message">
+                  6-30位字母、数字或"_"，字母开头
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 登录密码字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>登录密码：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="password" 
+                       placeholder="6-20位字母、数字或符号" />
+                <div class="password-strength">
+                  <div class="strength-bars">
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                    <div class="strength-bar"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 确认密码字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>确认密码：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="password" 
+                       placeholder="请再次输入您的登录密码" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- 证件类型下拉框 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>证件类型：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="select-dropdown" data-testid="id-card-type-dropdown">
+                <div class="selected-value-display">居民身份证</div>
+                <input type="hidden" value="居民身份证" />
+                <span data-testid="dropdown-arrow" class="arrow"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 姓名字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>姓名：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="text" 
+                       placeholder="请输入姓名" />
+                <span class="form-hint-message">
+                  姓名填写规则（用于身份核验，请正确填写真实姓名）
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 证件号码字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>证件号码：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="text" 
+                       placeholder="请输入您的证件号码" />
+                <span class="form-hint-message">
+                  （用于身份核验，请正确填写）
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 优惠类型下拉框 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">优惠（待）类型：</label>
+            </div>
+            <div class="form-input-container">
+              <div class="select-dropdown" data-testid="discount-type-dropdown">
+                <div class="selected-value-display">成人</div>
+                <input type="hidden" value="成人" />
+                <span data-testid="dropdown-arrow" class="arrow"></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 邮箱字段（选填） -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">邮箱：</label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <input class="form-input" type="email" 
+                       placeholder="请正确填写邮箱地址" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- 手机号码字段 -->
+          <div class="form-row">
+            <div class="form-label-wrapper">
+              <label class="form-label">
+                <span class="required-mark">*</span>手机号码：
+              </label>
+            </div>
+            <div class="form-input-container">
+              <div class="form-input-wrapper">
+                <div class="phone-input-wrapper">
+                  <div class="phone-country-select">
+                    <div class="select-dropdown" data-testid="country-code-dropdown">
+                      <div class="selected-value-display">+86 中国</div>
+                      <input type="hidden" value="+86 中国" />
+                      <span data-testid="dropdown-arrow" class="arrow"></span>
+                    </div>
+                  </div>
+                  <input class="form-input phone-input" type="tel" 
+                         placeholder="手机号码" maxlength="11" />
+                </div>
+                <span class="form-hint-message">
+                  请正确填写手机号码，稍后将向该手机号发送短信验证码
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 用户协议 -->
+          <div class="agreement-section">
+            <div class="agreement-wrapper">
+              <input type="checkbox" class="agreement-checkbox" />
+              <span class="agreement-text">
+                我已阅读并同意遵守 
+                <a href="/service-terms" class="agreement-link">
+                  《中国铁路客户服务中心网站服务条款》
+                </a> 
+                <a href="/privacy-policy" class="agreement-link">
+                  《隐私权政策》
+                </a>
+              </span>
+            </div>
+          </div>
+          
+          <!-- 提交按钮 -->
+          <div class="submit-section">
+            <button type="submit" class="submit-button">下一步</button>
+          </div>
+        </form>
+        ```
+        
+        **文本内容清单** (从HTML提取):
+        
+        > 📝 以下是组件中所有实际的文本内容，请在实现时使用完全相同的文字：
+        
+        **标签文字**:
+        - "*用户名：" - 第1个字段标签（必填）
+        - "*登录密码：" - 第2个字段标签（必填）
+        - "*确认密码：" - 第3个字段标签（必填）
+        - "*证件类型：" - 第4个字段标签（必填）
+        - "*姓名：" - 第5个字段标签（必填）
+        - "*证件号码：" - 第6个字段标签（必填）
+        - "优惠（待）类型：" - 第7个字段标签（选填）
+        - "邮箱：" - 第8个字段标签（选填）
+        - "*手机号码：" - 第9个字段标签（必填）
+        
+        **占位符文字**:
+        - "用户名设置成功后不可修改" - 用户名输入框
+        - "6-20位字母、数字或符号" - 登录密码输入框
+        - "请再次输入您的登录密码" - 确认密码输入框
+        - "请输入姓名" - 姓名输入框
+        - "请输入您的证件号码" - 证件号码输入框
+        - "请正确填写邮箱地址" - 邮箱输入框
+        - "手机号码" - 手机号码输入框
+        
+        **提示文字**:
+        - "6-30位字母、数字或\"_\"，字母开头" - 用户名提示
+        - "姓名填写规则（用于身份核验，请正确填写真实姓名）" - 姓名提示
+        - "（用于身份核验，请正确填写）" - 证件号码提示
+        - "请正确填写手机号码，稍后将向该手机号发送短信验证码" - 手机号码提示
+        
+        **默认选项**:
+        - "居民身份证" - 证件类型默认值
+        - "成人" - 优惠类型默认值
+        - "+86 中国" - 手机国家代码默认值
+        
+        **协议和按钮**:
+        - "我已阅读并同意遵守" - 协议前缀
+        - "《中国铁路客户服务中心网站服务条款》" - 协议链接1
+        - "《隐私权政策》" - 协议链接2
+        - "下一步" - 提交按钮文字
+        
+        **实现说明**:
+        
+        1. `.register-form` - 表单容器
+           - HTML标签: `<form>`
+           - 布局: Block, 垂直堆叠
+           - 宽度: 950px
+           - 外边距: 0 64px
+        
+        2. `.form-row` - 表单行
+           - HTML标签: `<div>`
+           - 布局: Flexbox, align-items: flex-start
+           - 外边距: 0 0 20px 0
+           - 包含: label区域 + input区域
+        
+        3. `.form-label-wrapper` - 标签包装器
+           - HTML标签: `<div>`
+           - 宽度: 约150px
+           - 文本对齐: right
+        
+        4. `.form-label` - 表单标签
+           - HTML标签: `<label>`
+           - 字体大小: 14px
+           - 颜色: #333333
+           - 字重: 400
+        
+        5. `.required-mark` - 必填星号
+           - HTML标签: `<span>`
+           - 颜色: #ff4d4f (红色)
+           - 字体大小: 14px
+        
+        6. `.form-input-container` - 输入容器
+           - HTML标签: `<div>`
+           - 弹性: flex: 1
+        
+        7. `.form-input-wrapper` - 输入包装器
+           - HTML标签: `<div>`
+           - 相对定位: position: relative
+        
+        8. `.form-input` - 输入框
+           - HTML标签: `<input>`
+           - 宽度: 100%
+           - 高度: 40px
+           - 边框: 1px solid #d9d9d9
+           - 圆角: 4px
+           - 内边距: 0 15px
+           - 字体大小: 14px
+           - 焦点边框: #0066cc
+        
+        9. `.form-hint-message` - 提示文字
+           - HTML标签: `<span>`
+           - 显示: block
+           - 颜色: #ff8800 (橙色)
+           - 字体大小: 12px
+           - 外边距: 5px 0 0 0
+        
+        10. `.select-dropdown` - 自定义下拉框
+            - HTML标签: `<div>`
+            - 高度: 40px
+            - 边框: 1px solid #d9d9d9
+            - 圆角: 4px
+            - 内边距: 0 15px
+            - 光标: pointer
+            - 包含: 显示值 + 隐藏input + 箭头图标
+        
+        11. `.password-strength` - 密码强度指示器
+            - HTML标签: `<div>`
+            - 位置: 密码输入框右侧
+            - 包含: 3个强度条
+        
+        12. `.phone-input-wrapper` - 手机输入包装器
+            - HTML标签: `<div>`
+            - 布局: Flexbox
+            - 包含: 国家代码选择器 + 手机号输入框
+        
+        13. `.agreement-section` - 协议区域
+            - HTML标签: `<div>`
+            - 外边距: 20px 0
+        
+        14. `.agreement-checkbox` - 协议复选框
+            - HTML标签: `<input type="checkbox">`
+            - 尺寸: 16px × 16px
+        
+        15. `.agreement-text` - 协议文字
+            - HTML标签: `<span>`
+            - 字体大小: 14px
+            - 颜色: #666666
+        
+        16. `.agreement-link` - 协议链接
+            - HTML标签: `<a>`
+            - 颜色: #0066cc
+            - 下划线: none
+            - 悬停: underline
+        
+        17. `.submit-button` - 提交按钮
+            - HTML标签: `<button type="submit">`
+            - 宽度: 100%
+            - 高度: 48px
+            - 背景: #ff8800 (橙色)
+            - 颜色: #ffffff
+            - 边框: none
+            - 圆角: 4px
+            - 字体大小: 16px
+            - 字重: 500
+            - 光标: pointer
+            - 悬停: 背景变深
+        
+        **网页资源**:
+        - (本组件无额外图片资源，所有视觉元素通过CSS实现)
+        
+        参考图片: "./images/registration/组件特写截图/注册表单.png"
+        
+        **📸 交互状态截图**:
+        
+        > 📸 **重要说明**：以下截图展示了注册表单在不同验证场景下的错误提示状态，用于指导前端实现精确的表单验证和错误提示样式。
+        
+        1. **两次密码不一致错误**
+           - 截图路径: `./images/registration/交互状态截图/注册表单-错误-两次密码不一致.png`
+           - 触发场景: 用户在"登录密码"输入框输入 password123，在"确认密码"输入框输入 password456（不一致），然后点击空白区域失去焦点
+           - 展示内容:
+             * 用户名、登录密码、确认密码字段都已填写
+             * 用户名和登录密码输入框显示绿色边框和绿色勾勾（✓），表示验证通过
+             * 登录密码输入框右侧显示密码强度指示器（红色和黄色条）
+             * 确认密码输入框显示红色边框
+             * 确认密码输入框下方显示红色错误提示："确认密码与密码不一致！"
+           - 用途: 用于实现前端表单验证的密码一致性检查和错误提示样式
+           - 关键信息:
+             * 错误提示颜色: #ff4d4f (红色)
+             * 错误提示字体大小: 12px
+             * 错误提示位置: 输入框正下方，margin-top: 5px
+             * 错误输入框边框: 1px solid #ff4d4f (红色)
+             * 成功输入框边框: 1px solid #52c41a (绿色)
+             * 验证通过勾勾: ✓ (绿色，字体大小约16px)
+             * 密码强度指示器: 3个横条（红、黄、灰），每条20px × 4px
+        
+        2. **手机号格式错误**
+           - 截图路径: `./images/registration/交互状态截图/注册表单-错误-手机号格式错误.png`
+           - 触发场景: 用户填写完整的用户信息（用户名、密码、确认密码、姓名、证件号码），在"手机号码"输入框输入不足11位的手机号（如"12345"），然后点击空白区域失去焦点
+           - 展示内容:
+             * 所有必填字段都已填写并显示绿色勾勾（验证通过）
+             * 手机号输入框显示红色边框
+             * 手机号输入框下方显示红色错误提示："您输入的手机号码不是有效的格式！"
+             * 输入值显示："12345"（仅5位）
+           - 用途: 用于实现手机号格式验证和错误提示样式
+           - 关键信息:
+             * 错误提示颜色: #ff4d4f (红色)
+             * 错误提示字体大小: 12px
+             * 错误提示位置: 手机号输入区域下方
+             * 错误输入框边框: 1px solid #ff4d4f (红色)
+             * 手机号输入框最大长度: 11位
+        
+        3. **注册验证弹窗触发**
+           - 说明: 用户填写完整且正确的注册信息，勾选用户协议后点击"下一步"按钮
+           - 效果: 触发手机验证弹窗（详见 REQ-REG-VERIFICATION 组件）
+           - 截图路径: `./images/registration/交互状态截图/注册验证弹窗-初始状态.png`
+      
+      dependencies: []
+      
+      scenarios:
+        # 用户名验证场景
+        - name: 用户名输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发用户名验证，如果验证通过，输入框右侧显示绿色勾勾（✓），如果验证失败，输入框下方显示红色错误提示文字
+        
+        - name: 用户名长度小于6位
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个长度小于6位的用户名并失去焦点
+          then: 输入框下方显示系统提示"用户名长度不能少于6个字符！"
+        
+        - name: 用户名长度大于30位
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个长度大于30位的用户名并失去焦点
+          then: 输入框下方显示系统提示"用户名长度不能超过30个字符！"
+        
+        - name: 用户名开头不是字母
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个以非字母开头的用户名并失去焦点
+          then: 输入框下方显示系统提示"用户名只能由字母、数字和_组成，须以字母开头！"
+        
+        - name: 用户名包含特殊字符
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个包含特殊字符（如@#$%^&*()等）的用户名并失去焦点
+          then: 输入框下方显示系统提示"用户名只能由字母、数字和_组成，须以字母开头！"
+        
+        - name: 用户输入合法且已注册的用户名
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个符合标准但已被注册的用户名（如"user_123"）并失去焦点
+          then: 输入框下方显示系统提示"该用户名已经占用，请重新选择用户名！"，输入框右侧不显示绿色勾勾
+        
+        - name: 用户输入合法且未注册的用户名
+          given: 用户在注册页面
+          when: 用户在"用户名"输入框中输入一个未被注册的合法用户名（如"new_user123"）并失去焦点
+          then: 用户名输入框的右侧出现一个绿色的勾勾（✓）表示用户名合法且可以被使用，输入框下方不显示错误提示
+        
+        # 密码验证场景
+        - name: 登录密码输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"登录密码"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发密码验证，密码强度指示器根据密码复杂度更新显示，如果验证通过显示绿色勾勾，如果验证失败显示红色错误提示
+        
+        - name: 登录密码长度小于6位
+          given: 用户在注册页面
+          when: 用户在"登录密码"输入框中输入一个长度小于6位的登录密码并失去焦点
+          then: 输入框下方显示系统提示"密码长度不能少于6个字符！"，密码强度指示器显示一个强度条（弱）
+        
+        - name: 登录密码包含特殊字符
+          given: 用户在注册页面
+          when: 用户在"登录密码"输入框中输入一个包含特殊字符（如@#$%^&*()等）的登录密码并失去焦点
+          then: 输入框下方显示系统提示"格式错误，必须且只能包含字母、数字和下划线中的两种或两种以上！"
+        
+        - name: 登录密码只包含单一字符类型
+          given: 用户在注册页面
+          when: 用户在"登录密码"输入框中输入的密码只包含数字或只包含字母或只包含下划线并失去焦点
+          then: 输入框下方显示系统提示"格式错误，必须且只能包含字母、数字和下划线中的两种或两种以上！"
+        
+        - name: 登录密码符合规范
+          given: 用户在注册页面
+          when: 用户在"登录密码"输入框中输入一个只包含字母、数字和下划线中两种或两种以上，长度大于等于6位的符合密码规范的登录密码并失去焦点
+          then: 登录密码输入框的右侧出现一个绿色的勾勾（✓）表示登录密码合法且可以被使用，密码强度指示器根据密码复杂度显示相应数量的强度条，输入框下方不显示错误提示
+        
+        # 确认密码验证场景
+        - name: 确认密码输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"确认密码"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发确认密码验证，如果验证通过显示绿色勾勾，如果验证失败显示红色错误提示
+        
+        - name: 确认密码与登录密码不一致
+          given: 用户在注册页面
+          when: 用户在"确认密码"输入框中输入的确认登录密码与登录密码不一致并失去焦点
+          then: 输入框下方显示系统提示"确认密码与密码不一致！"，输入框右侧不显示绿色勾勾
+        
+        - name: 确认密码与登录密码一致
+          given: 用户在注册页面且用户已输入一个登录密码
+          when: 用户在"确认密码"输入框中输入的确认登录密码与登录密码一致并失去焦点
+          then: 确认登录密码输入框的右侧出现一个绿色的勾勾（✓）表示确认密码与输入的登录密码一致，输入框下方不显示错误提示
+        
+        # 证件类型选择场景
+        - name: 证件类型默认选择
+          given: 用户在注册页面，未展开过选择证件类型的选项卡
+          when: 用户未选择任何证件类型或还没执行到选择证件类型这一步
+          then: 证件类型选择框内默认填入"居民身份证"
+        
+        - name: 证件类型手动选择
+          given: 用户在注册页面展开选择证件类型的选项卡
+          when: 用户选择某个选项卡中的证件类型
+          then: 证件类型选择框内填入该证件类型的名称，展开的选项卡自动收回
+        
+        # 姓名验证场景
+        - name: 姓名输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"姓名"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发姓名验证，如果验证通过显示绿色勾勾，如果验证失败显示红色错误提示
+        
+        - name: 姓名长度过短
+          given: 用户在注册页面
+          when: 用户输入的内容长度小于3个字符（1个汉字算2个字符）
+          then: 系统提示"允许输入的字符串在3-30个字符之间！"
+        
+        - name: 姓名长度过长
+          given: 用户在注册页面
+          when: 用户输入的内容长度大于30个字符（1个汉字算2个字符）
+          then: 系统提示"允许输入的字符串在3-30个字符之间！"
+        
+        - name: 姓名包含特殊字符
+          given: 用户在注册页面
+          when: 用户输入的姓名包含特殊字符（除了中文字符、英文字符、"."以及单空格之外的字符）
+          then: 系统提示"请输入姓名！"
+        
+        - name: 姓名符合规范
+          given: 用户在注册页面
+          when: 用户输入的姓名长度在3-30个字符之间，且不包含除了中英文字符、"."以及单空格之外的字符
+          then: 姓名输入框右侧出现一个绿色的勾勾表示输入内容合法
+        
+        # 证件号码验证场景
+        - name: 证件号码输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"证件号码"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发证件号码验证（包括格式验证和唯一性验证），如果验证通过显示绿色勾勾，如果验证失败显示红色错误提示
+        
+        - name: 证件号码长度过短
+          given: 用户在注册页面
+          when: 用户在"证件号码"输入框中输入的证件号码长度小于18个字符并失去焦点
+          then: 输入框下方显示系统提示"请正确输入18位证件号码！"
+        
+        - name: 证件号码长度过长
+          given: 用户在注册页面
+          when: 用户在"证件号码"输入框中输入的证件号码长度大于18个字符，系统自动截取前18个字符并失去焦点
+          then: 如果截取后的证件号码格式不正确或校验失败，输入框下方显示系统提示"请正确输入18位证件号码！"
+        
+        - name: 证件号码包含特殊字符
+          given: 用户在注册页面
+          when: 用户在"证件号码"输入框中输入的证件号码包含除了数字和字母以外的字符并失去焦点
+          then: 输入框下方显示系统提示"输入的证件编号中包含中文信息或特殊字符！"
+        
+        - name: 居民身份证号码校验失败
+          given: 用户在注册页面且用户选择的证件类型为"居民身份证"
+          when: 用户在"证件号码"输入框中输入的18位不包含特殊字符的证件号码不通过身份证校验码验证并失去焦点
+          then: 输入框下方显示系统提示"请正确输入18位证件号码！"
+        
+        - name: 证件号码符合规范
+          given: 用户在注册页面
+          when: 用户在"证件号码"输入框中输入的证件号码长度为18个字符，只包含数字和字母，且通过格式校验，并且该证件号码在数据库中未被注册过，用户失去焦点
+          then: 证件号码输入框右侧出现一个绿色的勾勾（✓）表示输入内容合法，输入框下方不显示错误提示
+        
+        # 优惠类型选择场景
+        - name: 优惠类型默认选择
+          given: 用户在注册页面，未展开过选择优惠类型的选项卡
+          when: 用户未选择任何优惠类型或还没执行到选择优惠类型这一步
+          then: 优惠类型选择框内默认填入"成人"
+        
+        - name: 优惠类型手动选择
+          given: 用户在注册页面展开选择优惠类型的选项卡
+          when: 用户选择某个选项卡中的优惠类型
+          then: 优惠类型选择框内填入该优惠类型的名称，展开的选项卡自动收回
+        
+        # 邮箱验证场景（选填）
+        - name: 邮箱输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"邮箱"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发邮箱格式验证，如果验证失败显示红色错误提示，邮箱为选填字段，验证通过时不显示绿色勾勾
+        
+        - name: 邮箱格式不正确
+          given: 用户在注册页面
+          when: 用户在"邮箱"输入框中输入的邮箱不包含"@"符号或不包含域名并失去焦点
+          then: 输入框下方显示系统提示"请输入有效的电子邮件地址！"
+        
+        - name: 邮箱格式正确
+          given: 用户在注册页面
+          when: 用户在"邮箱"输入框中输入了一个正确的邮箱格式（如"example@domain.com"）并失去焦点
+          then: 不出现系统提示，输入框下方不显示错误提示
+        
+        - name: 邮箱未填写（选填字段）
+          given: 用户在注册页面
+          when: 用户未在"邮箱"输入框中输入任何内容并失去焦点
+          then: 不出现系统提示，输入框下方不显示错误提示
+        
+        # 手机号验证场景
+        - name: 手机号输入后失去焦点触发验证
+          given: 用户在注册页面
+          when: 用户在"手机号码"输入框中输入内容并点击输入框外部使输入框失去焦点
+          then: 系统触发手机号码格式验证，如果验证失败显示红色错误提示
+        
+        - name: 手机号长度过短
+          given: 用户在注册页面
+          when: 用户在"手机号码"输入框中输入的手机号码长度小于11个字符并失去焦点
+          then: 输入框下方显示系统提示"您输入的手机号码不是有效的格式！"
+        
+        - name: 手机号长度过长自动截取
+          given: 用户在注册页面且用户已经在"手机号码"输入框中输入了一个11个字符的手机号码
+          when: 用户尝试在手机号码输入框中输入第12个字符
+          then: 系统自动截取前11个字符，仅保留用户最初输入的11个字符手机号码，输入框显示11位数字
+        
+        - name: 手机号包含非数字字符
+          given: 用户在注册页面
+          when: 用户在"手机号码"输入框中输入的手机号码包含除了数字以外的字符并失去焦点
+          then: 输入框下方显示系统提示"您输入的手机号码不是有效的格式！"
+        
+        - name: 手机号符合规范
+          given: 用户在注册页面
+          when: 用户在"手机号码"输入框中输入的手机号码长度为11个字符，且只包含数字并失去焦点
+          then: 不出现系统提示，输入框下方不显示错误提示
+        
+        # 提交注册场景
+        - name: 未勾选用户协议
+          given: 用户在注册页面
+          when: 用户未勾选"我已阅读并同意遵守《中国铁路客户服务中心网站服务条款》《隐私权政策》"复选框并点击"下一步"按钮
+          then: 表单顶部显示系统提示"请确认服务条款！"，字体大小14px，内边距10px 15px，文字颜色为#ff4d4f（红色），背景为#fff2f0（浅红色），边框为#ffccc7（浅红色边框）
+        
+        - name: 必填信息未完成填写
+          given: 用户在注册页面且有除了邮箱号以外的必填信息未填入（如用户名、密码、确认密码、姓名、证件号码、手机号码等）
+          when: 用户点击"下一步"按钮
+          then: 表单顶部显示系统提示"请填写完整信息！"，字体大小14px，内边距10px 15px，文字颜色为#ff4d4f（红色），背景为#fff2f0（浅红色），边框为#ffccc7（浅红色边框）
+        
+        - name: 填写信息不符合规范
+          given: 用户在注册页面且用户填写的信息中有部分还未通过规范认证
+          when: 用户点击"下一步"按钮
+          then: 如果未通过规范认证的内容已经有了对应的系统提示，直接保留之前的系统提示；如果某个字段有错误但未显示错误提示，系统在表单顶部显示通用错误提示
+        
+        - name: 证件号码已被注册
+          given: 用户在注册页面，所有信息填写完整且符合规范，用户勾选同意协议，但用户使用的证件类型+证件号码在数据库中已经被注册过
+          when: 用户点击"下一步"按钮
+          then: 系统弹出提示框（alert）显示"该证件号码已经被注册过，请确认是否您本人注册，'是'请使用原账号登录，'不是'请通过铁路12306App办理抢注或持该证件到就近的办理客运业务的铁路车站办理被抢注处理，完成后即可继续注册，或致电12306客服咨询。"
+        
+        - name: 手机号已被其他用户使用
+          given: 用户在注册页面，所有信息填写完整且符合规范，用户勾选同意协议，但用户输入的手机号码在数据库中已经被其他注册用户使用
+          when: 用户点击"下一步"按钮
+          then: 系统弹出提示框（alert）显示"您输入的手机号码已被其他注册用户使用，请确认是否本人注册。如果此手机号是本人注册，您可使用此手机号进行登录，或返回登录页点击忘记密码进行重置密码；如果手机号不是您注册的，您可更换手机号码或致电12306客服协助处理。"
+        
+        - name: 邮箱已被其他用户使用
+          given: 用户在注册页面，所有信息填写完整且符合规范，用户勾选同意协议，用户填写了邮箱，但用户输入的邮箱在数据库中已经被其他注册用户使用
+          when: 用户点击"下一步"按钮
+          then: 系统弹出提示框（alert）显示"您输入的邮箱已被其他注册用户使用，请确认是否本人注册。如果此邮箱是本人注册，您可使用此邮箱进行登录，或返回登录页点击忘记密码进行重置密码；如果邮箱不是您注册的，您可更换邮箱或致电12306客服协助处理。"
+        
+        - name: 点击服务条款链接
+          given: 用户在注册页面
+          when: 用户点击"《中国铁路客户服务中心网站服务条款》"文本超链接
+          then: 跳转到"《中国铁路客户服务中心网站服务条款》"页面
+        
+        - name: 点击隐私权政策链接
+          given: 用户在注册页面
+          when: 用户点击"《隐私权政策》"文本超链接
+          then: 跳转到"《隐私权政策》"页面
+        
+        - name: 注册信息提交成功
+          given: 用户在注册页面，已填写所有必填信息（用户名、登录密码、确认密码、证件类型、姓名、证件号码、优惠类型、手机号码），所有必填信息都通过格式验证（显示绿色勾勾），如果填写了邮箱号则邮箱号格式正确，用户勾选"我已阅读并同意遵守《中国铁路客户服务中心网站服务条款》《隐私权政策》"复选框
+          when: 用户点击"下一步"按钮
+          then: 系统提交注册信息到后端，后端创建会话（session）并返回sessionId，系统自动发送验证码到用户填写的手机号码，控制台显示验证码信息（开发环境），出现验证弹窗（RegistrationVerificationModal），验证弹窗显示"验证码已发送至[手机号]"，将手机号及验证码记录在注册所用的数据库中（有效期5分钟）
+      
+      children: []
+    
+    - id: REQ-REG-BOTTOM-NAV
+      name: 底部导航
+      description: |
+        页面底部的友情链接和二维码展示区域，与登录页面共用相同设计。
+        
+        **位置信息**:
+        - 父容器: contentinfo (页面底部)
+        - 位置: 页面最底部
+        - 尺寸: 1192px × 120px (从 DOM 测量)
+        - 布局: Flexbox，justify-content: space-between
+        - 背景色: #f5f5f5
+        
+        **HTML 结构** (基于实际HTML源代码):
+        
+        > ⚠️ 以下是从浏览器读取的实际 HTML 结构（已简化，保留关键信息）
+        
+        ```html
+        <footer class="page-footer">
+          <div class="footer-container">
+            <!-- 左侧：友情链接区域 -->
+            <div class="footer-links-section">
+              <h3>友情链接</h3>
+              <div class="partner-logos-grid">
+                <img src="./logo1.png" alt="中国国家铁路集团有限公司" />
+                <img src="./logo2.png" alt="中国铁路客户保险总公司" />
+                <img src="./logo3.png" alt="中铁银通支付有限公司" />
+                <img src="./logo4.png" alt="中铁程科技有限责任公司" />
+              </div>
+            </div>
+            
+            <!-- 右侧：二维码区域 -->
+            <div class="footer-qrcode-section">
+              <div class="qrcode-titles">
+                <div class="qrcode-title">中国铁路官方微信</div>
+                <div class="qrcode-title">中国铁路官方微博</div>
+                <div class="qrcode-title">12306 公众号</div>
+                <div class="qrcode-title">铁路12306</div>
+              </div>
+              <div class="qrcode-images">
+                <img src="./qrcode1.png" alt="中国铁路官方微信" />
+                <img src="./qrcode2.png" alt="中国铁路官方微博" />
+                <img src="./qrcode3.png" alt="12306 公众号" />
+                <img src="./qrcode4.png" alt="铁路12306" />
+              </div>
+              <p class="app-download-notice">
+                官方APP下载，目前铁路未授权其他网站或APP开展类似服务内容，敬请广大用户注意。
+              </p>
+            </div>
+          </div>
+        </footer>
+        ```
+        
+        **文本内容清单** (从HTML提取):
+        
+        > 📝 以下是组件中所有实际的文本内容，请在实现时使用完全相同的文字：
+        
+        - "友情链接" - 左侧标题
+        - "中国铁路官方微信" - 二维码标题1
+        - "中国铁路官方微博" - 二维码标题2
+        - "12306 公众号" - 二维码标题3
+        - "铁路12306" - 二维码标题4
+        - "官方APP下载，目前铁路未授权其他网站或APP开展类似服务内容，敬请广大用户注意。" - 底部提示文字
+        
+        **实现说明**:
+        
+        1. `.page-footer` - 页脚容器
+           - HTML标签: `<footer>`
+           - 布局: Block
+           - 背景: #f5f5f5
+           - 内边距: 30px 0
+        
+        2. `.footer-container` - 内容容器
+           - HTML标签: `<div>`
+           - 布局: Flexbox, justify-content: space-between
+           - 最大宽度: 1200px
+           - 外边距: 0 auto
+        
+        3. `.footer-links-section` - 友情链接区域
+           - HTML标签: `<div>`
+           - 宽度: 约45%
+        
+        4. `.partner-logos-grid` - 友情链接Logo网格
+           - HTML标签: `<div>`
+           - 布局: Grid, grid-template-columns: repeat(2, 1fr)
+           - 行间距: 15px
+           - 列间距: 15px
+        
+        5. 友情链接Logo - 合作伙伴Logo图片
+           - HTML标签: `<img>`
+           - 尺寸: 约100px × 40px
+           - 对象适配: object-fit: contain
+        
+        6. `.footer-qrcode-section` - 二维码区域
+           - HTML标签: `<div>`
+           - 宽度: 约50%
+        
+        7. `.qrcode-titles` - 二维码标题行
+           - HTML标签: `<div>`
+           - 布局: Flexbox, justify-content: space-around
+           - 字体大小: 12px
+           - 颜色: #666666
+        
+        8. `.qrcode-images` - 二维码图片行
+           - HTML标签: `<div>`
+           - 布局: Flexbox, justify-content: space-around
+           - 外边距: 10px 0
+        
+        9. 二维码图片 - 官方平台二维码
+           - HTML标签: `<img>`
+           - 尺寸: 80px × 80px
+        
+        10. `.app-download-notice` - 下载提示文字
+            - HTML标签: `<p>`
+            - 字体大小: 12px
+            - 颜色: #999999
+            - 文本对齐: center
+            - 外边距: 15px 0 0 0
+        
+        **网页资源**:
+        
+        **Logo图片** (复用自登录页面):
+        - 中国国家铁路集团Logo: "/images/registration/注册页面-底部导航-中国国家铁路集团Logo.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 约100px × 40px
+          * 来源: 复用自登录页面
+        
+        - 中国铁路财产保险Logo: "/images/registration/注册页面-底部导航-中国铁路财产保险Logo.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 约100px × 40px
+          * 来源: 复用自登录页面
+        
+        - 中铁快运Logo: "/images/registration/注册页面-底部导航-中铁快运Logo.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 约100px × 40px
+          * 来源: 复用自登录页面
+        
+        - 中国铁路95306网Logo: "/images/registration/注册页面-底部导航-中国铁路95306网Logo.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 约100px × 40px
+          * 来源: 复用自登录页面
+        
+        **二维码图片** (复用自登录页面):
+        - 中国铁路官方微信: "/images/registration/注册页面-底部导航-中国铁路官方微信二维码.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 80px × 80px
+          * 来源: 复用自登录页面
+        
+        - 中国铁路官方微博: "/images/registration/注册页面-底部导航-中国铁路官方微博二维码.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 80px × 80px
+          * 来源: 复用自登录页面
+        
+        - 12306公众号: "/images/registration/注册页面-底部导航-12306公众号二维码.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 80px × 80px
+          * 来源: 复用自登录页面
+        
+        - 铁路12306: "/images/registration/注册页面-底部导航-铁路12306二维码.png"
+          * 实现方式: `<img>` 标签
+          * 显示尺寸: 80px × 80px
+          * 来源: 复用自登录页面
+        
+        参考图片: "./images/registration/组件特写截图/底部导航.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-REG-VERIFICATION
+      name: 注册验证弹窗
+      description: |
+        用户提交注册信息后弹出的手机验证弹窗。
+        
+        **位置信息**:
+        - 父容器: body (脱离文档流)
+        - 定位: position: fixed
+        - 坐标: 覆盖整个视口 (top: 0, left: 0)
+        - 尺寸: 1512px × 805px (遮罩层，覆盖整个视口)
+        - 弹窗内容尺寸: 约500px × 300px（居中显示）
+        - z-index: 1000
+        - 遮罩层: 半透明黑色背景 rgba(0, 0, 0, 0.5)
+        
+        **HTML 结构** (基于实际HTML源代码):
+        
+        > ⚠️ 以下是从浏览器读取的实际 HTML 结构（已简化，保留关键信息）
+        
+        ```html
+        <div class="reg-verification-modal-backdrop">
+          <div class="reg-verification-modal">
+            <!-- 弹窗头部 -->
+            <div class="reg-verification-modal-header">
+              <h3>手机验证</h3>
+              <button class="close-button" aria-label="关闭">×</button>
+            </div>
+            
+            <!-- 弹窗内容 -->
+            <div class="reg-verification-modal-content">
+              <p class="verification-message">
+                验证码已发送至13325883925
+              </p>
+              
+              <form class="verification-form">
+                <div class="form-row">
+                  <label class="form-label">验证码：</label>
+                  <input type="text" class="form-input" 
+                         maxlength="6" 
+                         placeholder="请输入6位验证码" />
+                </div>
+                
+                <div class="button-group">
+                  <button type="submit" class="complete-button">
+                    完成注册
+                  </button>
+                  <button type="button" class="back-button">
+                    返回修改
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        ```
+        
+        **文本内容清单** (从HTML提取):
+        
+        > 📝 以下是组件中所有实际的文本内容，请在实现时使用完全相同的文字：
+        
+        - "手机验证" - 弹窗标题
+        - "×" - 关闭按钮
+        - "验证码已发送至{手机号}" - 提示信息（手机号动态显示）
+        - "验证码：" - 输入框标签
+        - "请输入6位验证码" - 输入框占位符
+        - "完成注册" - 提交按钮文字
+        - "返回修改" - 返回按钮文字
+        
+        **实现说明**:
+        
+        1. `.reg-verification-modal-backdrop` - 遮罩层
+           - HTML标签: `<div>`
+           - 定位: position: fixed
+           - 坐标: top: 0, left: 0
+           - 尺寸: 100vw × 100vh
+           - 背景: rgba(0, 0, 0, 0.5)（半透明黑色）
+           - z-index: 1000
+        
+        2. `.reg-verification-modal` - 弹窗容器
+           - HTML标签: `<div>`
+           - 定位: position: fixed (居中显示)
+           - 尺寸: 约500px × 300px
+           - 背景: #ffffff
+           - 圆角: 8px
+           - 阴影: 0 4px 16px rgba(0, 0, 0, 0.15)
+           - 居中: top: 50%, left: 50%, transform: translate(-50%, -50%)
+        
+        3. `.reg-verification-modal-header` - 弹窗头部
+           - HTML标签: `<div>`
+           - 布局: Flexbox, justify-content: space-between
+           - 背景: #0066cc（蓝色）
+           - 颜色: #ffffff（白色文字）
+           - 内边距: 15px 20px
+           - 圆角: 8px 8px 0 0
+        
+        4. `h3` - 弹窗标题
+           - HTML标签: `<h3>`
+           - 字体大小: 18px
+           - 字重: 600
+           - 颜色: #ffffff
+        
+        5. `.close-button` - 关闭按钮
+           - HTML标签: `<button>`
+           - 字体大小: 24px
+           - 颜色: #ffffff
+           - 背景: transparent
+           - 边框: none
+           - 光标: pointer
+        
+        6. `.reg-verification-modal-content` - 弹窗内容
+           - HTML标签: `<div>`
+           - 内边距: 30px 20px
+        
+        7. `.verification-message` - 验证消息
+           - HTML标签: `<p>`
+           - 字体大小: 14px
+           - 颜色: #333333
+           - 文本对齐: center
+           - 外边距: 0 0 20px 0
+        
+        8. `.verification-form` - 验证表单
+           - HTML标签: `<form>`
+           - 布局: Block
+        
+        9. `.form-row` - 表单行
+           - HTML标签: `<div>`
+           - 布局: Flexbox, align-items: center
+           - 外边距: 0 0 20px 0
+        
+        10. `.form-label` - 标签
+            - HTML标签: `<label>`
+            - 字体大小: 14px
+            - 颜色: #333333
+            - 宽度: 80px
+        
+        11. `.form-input` - 验证码输入框
+            - HTML标签: `<input type="text">`
+            - 最大长度: 6
+            - 宽度: 200px
+            - 高度: 40px
+            - 边框: 1px solid #d9d9d9
+            - 圆角: 4px
+            - 内边距: 0 15px
+            - 字体大小: 16px
+            - 文本对齐: center
+            - 字母间距: 3px
+        
+        12. `.button-group` - 按钮组
+            - HTML标签: `<div>`
+            - 布局: Flexbox, justify-content: center, gap: 15px
+        
+        13. `.complete-button` - 完成注册按钮
+            - HTML标签: `<button type="submit">`
+            - 宽度: 120px
+            - 高度: 40px
+            - 背景: #ff8800（橙色）
+            - 颜色: #ffffff
+            - 边框: none
+            - 圆角: 4px
+            - 字体大小: 14px
+            - 光标: pointer
+        
+        14. `.back-button` - 返回修改按钮
+            - HTML标签: `<button type="button">`
+            - 宽度: 120px
+            - 高度: 40px
+            - 背景: transparent
+            - 颜色: #0066cc
+            - 边框: 1px solid #0066cc
+            - 圆角: 4px
+            - 字体大小: 14px
+            - 光标: pointer
+        
+        **网页资源**:
+        - (本组件无额外图片资源，所有视觉元素通过CSS实现)
+        
+        **📸 交互状态截图**:
+        
+        > 📸 **重要说明**：以下截图展示了验证弹窗在不同状态下的UI外观，用于指导前端实现精确的样式和交互效果。
+        
+        1. **验证弹窗初始状态**
+           - 截图路径: `./images/registration/交互状态截图/注册验证弹窗-初始状态.png`
+           - 触发场景: 用户填写完整的注册信息并点击"下一步"按钮后触发
+           - 展示内容:
+             * 弹窗居中显示在半透明黑色遮罩上方
+             * 蓝色标题栏显示"手机验证"文字，右上角有关闭按钮（×）
+             * 内容区域显示提示信息："验证码已发送至13325883925"
+             * 验证码输入框为空，占位符显示"请输入6位验证码"
+             * 两个按钮横向排列："完成注册"（橙色）和"返回修改"（蓝色边框）
+           - 用途: 用于实现验证弹窗的初始UI状态和布局
+           - 关键信息:
+             * 弹窗尺寸: 约500px × 300px
+             * 弹窗定位: fixed, 居中显示
+             * z-index: 1000
+             * 遮罩背景: rgba(0, 0, 0, 0.5)
+             * 标题栏背景: #0066cc（蓝色）
+             * 完成按钮背景: #ff8800（橙色）
+             * 返回按钮边框: #0066cc（蓝色）
+        
+        参考图片: "./images/registration/交互状态截图/注册验证弹窗-初始状态.png"
+      
+      dependencies:
+        - REQ-REG-FORM
+      
+      scenarios:
+        # 完成注册按钮场景
+        - name: 验证码为空
+          given: 用户在验证弹窗且用户在"验证码"输入框中未输入任何内容
+          when: 用户点击"完成注册"按钮
+          then: 验证码输入框下方显示系统提示"请输入验证码"
+          
+        - name: 验证码长度不为6位
+          given: 用户在验证弹窗且用户在"验证码"输入框中输入的内容不为空且长度不为6位
+          when: 用户点击"完成注册"按钮
+          then: 验证码输入框下方显示系统提示"验证码应为6位数字"
+          
+        - name: 验证码正确且未过期
+          given: 用户在验证弹窗，用户在"验证码"输入框中输入了6位数字，该验证码与系统发送给该手机号的验证码一致，验证码未过期（在5分钟有效期内）
+          when: 用户点击"完成注册"按钮
+          then: 弹窗显示成功状态，弹窗内容区域显示成功图标（圆形，尺寸80px×80px，背景为#52c41a（绿色），白色"✓"标记），弹窗内容区域显示成功消息"恭喜您注册成功！正在跳转登录页..."，2秒后自动跳转到登录页面，将用户完整信息计入正式数据库中
+          
+        - name: 验证码错误
+          given: 用户在验证弹窗，用户在"验证码"输入框中输入了6位数字，但该验证码与系统发送给该手机号的验证码不一致
+          when: 用户点击"完成注册"按钮
+          then: 验证码输入框下方显示系统提示"验证码错误"
+          
+        - name: 验证码已过期
+          given: 用户在验证弹窗，用户在"验证码"输入框中输入了6位数字，该验证码与系统发送给该手机号的验证码一致，但验证码已过期（超过5分钟有效期）
+          when: 用户点击"完成注册"按钮
+          then: 验证码输入框下方显示系统提示"验证码错误"或"验证码已过期"
+        
+        # 返回修改按钮场景
+        - name: 点击返回修改按钮
+          given: 用户在验证弹窗
+          when: 用户点击"返回修改"按钮
+          then: 注册验证弹窗关闭，用户返回到注册表单页面，用户可以修改注册信息后重新提交
+        
+        # 关闭按钮场景
+        - name: 点击关闭按钮（未成功状态）
+          given: 用户在验证弹窗且用户尚未完成注册验证
+          when: 用户点击弹窗右上角的"×"关闭按钮
+          then: 系统弹出确认对话框"确定要关闭验证弹窗吗？关闭后需要重新提交注册信息。"，如果用户确认关闭，弹窗关闭，用户返回到注册表单页面；如果用户取消关闭，弹窗保持打开状态
+        
+        - name: 点击关闭按钮（已成功状态）
+          given: 用户在验证弹窗且用户已完成注册验证，弹窗显示成功状态
+          when: 用户点击弹窗右上角的"×"关闭按钮
+          then: 弹窗直接关闭，不显示确认对话框，用户返回到注册表单页面
+      
+      children: []

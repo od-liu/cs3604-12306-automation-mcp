@@ -1,20 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import RegistrationPage from './pages/RegistrationPage'
+import './App.css'
 
-/**
- * @description 应用主入口组件
- * 配置路由和全局状态管理
- */
-const App: React.FC = () => {
+function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
+      <div className="App">
+        <Routes>
+          {/* 首页路由 */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
+          
+          {/* 登录和注册路由 */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+        </Routes>
+      </div>
     </Router>
-  );
-};
+  )
+}
 
-export default App;
+export default App
+
+

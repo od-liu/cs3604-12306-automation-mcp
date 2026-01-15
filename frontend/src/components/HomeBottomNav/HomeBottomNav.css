@@ -1,0 +1,93 @@
+/**
+ * 首页底部导航样式
+ * 📸 参考截图: requirements/images/homepage/组件特写截图/底部导航.png
+ * ⚠️ 以下样式基于 ui-style-guide.md 中的完整 CSS 代码
+ */
+
+/* ========== 底部导航 ========== */
+.bottom-navigation {
+  background-color: #F5F5F5 !important;
+  padding: 40px 0 !important;
+  width: 100% !important;
+}
+
+.bottom-content {
+  max-width: 1220px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+}
+
+/* ========== 友情链接区域 ========== */
+.friendship-links-section {
+  flex: 0 0 auto !important;
+}
+
+.section-title {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #333333 !important;
+  margin-bottom: 16px !important;
+}
+
+.friendship-links-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 176px) !important;
+  gap: 16px 24px !important;
+}
+
+.friendship-link-item img {
+  width: 176px !important;
+  height: 30px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* ========== 二维码区域 ========== */
+.qr-codes-section {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+.qr-codes-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.qr-code-row {
+  display: flex !important;
+  gap: 16px !important;
+}
+
+.qr-label {
+  font-size: 12px !important;
+  color: #666666 !important;
+  text-align: center !important;
+  width: 80px !important;
+}
+
+.qr-code-item {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+.qr-code-item img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+.qr-code-footer {
+  margin-top: 12px !important;
+}
+
+.qr-code-footer p {
+  font-size: 12px !important;
+  color: #999999 !important;
+  line-height: 1.6 !important;
+  max-width: 400px !important;
+}

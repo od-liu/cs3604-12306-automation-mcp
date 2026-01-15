@@ -1,0 +1,352 @@
+# 个人信息页初始需求文档
+# 这是提供给 UI Analyzer Agent 的输入文档
+# Agent 会自动获取截图、图片资源和交互场景截图
+
+# ⚠️ 使用说明：
+# 1. 如果某个组件需要交互场景截图，请在 description 中添加 "**交互场景截图**:" 字段
+# 2. 如果交互场景需要登录凭证，请在 "**登录凭证**:" 中填写或引用环境变量
+# 3. Agent 会按照 steps 中定义的步骤自动执行交互并截图
+# 4. 支持的 action 类型: type, click, wait, wait_for_element, screenshot, evaluate 等
+
+- id: REQ-PERSONAL-INFO-PAGE
+  name: 个人信息页
+  description: |
+    用户登录后的个人中心页面，包含个人信息管理、乘客管理和订单管理。
+    
+    **网站地址**: https://kyfw.12306.cn/otn/view/index.html (需要先登录)
+    **页面宽度参考**: 1920px
+    **页面标识**: personal-info
+    
+    **访问方式**:
+    1. 需要先登录
+    2. 点击顶部导航的"我的12306"或"个人中心"
+    3. 自动跳转到个人信息页
+    
+    **前置条件**:
+    - 用户已登录
+    
+    **登录凭证**:
+    ⚠️ 凭证从环境变量读取，Agent 会自动从 credentials.env 文件加载：
+    - username: 从 ${LOGIN_USERNAME} 环境变量读取
+    - password: 从 ${LOGIN_PASSWORD} 环境变量读取
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 用户头像（默认头像）
+    - 菜单图标（如有）
+    - 空状态图片（无订单、无乘客时显示）
+    
+    **主要功能**：
+    - 显示用户基本信息（用户名、姓名、证件号、手机号、邮箱等）
+    - 支持修改个人信息
+    - 管理常用乘客（查看、添加、编辑、删除）
+    - 查看订单历史（未完成订单、已完成订单、已取消订单）
+    - 查看订单详情
+    - 支付未支付订单
+    - 取消未支付订单
+  
+  dependencies:
+    - REQ-LOGIN-PAGE
+  scenarios: []
+  
+  children:
+    - id: REQ-PERSONAL-TOP-NAV
+      name: 顶部导航栏
+      description: |
+        页面顶部导航栏（与其他页面共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最上方，横向占据整个页面宽度
+        **定位提示**: header, nav, .header, [role="banner"]
+        
+        **功能要求**：
+        - 显示12306品牌Logo
+        - 显示主导航菜单
+        - 显示用户名和退出按钮（已登录状态）
+        - Logo点击返回首页
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-PERSONAL-SIDEBAR
+      name: 侧边栏菜单
+      description: |
+        个人中心的侧边栏导航菜单。
+        
+        **需要截图**: 是
+        **组件定位**: 页面左侧，垂直菜单，宽度约200-250px
+        **定位提示**: .sidebar, .side-menu, aside, [class*="menu"]
+        
+        **功能要求**：
+        - 显示用户头像和用户名
+        - 显示菜单项：
+          * 个人信息
+          * 常用乘客
+          * 我的订单
+          * 修改密码（可选）
+          * 退出登录（可选）
+        - 当前选中菜单项高亮
+        - 点击菜单项切换右侧内容
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-PERSONAL-INFO-TAB
+      name: 个人信息Tab
+      description: |
+        显示和编辑用户个人信息的区域。
+        
+        **需要截图**: 是
+        **组件定位**: 页面右侧主内容区域，侧边栏菜单右侧
+        **定位提示**: .personal-info, .user-info, [class*="info"]
+        
+        **功能要求**：
+        - 显示用户名（不可修改）
+        - 显示真实姓名（不可修改或可修改，根据实际）
+        - 显示证件类型和证件号（不可修改）
+        - 显示手机号（可修改）
+        - 显示邮箱（可修改）
+        - 提供"编辑"或"保存"按钮
+        - 编辑模式下显示输入框
+        - 保存时进行格式验证
+        
+        **交互场景截图**:
+          - name: "个人信息查看模式"
+            description: "查看个人信息的初始状态"
+            steps:
+              - action: click
+                target: "个人信息菜单项"
+                target_hint: "a:has-text('个人信息'), button:has-text('个人信息')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "个人信息-查看模式.png"
+                
+          - name: "个人信息编辑模式"
+            description: "点击编辑按钮进入编辑模式"
+            steps:
+              - action: click
+                target: "编辑按钮"
+                target_hint: "button:has-text('编辑'), a:has-text('编辑')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "个人信息-编辑模式.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 手机号格式错误
+          given: 用户在编辑模式下输入了不符合格式的手机号
+          when: 用户点击"保存"
+          then: 显示错误提示"手机号格式不正确！"
+          
+        - name: 邮箱格式错误
+          given: 用户在编辑模式下输入了不符合格式的邮箱
+          when: 用户点击"保存"
+          then: 显示错误提示"邮箱格式不正确！"
+          
+        - name: 保存成功
+          given: 用户在编辑模式下修改了信息且格式正确
+          when: 用户点击"保存"
+          then: 保存成功，显示成功提示，返回查看模式
+      
+      children: []
+    
+    - id: REQ-PASSENGER-MANAGE-TAB
+      name: 常用乘客Tab
+      description: |
+        管理常用乘客的区域。
+        
+        **需要截图**: 是
+        **组件定位**: 页面右侧主内容区域，点击侧边栏"常用乘客"后显示
+        **定位提示**: .passenger-manage, .passenger-list, [class*="passenger"]
+        
+        **功能要求**：
+        - 显示常用乘客列表（卡片或表格形式）
+        - 每个乘客显示：姓名、证件类型、证件号（部分隐藏）、手机号
+        - 提供"添加乘客"按钮
+        - 每个乘客提供"编辑"和"删除"按钮
+        - 删除前显示确认弹窗
+        - 添加/编辑乘客时显示表单弹窗或跳转到表单页
+        - 限制乘客数量（如最多15人）
+        - 无乘客时显示空状态提示和引导
+        
+        **交互场景截图**:
+          - name: "常用乘客列表"
+            description: "查看常用乘客列表"
+            steps:
+              - action: click
+                target: "常用乘客菜单项"
+                target_hint: "a:has-text('常用乘客'), button:has-text('乘客')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "常用乘客-列表显示.png"
+                
+          - name: "添加乘客弹窗"
+            description: "点击添加乘客按钮显示表单"
+            steps:
+              - action: click
+                target: "添加乘客按钮"
+                target_hint: "button:has-text('添加'), button:has-text('新增')"
+              - action: wait
+                duration: 1
+              - action: wait_for_element
+                target: "添加乘客表单"
+                target_hint: "[role='dialog'], .modal, form"
+                timeout: 3
+              - action: screenshot
+                filename: "常用乘客-添加弹窗.png"
+                
+          - name: "删除乘客确认弹窗"
+            description: "点击删除按钮显示确认弹窗"
+            steps:
+              - action: click
+                target: "第一个乘客的删除按钮"
+                target_hint: "button:has-text('删除'):first-child, .delete-btn:first-child"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "常用乘客-删除确认弹窗.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 添加乘客-姓名为空
+          given: 用户在添加乘客表单中未输入姓名
+          when: 用户点击"保存"或"确定"
+          then: 显示错误提示"请输入乘客姓名！"
+          
+        - name: 添加乘客-证件号格式错误
+          given: 用户在添加乘客表单中输入了不符合格式的证件号
+          when: 用户点击"保存"或"确定"
+          then: 显示错误提示"证件号格式不正确！"
+          
+        - name: 添加乘客-乘客已存在
+          given: 用户在添加乘客表单中输入了已存在的证件号
+          when: 用户点击"保存"或"确定"
+          then: 显示错误提示"该乘客已存在！"
+          
+        - name: 添加乘客-成功
+          given: 用户在添加乘客表单中输入了完整且正确的信息
+          when: 用户点击"保存"或"确定"
+          then: 保存成功，关闭表单，刷新乘客列表，显示成功提示
+          
+        - name: 删除乘客-确认
+          given: 用户点击了删除按钮并显示确认弹窗
+          when: 用户点击"确定"或"删除"
+          then: 删除乘客，刷新列表，显示成功提示
+          
+        - name: 删除乘客-取消
+          given: 用户点击了删除按钮并显示确认弹窗
+          when: 用户点击"取消"
+          then: 关闭弹窗，不删除乘客
+      
+      children: []
+    
+    - id: REQ-ORDER-HISTORY-TAB
+      name: 我的订单Tab
+      description: |
+        查看订单历史的区域。
+        
+        **需要截图**: 是
+        **组件定位**: 页面右侧主内容区域，点击侧边栏"我的订单"后显示
+        **定位提示**: .order-history, .order-list, [class*="order"]
+        
+        **功能要求**：
+        - 显示订单列表（每个订单为一个卡片或行）
+        - 支持按订单状态筛选（全部、未支付、已支付、已取消、已完成）
+        - 每个订单显示：
+          * 订单号
+          * 车次信息（车次号、出发/到达站、日期）
+          * 乘客信息（姓名、席别）
+          * 订单金额
+          * 订单状态（未支付、已支付、已取消等）
+          * 操作按钮（去支付、取消订单、查看详情等）
+        - 无订单时显示空状态提示
+        - 支持分页（如订单较多）
+        
+        **交互场景截图**:
+          - name: "订单列表显示"
+            description: "查看我的订单列表"
+            steps:
+              - action: click
+                target: "我的订单菜单项"
+                target_hint: "a:has-text('订单'), button:has-text('订单')"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "我的订单-列表显示.png"
+                
+          - name: "订单详情弹窗"
+            description: "点击查看详情显示订单详情"
+            steps:
+              - action: click
+                target: "第一个订单的查看详情按钮"
+                target_hint: "button:has-text('详情'):first-child, a:has-text('详情'):first-child"
+              - action: wait
+                duration: 1
+              - action: wait_for_element
+                target: "订单详情弹窗"
+                target_hint: "[role='dialog'], .modal"
+                timeout: 3
+              - action: screenshot
+                filename: "我的订单-详情弹窗.png"
+                
+          - name: "取消订单确认弹窗"
+            description: "点击取消订单显示确认弹窗"
+            steps:
+              - action: click
+                target: "第一个未支付订单的取消按钮"
+                target_hint: "button:has-text('取消订单'):first-child"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "我的订单-取消确认弹窗.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 取消订单-确认
+          given: 用户点击了取消订单按钮并显示确认弹窗
+          when: 用户点击"确定"或"取消订单"
+          then: 取消订单，刷新订单列表，显示成功提示
+          
+        - name: 取消订单-取消
+          given: 用户点击了取消订单按钮并显示确认弹窗
+          when: 用户点击"取消"
+          then: 关闭弹窗，不取消订单
+          
+        - name: 去支付
+          given: 用户点击了未支付订单的"去支付"按钮
+          when: 页面跳转
+          then: 跳转到支付页面
+          
+        - name: 查看详情
+          given: 用户点击了订单的"查看详情"按钮
+          when: 弹窗显示
+          then: 显示订单详情弹窗，包含完整的订单信息
+      
+      children: []
+    
+    - id: REQ-PERSONAL-BOTTOM-NAV
+      name: 底部导航
+      description: |
+        页面底部的友情链接和版权信息区域（与其他页面共用）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最底部
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **功能要求**：
+        - 显示友情链接
+        - 显示二维码
+        - 显示版权和备案信息
+      
+      dependencies: []
+      scenarios: []
+      children: []
+

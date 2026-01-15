@@ -1,0 +1,10 @@
+- id: REQ-HOME-TOP-NAV
+  status: processed
+- id: REQ-HOME-SEARCH-FORM
+  status: processed
+- id: REQ-HOME-PROMOTION
+  status: processed
+- id: REQ-HOME-BOTTOM-NAV
+  status: processed
+- id: REQ-HOME-PAGE
+  status: unprocessed

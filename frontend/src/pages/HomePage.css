@@ -1,0 +1,100 @@
+/**
+ * 首页（车票查询页）样式
+ * 参考截图: requirements/images/homepage/整体页面截图/首页（车票查询页）.png
+ */
+
+/* ========== 页面容器 ========== */
+.home-page-container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== 顶部导航区域 ========== */
+.home-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ========== 主内容区域 ========== */
+.home-main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* ========== 查询表单区域 - 背景图 ========== */
+.home-search-section {
+  width: 100%;
+  background-image: url('/images/首页-背景图.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 80px 0 80px 120px;
+}
+
+/* ========== 快捷服务入口区域 ========== */
+.home-quick-services-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  background-color: #F5F5F5;
+}
+
+.home-quick-services-image {
+  max-width: 1220px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ========== 宣传推广区域 ========== */
+.home-promo-section {
+  width: 100%;
+  padding: 0 0 40px 0;
+  background-color: #F5F5F5;
+}
+
+/* ========== 底部发布信息区域 ========== */
+.home-info-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  background-color: #F5F5F5;
+}
+
+.home-info-image {
+  max-width: 1220px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ========== 底部导航区域 ========== */
+.home-footer {
+  width: 100%;
+  background-color: #F5F5F5;
+}
+
+/* ========== 占位符样式（仅用于开发阶段） ========== */
+.placeholder {
+  padding: 40px;
+  text-align: center;
+  color: #999999;
+  font-size: 16px;
+  border: 2px dashed #d0d0d0;
+  margin: 20px;
+  background-color: rgba(255, 255, 255, 0.5);
+}

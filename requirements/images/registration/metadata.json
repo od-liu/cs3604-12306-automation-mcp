@@ -1,0 +1,110 @@
+{
+  "page": "注册页面",
+  "url": "http://localhost:5174/register",
+  "pageWidth": 1920,
+  "timestamp": "2026-01-15",
+  "resources": {
+    "logo": {
+      "filename": "注册页面-顶部导航-Logo.png",
+      "location": "顶部导航左侧",
+      "usage": "页面Logo，点击可返回首页",
+      "source": "复用自登录页面",
+      "dimensions": {
+        "naturalWidth": 150,
+        "naturalHeight": 50,
+        "displayWidth": 150,
+        "displayHeight": 50
+      }
+    },
+    "qrcodes": [
+      {
+        "filename": "注册页面-底部导航-中国铁路官方微信二维码.png",
+        "title": "中国铁路官方微信",
+        "location": "底部导航右侧区域，从左数第1个",
+        "source": "复用自登录页面",
+        "dimensions": {
+          "width": 80,
+          "height": 80
+        }
+      },
+      {
+        "filename": "注册页面-底部导航-中国铁路官方微博二维码.png",
+        "title": "中国铁路官方微博",
+        "location": "底部导航右侧区域，从左数第2个",
+        "source": "复用自登录页面",
+        "dimensions": {
+          "width": 80,
+          "height": 80
+        }
+      },
+      {
+        "filename": "注册页面-底部导航-12306公众号二维码.png",
+        "title": "12306 公众号",
+        "location": "底部导航右侧区域，从左数第3个",
+        "source": "复用自登录页面",
+        "dimensions": {
+          "width": 80,
+          "height": 80
+        }
+      },
+      {
+        "filename": "注册页面-底部导航-铁路12306二维码.png",
+        "title": "铁路12306",
+        "location": "底部导航右侧区域，从左数第4个",
+        "source": "复用自登录页面",
+        "dimensions": {
+          "width": 80,
+          "height": 80
+        }
+      }
+    ],
+    "partnerLogos": [
+      {
+        "filename": "注册页面-底部导航-中国国家铁路集团Logo.png",
+        "title": "中国国家铁路集团有限公司",
+        "location": "底部导航左侧友情链接区域，第1行第1个",
+        "source": "复用自登录页面",
+        "layout": "2行2列网格布局"
+      },
+      {
+        "filename": "注册页面-底部导航-中国铁路财产保险Logo.png",
+        "title": "中国铁路财产保险",
+        "location": "底部导航左侧友情链接区域，第1行第2个",
+        "source": "复用自登录页面",
+        "layout": "2行2列网格布局"
+      },
+      {
+        "filename": "注册页面-底部导航-中铁快运Logo.png",
+        "title": "中铁快运",
+        "location": "底部导航左侧友情链接区域，第2行第1个",
+        "source": "复用自登录页面",
+        "layout": "2行2列网格布局"
+      },
+      {
+        "filename": "注册页面-底部导航-中国铁路95306网Logo.png",
+        "title": "中国铁路95306网",
+        "location": "底部导航左侧友情链接区域，第2行第2个",
+        "source": "复用自登录页面",
+        "layout": "2行2列网格布局"
+      }
+    ]
+  },
+  "screenshots": {
+    "fullPage": "整体页面截图/注册页面.png",
+    "components": [
+      "组件特写截图/顶部导航.png",
+      "组件特写截图/注册表单.png",
+      "组件特写截图/底部导航.png"
+    ],
+    "interactions": [
+      "交互状态截图/注册表单-错误-密码为空.png",
+      "交互状态截图/注册表单-错误-两次密码不一致.png",
+      "交互状态截图/注册表单-错误-手机号格式错误.png",
+      "交互状态截图/注册验证弹窗-初始状态.png"
+    ]
+  },
+  "notes": {
+    "resourceReuse": "本页面的Logo、二维码和友情链接Logo全部复用自登录页面，符合设计规范统一性要求",
+    "interactionScreenshots": "交互场景截图将在 Phase 7 中生成"
+  }
+}
