@@ -2,16 +2,24 @@
   "name": "12306-login-backend",
   "version": "1.0.0",
   "description": "Backend API for 12306 login page",
-  "main": "src/index.js",
+  "keywords": [
+    "12306",
+    "login",
+    "express",
+    "sqlite"
+  ],
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "vitest"
   },
-  "keywords": ["12306", "login", "express", "sqlite"],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
@@ -25,4 +33,3 @@
     "supertest": "^6.3.3"
   }
 }
-

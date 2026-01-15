@@ -1,0 +1,798 @@
+# 首页（车票查询页）- 完整UI需求文档
+# 由 UI Analyzer Agent 自动生成
+# 生成时间: 2026-01-15
+
+- id: REQ-HOME-PAGE
+  name: 首页（车票查询页）
+  description: |
+    用户进入系统后的首页，主要功能是车票查询。
+    
+    **网站地址**: http://localhost:5173/
+    **页面宽度参考**: 1920px (实际测量: 1512px viewport)
+    
+    **需要的图片资源**:
+    - Logo（顶部导航）
+    - 导航菜单图标（如有）
+    - 背景图片（查询表单区域）
+    - 宣传图片（4个快捷入口：会员服务、铁路保险、餐饮特产、计次定期票）
+    - 底部导航的友情链接和二维码
+    
+    **主要功能**：
+    - 用户可以查询车票（出发地、目的地、日期）
+    - 显示常用功能快捷入口
+    - 显示宣传内容和推广信息
+    - 提供登录/注册入口（如未登录）
+    - 显示用户信息（如已登录）
+    
+    --- 以下是 UI Analyzer 添加的详细分析 ---
+    
+    **🎨 颜色体系**:
+    
+    1. **主题色**:
+       - 品牌蓝: rgb(59, 153, 252) → #3B99FC (主导航、搜索按钮)
+       - 强调橙: rgb(255, 119, 0) → #FF7700 (查询按钮)
+    
+    2. **文本颜色**:
+       - 深色文本: rgb(0, 0, 0) → #000000 (主要文字)
+       - 中灰文本: rgb(153, 153, 153) → #999999 (次要文字)
+       - 链接蓝: rgb(59, 153, 252) → #3B99FC (链接文字)
+       - 白色文本: rgb(255, 255, 255) → #FFFFFF (按钮文字)
+    
+    3. **背景颜色**:
+       - 页面背景: rgb(245, 245, 245) → #F5F5F5 (浅灰色)
+       - 白色背景: rgb(255, 255, 255) → #FFFFFF (卡片、表单)
+    
+    4. **边框颜色**:
+       - 常规边框: rgb(208, 208, 208) → #D0D0D0 (输入框边框)
+       - 分隔线: rgb(208, 213, 232) → #D0D5E8
+    
+    **📐 页面尺寸**:
+    - 实际页面宽度: 1512px
+    - 实际页面高度: 1684px
+    - Viewport宽度: 1512px
+    - Viewport高度: 805px
+    
+    **🖼️ 截图参考**:
+    - 整体页面: `./images/homepage/整体页面截图/首页（车票查询页）.png`
+    
+    **📦 网页资源**:
+    所有图片资源已下载至 `requirements/images/homepage/` 目录，详见 `metadata.json`
+  
+  dependencies: []
+  scenarios: []
+  
+  children:
+    - id: REQ-HOME-TOP-NAV
+      name: 顶部导航栏
+      description: |
+        页面顶部导航栏，包含Logo、主导航菜单和用户信息区。（与登录页顶部导航区域布局相同，建议保持两页面有关组件风格一致，并丰富顶部导航功能）
+        
+        **需要截图**: 是
+        **组件定位**: 页面最上方，横向占据整个页面宽度，高度约80-100px
+        **定位提示**: header, nav, .header, .top-nav, [role="banner"]
+        
+        **功能要求**：
+        - 显示12306品牌Logo
+        - 显示主导航菜单（首页、车票、订单、我的12306等）
+        - 显示用户登录/注册入口（未登录状态）
+        - 显示用户名和退出按钮（已登录状态）
+        - Logo点击返回首页
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 父容器: body
+        - 位置: 页面顶部，固定或静态定位
+        - 尺寸: 1400px × 84px (测量值)
+        - 绝对坐标: x: 56px, y: 0px
+        - 布局: Flexbox 横向布局
+        
+        **HTML 结构** (基于实际 HTML 源代码):
+        
+        > ⚠️ 以下是从浏览器读取的实际 HTML 结构（已简化，保留关键信息）
+        
+        ```html
+        <div class="home-top-bar-container">
+          <!-- Logo 区域 -->
+          <div class="home-logo-section">
+            <img src="/images/logo.png" alt="中国铁路12306" class="home-logo-image">
+            <div class="home-logo-text">
+              <div class="home-logo-chinese">中国铁路12306</div>
+              <div class="home-logo-english">12306 CHINA RAILWAY</div>
+            </div>
+          </div>
+          
+          <!-- 搜索框 -->
+          <div class="home-search-box">
+            <input type="text" class="home-search-input" 
+                   placeholder="搜索车票、餐饮、常旅客、相关规章">
+            <button class="home-search-button">
+              <img src="/images/search.svg" alt="搜索" class="home-search-icon">
+            </button>
+          </div>
+          
+          <!-- 顶部链接和登录/注册按钮 -->
+          <div class="home-top-links">
+            <a href="#" class="home-top-link">无障碍</a>
+            <a href="#" class="home-top-link">敬老版</a>
+            <a href="#" class="home-top-link">English</a>
+            <a href="#" class="home-top-link">我的12306</a>
+            <button class="home-top-auth-link login">登录</button>
+            <button class="home-top-auth-link register">注册</button>
+          </div>
+        </div>
+        ```
+        
+        **文本内容清单** (从 HTML 提取):
+        
+        > 📝 以下是组件中所有实际的文本内容，请在实现时使用完全相同的文字：
+        
+        - "中国铁路12306" - Logo 中文文字
+        - "12306 CHINA RAILWAY" - Logo 英文文字
+        - "搜索车票、餐饮、常旅客、相关规章" - 搜索框 placeholder
+        - "无障碍" - 顶部链接
+        - "敬老版" - 顶部链接
+        - "English" - 顶部链接
+        - "我的12306" - 顶部链接
+        - "登录" - 登录按钮文字
+        - "注册" - 注册按钮文字
+        
+        **实现说明**:
+        
+        1. `.home-top-bar-container` - 顶部导航容器
+           - HTML标签: `<div>`
+           - 布局方式: `display: flex; justify-content: space-between;`
+           - 背景: 透明 (rgba(0, 0, 0, 0))
+           - 内边距: `12px 40px`
+           - 三个主要子区域：Logo、搜索框、链接/按钮
+        
+        2. `.home-logo-section` - Logo区域
+           - 包含Logo图片 + 文字
+           - Logo图片尺寸: 60px × 60px
+           - 文字垂直排列（中文 + 英文）
+        
+        3. `.home-search-box` - 搜索框区域
+           - 包含输入框 + 搜索按钮
+           - 搜索按钮包含搜索图标(30px × 30px)
+        
+        4. `.home-top-links` - 顶部链接区域
+           - 包含4个链接 + 2个按钮
+           - 横向排列，间距均匀
+           - "登录"和"注册"按钮样式区别于普通链接
+        
+        **网页资源**:
+        - Logo图片: `./首页-顶部导航-Logo.png`
+          * 实现方式: `<img src="...">` 标签
+          * 原始尺寸: 55px × 63px
+          * 显示尺寸: 60px × 60px
+          * CSS: `width: 60px; height: 60px;`
+        
+        - 搜索图标: `./首页-顶部导航-搜索图标.svg`
+          * 实现方式: `<img src="...">` 标签
+          * 原始尺寸: 200px × 200px (SVG)
+          * 显示尺寸: 30px × 30px
+          * CSS: `width: 30px; height: 30px;`
+        
+        **参考图片**: `./images/homepage/组件特写截图/顶部导航栏.png`
+      
+      dependencies: []
+      
+      scenarios:
+        # ✅ 以下所有 scenarios 从初始需求文档完整保留
+        
+        # 1.3.1 用户需要登录12306账户
+        - name: 用户未登录点击登录按钮且系统响应
+          given: 用户在首页/查询页
+          when: 用户点击"登录"按钮，用户未登录12306账户，系统成功响应
+          then: 系统在100毫秒内跳转至登录页
+          
+        - name: 用户未登录点击登录按钮但系统未响应
+          given: 用户在首页/查询页
+          when: 用户点击"登录"按钮，用户未登录12306账户，系统未成功响应
+          then: 系统未在100毫秒内跳转至登录页，且提示"登录失败，请稍后重试"
+          
+        # 1.3.2 用户需要注册12306账户
+        - name: 用户未注册点击注册按钮且系统响应
+          given: 用户在首页/查询页
+          when: 用户点击"注册"按钮，用户未注册12306账户，系统成功响应
+          then: 系统在100毫秒内跳转至注册页
+          
+        - name: 用户未注册点击注册按钮但系统未响应
+          given: 用户在首页/查询页
+          when: 用户点击"注册"按钮，用户未注册12306账户，系统未成功响应
+          then: 系统未在100毫秒内跳转至注册页，且提示"注册失败，请稍后重试"
+          
+        # 1.3.3 用户已登录12306账号
+        - name: 用户已登录12306账号
+          given: 用户在首页/查询页
+          when: 用户已登录12306账户
+          then: 系统在顶部导航栏仅显示"个人中心"入口，不显示"登录"和"注册"入口
+          
+        # 1.4.1 用户已登录前往个人中心
+        - name: 已登录用户点击个人中心且系统响应
+          given: 用户在首页/查询页
+          when: 用户点击"个人中心"入口，用户已登录12306账户，系统成功响应
+          then: 系统在100毫秒内跳转至该用户账号对应的个人中心页
+          
+        - name: 已登录用户点击个人中心但系统未响应
+          given: 用户在首页/查询页
+          when: 用户点击"个人中心"入口，用户已登录12306账户，系统未成功响应
+          then: 系统未在100毫秒内跳转至该用户账号对应的个人中心页，且提示"前往个人中心失败，请稍后重试"
+          
+        # 1.4.2 用户未登录前往个人中心
+        - name: 未登录用户点击个人中心且系统响应
+          given: 用户在首页/查询页
+          when: 用户点击"个人中心"入口，用户未登录12306账户，系统成功响应
+          then: 系统在100毫秒内跳转至登录页
+          
+        - name: 未登录用户点击个人中心但系统未响应
+          given: 用户在首页/查询页
+          when: 用户点击"个人中心"入口，用户未登录12306账户，系统未成功响应
+          then: 系统未在100毫秒内跳转至登录页，且提示"请先登录12306账号！"
+          
+        # 1.5 用户在首页/查询页点车票查询页快捷入口
+        - name: 用户点击车票查询入口且系统响应
+          given: 用户在首页/查询页
+          when: 用户点击"车票查询"入口，系统成功响应
+          then: 系统在100毫秒内跳转至车票查询页
+          
+        - name: 用户点击车票查询入口但系统未响应
+          given: 用户在首页/查询页
+          when: 用户点击"车票查询"入口，系统未成功响应
+          then: 系统未在100毫秒内跳转至车票查询页，且提示"查询失败，请稍后重试"
+      
+      children: []
+    
+    - id: REQ-HOME-SEARCH-FORM
+      name: 车票查询表单
+      description: |
+        用户输入查询条件的表单，是首页的核心功能。
+        
+        **需要截图**: 是
+        **组件定位**: 页面中上部分，通常在背景图片上，居中显示
+        **定位提示**: form, .search-form, .ticket-query, [class*="search"]
+        
+        **功能要求**：
+        - 支持出发地输入（城市/车站名称，带自动补全）
+        - 支持目的地输入（城市/车站名称，带自动补全）
+        - 支持出发地和目的地互换按钮
+        - 支持出发日期选择（日期选择器）
+        - 支持学生票、残军票等选项（可选）
+        - 提供"查询"按钮
+        - 提供"高铁/动车"、"普通列车"等车型选择（可选）
+        
+        **交互场景截图**:
+          - name: "前端验证-出发地为空"
+            description: "测试不输入出发地直接点击查询"
+            steps:
+              - action: click
+                target: "查询按钮"
+                target_hint: "button:has-text('查询'), a:has-text('查询'), input[type='submit']"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "车票查询表单-错误-出发地为空.png"
+                
+          - name: "前端验证-目的地为空"
+            description: "测试只输入出发地不输入目的地"
+            steps:
+              - action: evaluate
+                script: |
+                  const fromInput = document.querySelector('input[placeholder*="出发"], input[name*="from"], input[id*="from"]');
+                  if (fromInput) fromInput.value = '';
+              - action: type
+                target: "出发地输入框"
+                target_hint: "input[placeholder*='出发'], input[name*='from']"
+                value: "北京"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "查询按钮"
+                target_hint: "button:has-text('查询'), a:has-text('查询')"
+              - action: wait
+                duration: 0.5
+              - action: screenshot
+                filename: "车票查询表单-错误-目的地为空.png"
+                
+          - name: "日期选择器展开"
+            description: "测试点击日期输入框展开日期选择器"
+            steps:
+              - action: type
+                target: "出发城市输入框"
+                target_hint: "input[placeholder*='出发'], input[name*='from']"
+                value: "北京"
+              - action: type
+                target: "到达城市输入框"
+                target_hint: "input[placeholder*='出发'], input[name*='from']"
+                value: "上海"
+              - action: click
+                target: "日期输入框"
+                target_hint: "input[placeholder*='日期'], input[type='date'], input[name*='date']"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "车票查询表单-日期选择器展开.png"
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 父容器: main
+        - 位置: 页面中上部，垂直居中对齐
+        - 尺寸: 1512px × 425px (测量值)
+        - 绝对坐标: x: 0px, y: 131px
+        - 布局: Flexbox 布局
+        
+        **HTML 结构** (基于实际 HTML 源代码，简化版):
+        
+        ```html
+        <div class="home-search-container">
+          <div class="home-search-wrapper">
+            <!-- 左侧标签页 -->
+            <div class="form-sidebar">
+              <button class="sidebar-tab active">
+                <span class="sidebar-icon sidebar-icon-train"></span>
+                <span>车票</span>
+              </button>
+              <button class="sidebar-tab">
+                <span class="sidebar-icon sidebar-icon-query"></span>
+                <span>常用查询</span>
+              </button>
+              <button class="sidebar-tab">
+                <span class="sidebar-icon sidebar-icon-meal"></span>
+                <span>订餐</span>
+              </button>
+            </div>
+            
+            <!-- 查询表单主体 -->
+            <div class="search-form-container">
+              <!-- 顶部标签页：单程/往返/中转换乘/退改签 -->
+              <div class="form-tabs">
+                <button class="form-tab-button active">
+                  <span class="form-tab-icon form-tab-icon-single"></span>
+                  <span>单程</span>
+                </button>
+                <button class="form-tab-button">
+                  <span class="form-tab-icon form-tab-icon-round"></span>
+                  <span>往返</span>
+                </button>
+                <button class="form-tab-button">
+                  <span class="form-tab-icon form-tab-icon-transfer"></span>
+                  <span>中转换乘</span>
+                </button>
+                <button class="form-tab-button">
+                  <span class="form-tab-icon form-tab-icon-ticket"></span>
+                  <span>退改签</span>
+                </button>
+              </div>
+              
+              <!-- 出发地/到达地输入区域 -->
+              <div class="stations-container">
+                <div class="train-search-row-horizontal">
+                  <label class="field-label-left">出发城市</label>
+                  <div class="input-with-icon">
+                    <div class="station-input">
+                      <input type="text" placeholder="请选择城市" 
+                             class="station-input-field">
+                    </div>
+                    <svg class="location-icon" width="18" height="18">...</svg>
+                  </div>
+                </div>
+                
+                <!-- 交换按钮 -->
+                <div class="connector-wrapper">
+                  <svg class="connector-line" width="40" height="90">...</svg>
+                  <button class="swap-button-center" 
+                          aria-label="交换出发城市和到达城市">
+                    <span class="swap-icon"></span>
+                  </button>
+                </div>
+                
+                <div class="train-search-row-horizontal">
+                  <label class="field-label-left">到达城市</label>
+                  <div class="input-with-icon">
+                    <div class="station-input">
+                      <input type="text" placeholder="请选择城市" 
+                             class="station-input-field">
+                    </div>
+                    <svg class="location-icon" width="18" height="18">...</svg>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 出发日期 -->
+              <div class="train-search-row-horizontal date-row">
+                <label class="field-label-left">出发日期</label>
+                <div class="input-with-icon">
+                  <div class="date-picker">
+                    <input type="text" readonly placeholder="请选择日期" 
+                           class="date-input" value="1月15日 周四">
+                    <svg class="calendar-icon" width="16" height="16">...</svg>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 学生票/高铁动车选项 -->
+              <div class="train-search-options">
+                <label class="checkbox-label">
+                  <span>学生</span>
+                  <input type="checkbox">
+                </label>
+                <label class="checkbox-label">
+                  <span>高铁/动车</span>
+                  <input type="checkbox">
+                </label>
+              </div>
+              
+              <!-- 查询按钮 -->
+              <button class="train-search-button">查 询</button>
+            </div>
+          </div>
+        </div>
+        ```
+        
+        **文本内容清单**:
+        - "车票"、"常用查询"、"订餐" - 左侧标签页
+        - "单程"、"往返"、"中转换乘"、"退改签" - 顶部标签页
+        - "出发城市"、"到达城市"、"出发日期" - 表单标签
+        - "请选择城市" - 输入框 placeholder
+        - "请选择日期" - 日期输入框 placeholder
+        - "1月15日 周四" - 日期默认值
+        - "学生"、"高铁/动车" - 复选框标签
+        - "查 询" - 查询按钮文字
+        
+        **实现说明**:
+        
+        1. `.home-search-container` - 查询表单容器
+           - 布局: `display: flex; padding: 60px 0;`
+           - 背景: 透明 (背景图片由父元素提供)
+        
+        2. `.form-sidebar` - 左侧蓝色标签页
+           - 3个标签：车票、常用查询、订餐
+           - 激活状态: `.active` 类
+        
+        3. `.search-form-container` - 表单主体（白色卡片）
+           - 包含：顶部标签页 + 输入区域 + 选项 + 查询按钮
+           - 背景: 白色
+           - 圆角: 8px
+        
+        4. `.swap-button-center` - 交换按钮
+           - 位于出发地和到达地之间
+           - 圆形按钮，包含交换图标
+        
+        **参考图片**: `./images/homepage/组件特写截图/车票查询表单.png`
+        
+        📸 **交互状态详细说明** (基于实时 HTML 分析):
+        
+        > ⚠️ **数据来源说明**：以下所有信息都是通过浏览器 `browser_evaluate` 从实际 DOM 中提取的，确保 100% 准确。
+        
+        1. **出发地为空错误提示**
+           - 📸 参考截图: `./images/homepage/交互状态截图/车票查询表单-错误-出发地为空.png`
+           - 🔴 触发场景: 未输入出发地时点击"查询"按钮
+           
+           **HTML 结构** (从实时分析提取):
+           ```html
+           <div class="train-search-error-message">
+             请选择出发城市
+           </div>
+           ```
+           
+           **详细样式信息** (从 computedStyles 提取):
+           - ✅ 错误文本: "请选择出发城市"
+           - ✅ 元素类名: `train-search-error-message`
+           - ✅ 文字颜色: `rgb(211, 47, 47)` → #d32f2f (红色)
+           - ✅ 背景颜色: `rgb(255, 235, 238)` → #ffebee (浅红色)
+           - ✅ 字体大小: `13px`
+           - ✅ 字体粗细: `400` (normal)
+           - ✅ 内边距: `10px 0px`
+           - ✅ 外边距: `5px 15px`
+           - ✅ 文本对齐: `center` (居中)
+           - ✅ 显示位置: 位于查询按钮上方
+           - ✅ 尺寸: 352px宽 × 40px高
+           
+           **实现要点**:
+           - 错误提示使用 `.train-search-error-message` 类
+           - 默认隐藏 (`display: none`)
+           - 显示时设置 `display: block`
+           - 位于表单内部，查询按钮上方
+        
+        2. **目的地为空错误提示**
+           - 📸 参考截图: `./images/homepage/交互状态截图/车票查询表单-错误-目的地为空.png`
+           - 🔴 触发场景: 输入出发地但未输入目的地时点击"查询"
+           
+           **HTML 结构**:
+           ```html
+           <div class="train-search-error-message">
+             请选择到达城市
+           </div>
+           ```
+           
+           **详细样式信息**:
+           - 与出发地错误提示样式完全相同
+           - 只有文本内容不同: "请选择到达城市"
+           - 所有样式参数一致（颜色、字体、边距等）
+        
+        3. **日期选择器展开状态**
+           - 📸 参考截图: `./images/homepage/交互状态截图/车票查询表单-日期选择器展开.png`
+           - 🔵 触发场景: 点击日期输入框
+           
+           **展示内容**:
+           - 日历弹出层显示当前月份（2026年1月）
+           - 包含月份切换按钮（‹ 和 ›）
+           - 显示完整的日历网格（7列×5-6行）
+           - 当前日期高亮显示（15日）
+           - 包含"今天"快捷按钮
+           - 过去的日期显示为灰色不可点击
+           - 可用日期显示为蓝色可点击
+           
+           **实现要点**:
+           - 日历使用绝对定位，显示在日期输入框下方
+           - 日历背景白色，带阴影效果
+           - 可点击日期有 hover 效果
+           - 点击日期后自动关闭日历并更新输入框
+      
+      dependencies: []
+      
+      scenarios:
+        # ✅ 以下所有 scenarios 从初始需求文档完整保留
+        
+        # 1.2.1 校验用户输入的出发地是否为空
+        - name: 校验出发地为空
+          given: 用户在首页/查询页且未在车票查询表单中输入出发地
+          when: 用户在车票查询表单中点击"查询"
+          then: 查询按钮上方出现系统提示"请选择出发城市"，文字颜色#d32f2f（红色），字体大小13px，内边距10px 0px，背景#ffebee（浅红色），居中对齐
+          
+        # 1.2.2 校验用户输入的到达地是否为空
+        - name: 校验到达地为空
+          given: 用户在首页/查询页且未在车票查询表单中输入到达地
+          when: 用户在车票查询表单中点击"查询"
+          then: 查询按钮上方出现系统提示"请选择到达城市"，文字颜色#d32f2f（红色），字体大小13px，内边距10px 0px，背景#ffebee（浅红色），居中对齐
+          
+        # 1.2.3 校验用户输入的出发地和到达地是否合法
+        - name: 出发地不在数据库城市列表中
+          given: 用户在首页/查询页的车票查询表单中输入了一个不在数据库的城市作为出发地或到达地
+          when: 用户在车票查询表单中点击"查询"
+          then: 查询按钮上方出现系统提示"无法匹配该出发城市"或"无法匹配该到达城市"，文字颜色#d32f2f（红色），字体大小13px，内边距10px 0px，背景#ffebee（浅红色），居中对齐
+          
+        # 1.2.5 合法出发地推荐
+        - name: 合法出发地推荐
+          given: 用户在首页/查询页
+          when: 用户在车票查询表单中点击出发地输入框
+          then: 系统在出发地下拉条目中显示数据库中的所有站点
+          
+        # 1.2.6 合法到达地推荐
+        - name: 合法到达地推荐
+          given: 用户在首页/查询页
+          when: 用户在车票查询表单中点击到达地输入框
+          then: 系统在到达地下拉条目中显示数据库中的所有站点
+          
+        # 1.2.7 合法出发日期推荐
+        - name: 合法出发日期推荐
+          given: 用户在首页/查询页
+          when: 用户在车票查询表单中点击出发日期选择框
+          then: 系统在出发日期下拉条目中显示日历，用户可以选择已放票的日期，不能选择已过期或未开票的日期
+          
+        # 1.2.8 出发地/到达地交换
+        - name: 出发地到达地交换
+          given: 用户在首页/查询页的车票查询表单中已选择出发地或到达地
+          when: 用户点击交换按钮
+          then: 系统交换出发地和到达地的输入框内容
+          
+        # 1.2.9 出发日期自动填入当前日期
+        - name: 出发日期自动填入当前日期
+          given: 用户在车票查询页面
+          when: 用户未输入出发日期或还未进行输入出发日期操作
+          then: 系统在出发日期自动填入当前日期
+          
+        # 1.2.10 用户成功查询且系统响应
+        - name: 查询成功且系统响应
+          given: 用户在首页/查询页的车票查询表单中输入了正确的出发地、到达地、出发日期
+          when: 用户点击"查询"按钮且系统成功响应
+          then: 系统在100毫秒内成功跳转至车次列表页，且显示符合用户选择的出发地、到达地、出发日期且是否为高铁/动车的所有车次信息
+          
+        # 1.2.10 用户成功查询但系统未响应
+        - name: 查询失败系统未响应
+          given: 用户在首页/查询页的车票查询表单中输入了正确的出发地、到达地、出发日期
+          when: 用户点击"查询"按钮但系统未成功响应
+          then: 查询按钮上方出现系统提示"查询失败，请稍后重试"，文字颜色#d32f2f（红色），字体大小13px，内边距10px 0px，背景#ffebee（浅红色），居中对齐，系统停留在当前页面且保持已输入的出发地、到达地、出发日期
+      
+      children: []
+    
+    - id: REQ-HOME-PROMOTION
+      name: 宣传推广区域
+      description: |
+        首页的宣传内容和快捷入口区域。
+        
+        **需要截图**: 是
+        **组件定位**: 位于查询表单下方，通常为4个卡片横向排列
+        **定位提示**: .promotion, .quick-entry, .service-list, [class*="promo"]
+        
+        **功能要求**：
+        - 显示4个快捷入口卡片（会员服务、铁路保险、餐饮特产、计次定期票）
+        - 每个卡片包含图片、标题和描述
+        - 点击卡片跳转到对应功能页面
+        - 卡片悬停时有视觉反馈
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 父容器: main
+        - 位置: 查询表单下方
+        - 尺寸: 1220px × 345px (测量值)
+        - 绝对坐标: x: 146px, y: 731px
+        - 布局: CSS Grid 布局（2行2列）
+        
+        **HTML 结构**:
+        
+        ```html
+        <div class="home-promo-grid">
+          <div class="home-promo-card">
+            <img src="/images/首页-会员服务-左上.jpg" alt="会员服务" 
+                 class="home-promo-image">
+          </div>
+          <div class="home-promo-card">
+            <img src="/images/首页-餐饮特产-右上.jpg" alt="餐饮特产" 
+                 class="home-promo-image">
+          </div>
+          <div class="home-promo-card">
+            <img src="/images/首页-铁路保险-左下.jpg" alt="铁路保险" 
+                 class="home-promo-image">
+          </div>
+          <div class="home-promo-card">
+            <img src="/images/首页-计次定期票-右下.png" alt="计次定期票" 
+                 class="home-promo-image">
+          </div>
+        </div>
+        ```
+        
+        **实现说明**:
+        
+        1. `.home-promo-grid` - 推广卡片容器
+           - 布局: `display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;`
+           - 4个卡片，2行2列排列
+        
+        2. `.home-promo-card` - 单个推广卡片
+           - 包含一张大图片
+           - 图片包含标题和描述文字（图片内容）
+           - 悬停效果: 阴影或缩放
+        
+        **网页资源**:
+        - 会员服务图片: `./首页-宣传推广-会员服务.jpg` (600px × 163px)
+        - 餐饮特产图片: `./首页-宣传推广-餐饮特产.jpg` (600px × 163px)
+        - 铁路保险图片: `./首页-宣传推广-铁路保险.jpg` (600px × 163px)
+        - 计次定期票图片: `./首页-宣传推广-计次定期票.png` (600px × 163px)
+        
+        ⚠️ **重要**: 所有4张图片内已包含标题和描述文字，无需额外的 HTML 文本元素。
+        
+        **参考图片**: `./images/homepage/组件特写截图/宣传推广区域.png`
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-HOME-BOTTOM-NAV
+      name: 底部导航
+      description: |
+        页面底部的友情链接和二维码展示区域（与登录页共用,可以参考登录页对应组件实现）。
+        
+        **需要截图**: 是
+        **组件定位**: 页面最底部，横向占据整个页面宽度
+        **定位提示**: footer, [role="contentinfo"]
+        
+        **布局结构**：
+        - 上半部分：左右并排布局
+          * 左侧：友情链接区域（标题 + 4个合作伙伴Logo，2行2列排列）
+          * 右侧：二维码区域（4个官方平台二维码，横向排列）
+        - 下半部分：版权信息区域（深灰色背景，包含版权声明、技术支持和ICP备案信息）
+        
+        **功能要求**：
+        - 显示友情链接（合作伙伴Logo）
+        - 显示四个官方平台二维码
+        - 提供扫码关注入口
+        - 显示版权和备案信息
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 父容器: body
+        - 位置: 页面最底部
+        - 尺寸: 1512px × 197px (测量值)
+        - 绝对坐标: x: 0px, y: 1487px
+        - 布局: Block布局
+        
+        **HTML 结构**:
+        
+        ```html
+        <footer class="bottom-navigation">
+          <div class="bottom-content">
+            <!-- 左侧：友情链接 -->
+            <div class="friendship-links-section">
+              <h3 class="section-title">友情链接</h3>
+              <div class="friendship-links-grid">
+                <div class="friendship-link-item">
+                  <img src="/images/友情链接-左上.png" 
+                       alt="中国国家铁路集团有限公司">
+                </div>
+                <div class="friendship-link-item">
+                  <img src="/images/友情链接-右上.png" 
+                       alt="中国铁路客户保险总公司">
+                </div>
+                <div class="friendship-link-item">
+                  <img src="/images/友情链接-左下.png" 
+                       alt="中铁银通支付有限公司">
+                </div>
+                <div class="friendship-link-item">
+                  <img src="/images/友情链接-右下.png" 
+                       alt="中铁程科技有限责任公司">
+                </div>
+              </div>
+            </div>
+            
+            <!-- 右侧：二维码 -->
+            <div class="qr-codes-section">
+              <div class="qr-codes-wrapper">
+                <div class="qr-code-row">
+                  <span class="qr-label">中国铁路官方微信</span>
+                  <span class="qr-label">中国铁路官方微博</span>
+                  <span class="qr-label">12306 公众号</span>
+                  <span class="qr-label">铁路12306</span>
+                </div>
+                <div class="qr-code-row">
+                  <div class="qr-code-item">
+                    <img src="/images/中国铁路官方微信二维码.png" 
+                         alt="中国铁路官方微信">
+                  </div>
+                  <div class="qr-code-item">
+                    <img src="/images/中国铁路官方微博二维码.png" 
+                         alt="中国铁路官方微博">
+                  </div>
+                  <div class="qr-code-item">
+                    <img src="/images/12306公众号二维码.png" 
+                         alt="12306 公众号">
+                  </div>
+                  <div class="qr-code-item">
+                    <img src="/images/铁路12306二维码.png" 
+                         alt="铁路12306">
+                  </div>
+                </div>
+              </div>
+              <div class="qr-code-footer">
+                <p>官方APP下载，目前铁路未授权其他网站或APP开展类似服务内容，敬请广大用户注意。</p>
+              </div>
+            </div>
+          </div>
+        </footer>
+        ```
+        
+        **文本内容清单**:
+        - "友情链接" - 标题
+        - "中国铁路官方微信"、"中国铁路官方微博"、"12306 公众号"、"铁路12306" - 二维码标签
+        - "官方APP下载，目前铁路未授权其他网站或APP开展类似服务内容，敬请广大用户注意。" - 底部提示文字
+        
+        **实现说明**:
+        
+        1. `.bottom-navigation` - 底部导航容器
+           - 背景: rgb(245, 245, 245) → #F5F5F5
+           - 内边距: `40px 0`
+        
+        2. `.bottom-content` - 内容容器
+           - 布局: 左右并排（Flexbox）
+           - 左侧：友情链接
+           - 右侧：二维码
+        
+        3. `.friendship-links-grid` - 友情链接 Grid
+           - 4个Logo，2行2列排列
+           - 每个Logo: 176px × 30px
+        
+        4. `.qr-codes-wrapper` - 二维码区域
+           - 标签行 + 二维码行
+           - 每个二维码: 80px × 80px
+        
+        **网页资源**:
+        - 友情链接Logo (4个): 各176px × 30px
+        - 二维码 (4个): 各80px × 80px
+        
+        **参考图片**: `./images/homepage/组件特写截图/底部导航.png`
+      
+      dependencies: []
+      scenarios: []
+      children: []

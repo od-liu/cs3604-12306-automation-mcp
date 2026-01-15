@@ -14,7 +14,7 @@ API接口：后端暴露的API；
 - 使用 **React Router** 进行客户端路由管理，路由配置在 `frontend/src/App.tsx` 中
 - 某些组件（如 TopNavigation、BottomNavigation）是**跨页面共享组件**，在 `artifacts/ui_interface.yaml` 中标记为 `pages: [login, registration, ...]`
 - 每个页面的组件在 artifacts 文件中都有 `page` 字段标识其所属页面（如 `page: login` 或 `page: registration` 或 `page: shared`）
-- **端口配置**：Backend运行在端口 **5175**，Frontend运行在端口 **5174**
+- **端口配置**：Backend运行在端口 **3000**，Frontend运行在端口 **5173**
 
 ### 输出
 包含相应接口的代码文件

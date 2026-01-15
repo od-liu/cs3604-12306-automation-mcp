@@ -612,3 +612,70 @@ export async function verifyRegistrationCode(phoneNumber, code) {
   }
 }
 
+/**
+ * @function FUNC-SEARCH-TRAINS
+ * @signature searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed)
+ * @input {string} fromCity - 出发城市
+ * @input {string} toCity - 到达城市
+ * @input {string} departureDate - 出发日期
+ * @input {boolean} isStudent - 是否学生票
+ * @input {boolean} isHighSpeed - 是否只查高铁/动车
+ * @output {Object} result - 查询结果
+ * @output {boolean} result.success - 查询是否成功
+ * @output {string} result.message - 响应消息
+ * @output {Array} result.trains - 车次列表
+ * @db_ops SELECT on trains, stations
+ */
+export async function searchTrains(fromCity, toCity, departureDate, isStudent = false, isHighSpeed = false) {
+  try {
+    console.log(`🔍 查询车票: ${fromCity} → ${toCity}, 日期: ${departureDate}, 学生票: ${isStudent}, 高铁/动车: ${isHighSpeed}`);
+    
+    // 骨架实现：返回模拟数据
+    // 实际实现应查询 trains 表和 stations 表
+    // SELECT t.* FROM trains t
+    // JOIN stations s1 ON t.departure_station_id = s1.id
+    // JOIN stations s2 ON t.arrival_station_id = s2.id
+    // WHERE s1.city = ? AND s2.city = ? AND t.departure_date = ?
+    // AND (? = false OR t.supports_student = true)
+    // AND (? = false OR t.train_type IN ('G', 'D', 'C'))
+    
+    return {
+      success: true,
+      trains: [
+        {
+          trainNumber: 'G1',
+          trainType: 'G',
+          departureStation: fromCity,
+          arrivalStation: toCity,
+          departureTime: '08:00',
+          arrivalTime: '13:00',
+          duration: '5小时',
+          secondClassPrice: '553.5',
+          firstClassPrice: '888.5',
+          businessClassPrice: '1748.5',
+          supportsStudent: true
+        },
+        {
+          trainNumber: 'G2',
+          trainType: 'G',
+          departureStation: fromCity,
+          arrivalStation: toCity,
+          departureTime: '10:00',
+          arrivalTime: '15:00',
+          duration: '5小时',
+          secondClassPrice: '553.5',
+          firstClassPrice: '888.5',
+          businessClassPrice: '1748.5',
+          supportsStudent: true
+        }
+      ]
+    };
+  } catch (error) {
+    console.error('查询车票失败:', error);
+    return {
+      success: false,
+      message: '查询失败，请稍后再试'
+    };
+  }
+}
+

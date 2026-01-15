@@ -1,0 +1,159 @@
+/**
+ * 首页顶部导航栏样式
+ * 📸 参考截图: requirements/images/homepage/组件特写截图/顶部导航栏.png
+ * ⚠️ 以下样式基于 ui-style-guide.md 中的完整 CSS 代码
+ */
+
+/* ========== 顶部导航栏容器 ========== */
+.home-top-bar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 40px !important;
+  background-color: transparent !important;
+  width: 100% !important;
+  height: 84px !important;
+}
+
+/* ========== Logo区域 ========== */
+.home-logo-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.home-logo-image {
+  width: 60px !important;
+  height: 60px !important;
+  object-fit: contain !important;
+}
+
+.home-logo-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.home-logo-chinese {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  line-height: 1.2 !important;
+}
+
+.home-logo-english {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #999999 !important;
+  line-height: 1.2 !important;
+}
+
+/* ========== 搜索框区域 ========== */
+.home-search-box {
+  display: flex !important;
+  align-items: center !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d0d0d0 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  min-width: 400px !important;
+}
+
+.home-search-input {
+  flex: 1 !important;
+  border: none !important;
+  outline: none !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  color: #000000 !important;
+}
+
+.home-search-input::placeholder {
+  color: #999999 !important;
+}
+
+.home-search-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 16px !important;
+  background-color: #3B99FC !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.home-search-button:hover {
+  background-color: #2b89ec !important;
+}
+
+.home-search-icon {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+/* ========== 顶部链接区域 ========== */
+.home-top-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+
+.home-top-link {
+  font-size: 14px !important;
+  color: #3B99FC !important;
+  text-decoration: none !important;
+  transition: opacity 0.2s !important;
+  cursor: pointer !important;
+}
+
+.home-top-link:hover {
+  opacity: 0.8 !important;
+}
+
+/* ========== 登录/注册按钮 ========== */
+.home-top-auth-link {
+  padding: 8px 20px !important;
+  font-size: 14px !important;
+  border-radius: 4px !important;
+  border: 1px solid #3B99FC !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.home-top-auth-link.login {
+  background-color: transparent !important;
+  color: #3B99FC !important;
+}
+
+.home-top-auth-link.login:hover {
+  background-color: #3B99FC !important;
+  color: #ffffff !important;
+}
+
+.home-top-auth-link.register {
+  background-color: #3B99FC !important;
+  color: #ffffff !important;
+}
+
+.home-top-auth-link.register:hover {
+  background-color: #2b89ec !important;
+}
+
+/* ========== 已登录状态：用户名和退出按钮 ========== */
+.home-top-username {
+  font-size: 14px !important;
+  color: #333333 !important;
+  font-weight: 500 !important;
+}
+
+.home-top-auth-link.logout {
+  background-color: transparent !important;
+  color: #FF7700 !important;
+  border-color: #FF7700 !important;
+}
+
+.home-top-auth-link.logout:hover {
+  background-color: #FF7700 !important;
+  color: #ffffff !important;
+}

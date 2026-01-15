@@ -361,5 +361,59 @@ router.post('/api/auth/check-email', async (req, res) => {
   return res.status(200).json(result);
 });
 
+/**
+ * @api API-SEARCH-TRAINS POST /api/trains/search
+ * @summary 车票查询接口
+ * @param {Object} body - 请求体
+ * @param {string} body.fromCity - 出发城市
+ * @param {string} body.toCity - 到达城市
+ * @param {string} body.departureDate - 出发日期
+ * @param {boolean} body.isStudent - 是否学生票
+ * @param {boolean} body.isHighSpeed - 是否只查高铁/动车
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 查询是否成功
+ * @returns {string} response.message - 响应消息
+ * @returns {Array} response.trains - 车次列表（成功时）
+ * @calls FUNC-SEARCH-TRAINS - 委托给车票查询服务函数
+ */
+router.post('/api/trains/search', async (req, res) => {
+  const { fromCity, toCity, departureDate, isStudent, isHighSpeed } = req.body;
+  
+  // 参数验证
+  if (!fromCity || !toCity || !departureDate) {
+    return res.status(400).json({
+      success: false,
+      message: '出发地、目的地和出发日期不能为空'
+    });
+  }
+  
+  // 调用 FUNC-SEARCH-TRAINS 进行实际查询
+  // const result = await searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed);
+  
+  // 骨架实现：返回 501 Not Implemented 和模拟数据
+  return res.status(501).json({
+    success: false,
+    message: 'API尚未实现（骨架代码）',
+    mockData: {
+      fromCity,
+      toCity,
+      departureDate,
+      isStudent,
+      isHighSpeed,
+      trains: [
+        {
+          trainNumber: 'G1',
+          departureStation: fromCity,
+          arrivalStation: toCity,
+          departureTime: '08:00',
+          arrivalTime: '13:00',
+          duration: '5小时',
+          price: '553.5元'
+        }
+      ]
+    }
+  });
+});
+
 export default router;
 

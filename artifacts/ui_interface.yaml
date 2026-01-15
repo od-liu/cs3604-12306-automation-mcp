@@ -1,6 +1,3 @@
-# ========================================
-# 共享组件（跨页面复用）
-# ========================================
 UI-TOP-NAV:
   related_req_id: REQ-TOP-NAV
   path: frontend/src/components/TopNavigation/TopNavigation.tsx
@@ -9,26 +6,21 @@ UI-TOP-NAV:
   pages:
     - login
     - registration
-
 UI-BOTTOM-NAV:
   related_req_id: REQ-BOTTOM-NAV
   path: frontend/src/components/BottomNavigation/BottomNavigation.tsx
-  description: 底部导航，包含友情链接、二维码和版权信息（登录页和注册页共享）
+  description: 底部导航，包含友情链接、二维码和版权信息（登录页、注册页和首页共享）
   downstream_ids: []
   pages:
     - login
     - registration
-
-# ========================================
-# 登录页面组件
-# ========================================
+    - homepage
 UI-LOGIN-PAGE:
   related_req_id: REQ-LOGIN-PAGE
   path: frontend/src/pages/LoginPage.tsx
   description: 登录页面容器组件，整合顶部导航、登录表单和底部导航
   downstream_ids: []
   page: login
-
 UI-LOGIN-FORM:
   related_req_id: REQ-LOGIN-FORM
   path: frontend/src/components/LoginForm/LoginForm.tsx
@@ -36,7 +28,6 @@ UI-LOGIN-FORM:
   downstream_ids:
     - API-LOGIN
   page: login
-
 UI-SMS-VERIFICATION:
   related_req_id: REQ-SMS-VERIFICATION
   path: frontend/src/components/SmsVerification/SmsVerification.tsx
@@ -45,17 +36,12 @@ UI-SMS-VERIFICATION:
     - API-SEND-VERIFICATION-CODE
     - API-VERIFY-CODE
   page: login
-
-# ========================================
-# 注册页面组件
-# ========================================
 UI-REG-PAGE:
   related_req_id: REQ-REG-PAGE
   path: frontend/src/pages/RegistrationPage.tsx
   description: 注册页面容器组件，整合顶部导航、注册表单和底部导航
   downstream_ids: []
   page: registration
-
 UI-REG-FORM:
   related_req_id: REQ-REG-FORM
   path: frontend/src/components/RegistrationForm/RegistrationForm.tsx
@@ -63,7 +49,6 @@ UI-REG-FORM:
   downstream_ids:
     - API-REGISTER
   page: registration
-
 UI-REG-VERIFICATION:
   related_req_id: REQ-REG-VERIFICATION
   path: frontend/src/components/RegistrationVerificationModal/RegistrationVerificationModal.tsx
@@ -71,3 +56,28 @@ UI-REG-VERIFICATION:
   downstream_ids:
     - API-VERIFY-REGISTRATION-CODE
   page: registration
+UI-HOME-PAGE:
+  related_req_id: REQ-HOME-PAGE
+  path: frontend/src/pages/HomePage.tsx
+  description: 首页（车票查询页）容器组件，整合顶部导航、查询表单、宣传推广和底部导航
+  upstream_ids: []
+  downstream_ids: []
+UI-HOME-TOP-NAV:
+  related_req_id: REQ-HOME-TOP-NAV
+  path: frontend/src/components/HomeTopBar/HomeTopBar.tsx
+  description: 首页顶部导航栏，包含Logo、搜索框和用户登录/注册入口
+  upstream_ids: []
+  downstream_ids: []
+UI-HOME-SEARCH-FORM:
+  related_req_id: REQ-HOME-SEARCH-FORM
+  path: frontend/src/components/TrainSearchForm/TrainSearchForm.tsx
+  description: 车票查询表单，支持出发地、目的地、日期选择和前端验证
+  upstream_ids: []
+  downstream_ids:
+    - API-SEARCH-TRAINS
+UI-HOME-PROMOTION:
+  related_req_id: REQ-HOME-PROMOTION
+  path: frontend/src/components/PromoGrid/PromoGrid.tsx
+  description: 首页宣传推广区域，显示4个快捷入口卡片（2行2列）
+  upstream_ids: []
+  downstream_ids: []

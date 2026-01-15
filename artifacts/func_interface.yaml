@@ -1,6 +1,3 @@
-# ========================================
-# 登录页面函数
-# ========================================
 FUNC-AUTH-LOGIN:
   related_req_id: REQ-LOGIN-FORM
   path: backend/src/database/operations.js
@@ -10,7 +7,6 @@ FUNC-AUTH-LOGIN:
   db_tables:
     - users
   page: login
-
 FUNC-SEND-VERIFICATION-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
@@ -21,7 +17,6 @@ FUNC-SEND-VERIFICATION-CODE:
     - users
     - verification_codes
   page: login
-
 FUNC-VERIFY-CODE:
   related_req_id: REQ-SMS-VERIFICATION
   path: backend/src/database/operations.js
@@ -32,10 +27,6 @@ FUNC-VERIFY-CODE:
     - verification_codes
     - sessions
   page: login
-
-# ========================================
-# 注册页面函数
-# ========================================
 FUNC-REGISTER-USER:
   related_req_id: REQ-REG-FORM
   path: backend/src/database/operations.js
@@ -45,7 +36,6 @@ FUNC-REGISTER-USER:
   db_tables:
     - users
   page: registration
-
 FUNC-SEND-REGISTRATION-CODE:
   related_req_id: REQ-REG-VERIFICATION
   path: backend/src/database/operations.js
@@ -56,7 +46,6 @@ FUNC-SEND-REGISTRATION-CODE:
     - users
     - verification_codes
   page: registration
-
 FUNC-VERIFY-REGISTRATION-CODE:
   related_req_id: REQ-REG-VERIFICATION
   path: backend/src/database/operations.js
@@ -67,3 +56,12 @@ FUNC-VERIFY-REGISTRATION-CODE:
     - verification_codes
     - users
   page: registration
+FUNC-SEARCH-TRAINS:
+  related_req_id: REQ-HOME-SEARCH-FORM
+  path: backend/src/database/operations.js
+  signature: searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed)
+  upstream_ids:
+    - API-SEARCH-TRAINS
+  db_tables:
+    - trains
+    - stations

@@ -1,0 +1,281 @@
+{
+  "page": "首页（车票查询页）",
+  "url": "http://localhost:5173/",
+  "generatedAt": "2026-01-15T18:27:00Z",
+  "images": [
+    {
+      "filename": "首页-顶部导航-Logo.png",
+      "originalSrc": "http://localhost:5173/images/logo.png",
+      "alt": "中国铁路12306",
+      "category": "Logo",
+      "location": "顶部导航",
+      "naturalSize": {
+        "width": 55,
+        "height": 63
+      },
+      "displaySize": {
+        "width": 60,
+        "height": 60
+      },
+      "cssStrategy": "width: 60px; height: 60px;",
+      "note": "品牌Logo，用于顶部导航栏"
+    },
+    {
+      "filename": "首页-顶部导航-搜索图标.svg",
+      "originalSrc": "http://localhost:5173/images/search.svg",
+      "alt": "搜索",
+      "category": "图标",
+      "location": "顶部导航-搜索框",
+      "naturalSize": {
+        "width": 200,
+        "height": 200
+      },
+      "displaySize": {
+        "width": 30,
+        "height": 30
+      },
+      "cssStrategy": "width: 30px; height: 30px;",
+      "note": "搜索按钮图标"
+    },
+    {
+      "filename": "首页-快捷服务入口.png",
+      "originalSrc": "http://localhost:5173/images/首页中部.png",
+      "alt": "快捷服务入口",
+      "category": "装饰图片",
+      "location": "主内容区域-查询表单上方",
+      "naturalSize": {
+        "width": 2708,
+        "height": 234
+      },
+      "displaySize": {
+        "width": 1220,
+        "height": 105
+      },
+      "cssStrategy": "width: 100%; height: auto; max-width: 1220px;",
+      "note": "快捷服务入口横幅图片"
+    },
+    {
+      "filename": "首页-宣传推广-会员服务.jpg",
+      "originalSrc": "http://localhost:5173/images/首页-会员服务-左上.jpg",
+      "alt": "会员服务",
+      "category": "宣传图片",
+      "location": "宣传推广区域-左上",
+      "naturalSize": {
+        "width": 1180,
+        "height": 320
+      },
+      "displaySize": {
+        "width": 600,
+        "height": 163
+      },
+      "cssStrategy": "width: 600px; height: 163px; object-fit: cover;",
+      "note": "会员服务宣传卡片图片"
+    },
+    {
+      "filename": "首页-宣传推广-餐饮特产.jpg",
+      "originalSrc": "http://localhost:5173/images/首页-餐饮特产-右上.jpg",
+      "alt": "餐饮特产",
+      "category": "宣传图片",
+      "location": "宣传推广区域-右上",
+      "naturalSize": {
+        "width": 1180,
+        "height": 320
+      },
+      "displaySize": {
+        "width": 600,
+        "height": 163
+      },
+      "cssStrategy": "width: 600px; height: 163px; object-fit: cover;",
+      "note": "餐饮特产宣传卡片图片"
+    },
+    {
+      "filename": "首页-宣传推广-铁路保险.jpg",
+      "originalSrc": "http://localhost:5173/images/首页-铁路保险-左下.jpg",
+      "alt": "铁路保险",
+      "category": "宣传图片",
+      "location": "宣传推广区域-左下",
+      "naturalSize": {
+        "width": 590,
+        "height": 160
+      },
+      "displaySize": {
+        "width": 600,
+        "height": 163
+      },
+      "cssStrategy": "width: 600px; height: 163px; object-fit: cover;",
+      "note": "铁路保险宣传卡片图片"
+    },
+    {
+      "filename": "首页-宣传推广-计次定期票.png",
+      "originalSrc": "http://localhost:5173/images/首页-计次定期票-右下.png",
+      "alt": "计次定期票",
+      "category": "宣传图片",
+      "location": "宣传推广区域-右下",
+      "naturalSize": {
+        "width": 1184,
+        "height": 320
+      },
+      "displaySize": {
+        "width": 600,
+        "height": 163
+      },
+      "cssStrategy": "width: 600px; height: 163px; object-fit: cover;",
+      "note": "计次定期票宣传卡片图片"
+    },
+    {
+      "filename": "首页-底部发布信息.png",
+      "originalSrc": "http://localhost:5173/images/首页-底部发布.png",
+      "alt": "最新发布、常见问题、信用信息",
+      "category": "内容图片",
+      "location": "主内容区域底部",
+      "naturalSize": {
+        "width": 2712,
+        "height": 690
+      },
+      "displaySize": {
+        "width": 1220,
+        "height": 310
+      },
+      "cssStrategy": "width: 100%; height: auto; max-width: 1220px;",
+      "note": "底部发布信息区域图片"
+    },
+    {
+      "filename": "首页-底部导航-中国国家铁路集团Logo.png",
+      "originalSrc": "http://localhost:5173/images/友情链接-左上.png",
+      "alt": "中国国家铁路集团有限公司",
+      "category": "友情链接Logo",
+      "location": "底部导航-友情链接-左上",
+      "naturalSize": {
+        "width": 300,
+        "height": 51
+      },
+      "displaySize": {
+        "width": 176,
+        "height": 30
+      },
+      "cssStrategy": "width: 176px; height: 30px; object-fit: contain;",
+      "note": "友情链接Logo"
+    },
+    {
+      "filename": "首页-底部导航-中国铁路客户保险Logo.png",
+      "originalSrc": "http://localhost:5173/images/友情链接-右上.png",
+      "alt": "中国铁路客户保险总公司",
+      "category": "友情链接Logo",
+      "location": "底部导航-友情链接-右上",
+      "naturalSize": {
+        "width": 400,
+        "height": 68
+      },
+      "displaySize": {
+        "width": 176,
+        "height": 30
+      },
+      "cssStrategy": "width: 176px; height: 30px; object-fit: contain;",
+      "note": "友情链接Logo"
+    },
+    {
+      "filename": "首页-底部导航-中铁银通支付Logo.png",
+      "originalSrc": "http://localhost:5173/images/友情链接-左下.png",
+      "alt": "中铁银通支付有限公司",
+      "category": "友情链接Logo",
+      "location": "底部导航-友情链接-左下",
+      "naturalSize": {
+        "width": 800,
+        "height": 136
+      },
+      "displaySize": {
+        "width": 176,
+        "height": 30
+      },
+      "cssStrategy": "width: 176px; height: 30px; object-fit: contain;",
+      "note": "友情链接Logo"
+    },
+    {
+      "filename": "首页-底部导航-中铁程科技Logo.png",
+      "originalSrc": "http://localhost:5173/images/友情链接-右下.png",
+      "alt": "中铁程科技有限责任公司",
+      "category": "友情链接Logo",
+      "location": "底部导航-友情链接-右下",
+      "naturalSize": {
+        "width": 400,
+        "height": 68
+      },
+      "displaySize": {
+        "width": 176,
+        "height": 30
+      },
+      "cssStrategy": "width: 176px; height: 30px; object-fit: contain;",
+      "note": "友情链接Logo"
+    },
+    {
+      "filename": "首页-底部导航-中国铁路官方微信二维码.png",
+      "originalSrc": "http://localhost:5173/images/中国铁路官方微信二维码.png",
+      "alt": "中国铁路官方微信",
+      "category": "二维码",
+      "location": "底部导航-二维码区域-第1个",
+      "naturalSize": {
+        "width": 344,
+        "height": 344
+      },
+      "displaySize": {
+        "width": 80,
+        "height": 80
+      },
+      "cssStrategy": "width: 80px; height: 80px;",
+      "note": "中国铁路官方微信二维码"
+    },
+    {
+      "filename": "首页-底部导航-中国铁路官方微博二维码.png",
+      "originalSrc": "http://localhost:5173/images/中国铁路官方微博二维码.png",
+      "alt": "中国铁路官方微博",
+      "category": "二维码",
+      "location": "底部导航-二维码区域-第2个",
+      "naturalSize": {
+        "width": 800,
+        "height": 800
+      },
+      "displaySize": {
+        "width": 80,
+        "height": 80
+      },
+      "cssStrategy": "width: 80px; height: 80px;",
+      "note": "中国铁路官方微博二维码"
+    },
+    {
+      "filename": "首页-底部导航-12306公众号二维码.png",
+      "originalSrc": "http://localhost:5173/images/12306公众号二维码.png",
+      "alt": "12306 公众号",
+      "category": "二维码",
+      "location": "底部导航-二维码区域-第3个",
+      "naturalSize": {
+        "width": 258,
+        "height": 258
+      },
+      "displaySize": {
+        "width": 80,
+        "height": 80
+      },
+      "cssStrategy": "width: 80px; height: 80px;",
+      "note": "12306公众号二维码"
+    },
+    {
+      "filename": "首页-底部导航-铁路12306二维码.png",
+      "originalSrc": "http://localhost:5173/images/铁路12306二维码.png",
+      "alt": "铁路12306",
+      "category": "二维码",
+      "location": "底部导航-二维码区域-第4个",
+      "naturalSize": {
+        "width": 258,
+        "height": 258
+      },
+      "displaySize": {
+        "width": 80,
+        "height": 80
+      },
+      "cssStrategy": "width: 80px; height: 80px;",
+      "note": "铁路12306二维码"
+    }
+  ],
+  "iconFonts": [],
+  "note": "所有图片资源已下载到 requirements/images/homepage/ 目录"
+}

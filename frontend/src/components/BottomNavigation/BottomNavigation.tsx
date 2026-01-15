@@ -1,7 +1,8 @@
 /**
  * @component UI-BOTTOM-NAV
- * @description 页面底部导航，包含友情链接、二维码和版权信息
+ * @description 页面底部导航，包含友情链接、二维码和版权信息（跨页面共享组件）
  * @calls N/A - 纯展示组件，无API调用
+ * @pages login, registration, homepage
  * 
  * ============ 功能实现清单 ============
  * @scenarios_covered:
@@ -9,13 +10,14 @@
  * 
  * @features_implemented:
  *   ✅ 显示友情链接（4个合作伙伴Logo，2行2列布局）
+ *   ✅ 支持不同页面的友情链接Logo配置
  *   ✅ 显示四个官方平台二维码（横向排列）
  *   ✅ 提供扫码关注入口
  *   ✅ 显示版权和备案信息
  * 
  * @implementation_status:
  *   - Scenarios: N/A (纯展示组件)
- *   - Features: 4/4 (100%)
+ *   - Features: 5/5 (100%)
  *   - UI Visual: 像素级精确
  * 
  * @layout_position:
@@ -24,63 +26,115 @@
  *   - 布局: position: static
  * 
  * @resources:
- *   images: [
- *     "/images/login/登录页面-底部导航-中国国家铁路集团Logo.png",
- *     "/images/login/登录页面-底部导航-中国铁路财产保险Logo.png",
- *     "/images/login/登录页面-底部导航-中国铁路95306网Logo.png",
- *     "/images/login/登录页面-底部导航-中铁快运Logo.png",
- *     "/images/login/登录页面-底部导航-中国铁路官方微信二维码.png",
- *     "/images/login/登录页面-底部导航-中国铁路官方微博二维码.png",
- *     "/images/login/登录页面-底部导航-12306公众号二维码.png",
- *     "/images/login/登录页面-底部导航-铁路12306二维码.png",
- *     "/images/login/登录页面-底部导航-无障碍服务Logo.jpg"
- *   ]
+ *   - 登录页/注册页资源: "/images/login/..."
+ *   - 首页资源: "/images/首页-底部导航-..."
  * ==========================================
  */
 
 import React from 'react';
 import './BottomNavigation.css';
 
-const BottomNavigation: React.FC = () => {
+interface BottomNavigationProps {
+  pageType?: 'login' | 'registration' | 'homepage';
+}
+
+const BottomNavigation: React.FC<BottomNavigationProps> = ({ pageType = 'login' }) => {
+  // ========== 页面配置：不同页面使用不同的友情链接Logo ==========
+  const friendshipLinksConfig = {
+    login: [
+      {
+        href: 'http://www.china-railway.com.cn/',
+        src: '/images/login/登录页面-底部导航-中国国家铁路集团Logo.png',
+        alt: '中国国家铁路集团有限公司'
+      },
+      {
+        href: 'http://www.china-ric.com/',
+        src: '/images/login/登录页面-底部导航-中国铁路财产保险Logo.png',
+        alt: '中国铁路财产保险自保有限公司'
+      },
+      {
+        href: 'http://www.95306.cn/',
+        src: '/images/login/登录页面-底部导航-中国铁路95306网Logo.png',
+        alt: '中国铁路95306网'
+      },
+      {
+        href: 'http://www.95572.com/',
+        src: '/images/login/登录页面-底部导航-中铁快运Logo.png',
+        alt: '中铁快运股份有限公司'
+      }
+    ],
+    registration: [
+      {
+        href: 'http://www.china-railway.com.cn/',
+        src: '/images/registration/注册页面-底部导航-中国国家铁路集团Logo.png',
+        alt: '中国国家铁路集团有限公司'
+      },
+      {
+        href: 'http://www.china-ric.com/',
+        src: '/images/registration/注册页面-底部导航-中国铁路财产保险Logo.png',
+        alt: '中国铁路财产保险自保有限公司'
+      },
+      {
+        href: 'http://www.95306.cn/',
+        src: '/images/registration/注册页面-底部导航-中国铁路95306网Logo.png',
+        alt: '中国铁路95306网'
+      },
+      {
+        href: 'http://www.95572.com/',
+        src: '/images/registration/注册页面-底部导航-中铁快运Logo.png',
+        alt: '中铁快运股份有限公司'
+      }
+    ],
+    homepage: [
+      {
+        href: 'http://www.china-railway.com.cn/',
+        src: '/images/首页-底部导航-中国国家铁路集团Logo.png',
+        alt: '中国国家铁路集团有限公司'
+      },
+      {
+        href: 'http://www.china-railway.com.cn/',
+        src: '/images/首页-底部导航-中国铁路客户保险Logo.png',
+        alt: '中国铁路客户保险总公司'
+      },
+      {
+        href: 'http://www.crpass.cn/',
+        src: '/images/首页-底部导航-中铁银通支付Logo.png',
+        alt: '中铁银通支付有限公司'
+      },
+      {
+        href: 'http://www.zt-tech.com/',
+        src: '/images/首页-底部导航-中铁程科技Logo.png',
+        alt: '中铁程科技有限责任公司'
+      }
+    ]
+  };
+
+  // 获取当前页面的友情链接配置
+  const friendshipLinks = friendshipLinksConfig[pageType];
+
+  // 二维码配置（所有页面相同）
+  const qrCodeImagePath = pageType === 'homepage' 
+    ? '/images' 
+    : `/images/${pageType}`;
+
   return (
     <div className="bottom-navigation-footer" role="complementary" aria-label="底部">
       <div className="bottom-navigation-footer-con bottom-navigation-wrapper" role="main">
         {/* @feature "显示友情链接" - 4个合作伙伴Logo，2行2列布局 */}
+        {/* @feature "支持不同页面的友情链接Logo配置" */}
         <div className="bottom-navigation-foot-links">
           <h2 className="bottom-navigation-foot-con-tit">友情链接</h2>
           <ul className="bottom-navigation-foot-links-list">
-            <li>
-              <a href="http://www.china-railway.com.cn/" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="/images/login/登录页面-底部导航-中国国家铁路集团Logo.png" 
-                  alt="中国国家铁路集团有限公司"
-                />
-              </a>
-            </li>
-            <li>
-              <a href="http://www.china-ric.com/" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="/images/login/登录页面-底部导航-中国铁路财产保险Logo.png" 
-                  alt="中国铁路财产保险自保有限公司"
-                />
-              </a>
-            </li>
-            <li>
-              <a href="http://www.95306.cn/" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="/images/login/登录页面-底部导航-中国铁路95306网Logo.png" 
-                  alt="中国铁路95306网"
-                />
-              </a>
-            </li>
-            <li>
-              <a href="http://www.95572.com/" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="/images/login/登录页面-底部导航-中铁快运Logo.png" 
-                  alt="中铁快运股份有限公司"
-                />
-              </a>
-            </li>
+            {friendshipLinks.map((link, index) => (
+              <li key={index}>
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
+                  <img 
+                    src={link.src} 
+                    alt={link.alt}
+                  />
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -91,7 +145,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">中国铁路官方微信</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/login/登录页面-底部导航-中国铁路官方微信二维码.png" 
+                src={`${qrCodeImagePath}/${pageType === 'homepage' ? '首页' : pageType === 'registration' ? '注册页面' : '登录页面'}-底部导航-中国铁路官方微信二维码.png`}
                 alt="中国铁路官方微信"
               />
             </div>
@@ -100,7 +154,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">中国铁路官方微博</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/login/登录页面-底部导航-中国铁路官方微博二维码.png" 
+                src={`${qrCodeImagePath}/${pageType === 'homepage' ? '首页' : pageType === 'registration' ? '注册页面' : '登录页面'}-底部导航-中国铁路官方微博二维码.png`}
                 alt="中国铁路官方微博"
               />
             </div>
@@ -109,7 +163,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">12306 公众号</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/login/登录页面-底部导航-12306公众号二维码.png" 
+                src={`${qrCodeImagePath}/${pageType === 'homepage' ? '首页' : pageType === 'registration' ? '注册页面' : '登录页面'}-底部导航-12306公众号二维码.png`}
                 alt="12306 公众号"
               />
             </div>
@@ -118,7 +172,7 @@ const BottomNavigation: React.FC = () => {
             <h2 className="bottom-navigation-foot-con-tit">铁路12306</h2>
             <div className="bottom-navigation-code-pic">
               <img 
-                src="/images/login/登录页面-底部导航-铁路12306二维码.png" 
+                src={`${qrCodeImagePath}/${pageType === 'homepage' ? '首页' : pageType === 'registration' ? '注册页面' : '登录页面'}-底部导航-铁路12306二维码.png`}
                 alt="铁路12306"
               />
               <div className="bottom-navigation-code-tips">

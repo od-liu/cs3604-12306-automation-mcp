@@ -1,0 +1,34 @@
+/**
+ * 宣传推广区域样式
+ * 📸 参考截图: requirements/images/homepage/组件特写截图/宣传推广区域.png
+ * ⚠️ 以下样式基于 ui-style-guide.md 中的完整 CSS 代码
+ */
+
+/* ========== 宣传推广区域 ========== */
+.home-promo-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 20px !important;
+  max-width: 1220px !important;
+  margin: 40px auto !important;
+}
+
+.home-promo-card {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.home-promo-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.home-promo-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
