@@ -30,13 +30,11 @@
 
 .train-search-bar {
   width: 100% !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  margin-top: 0 !important;
   padding: 20px 24px !important;
-  background-color: #ffffff !important;
+  background-color: transparent !important;
   border-radius: 0 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid #E0E0E0 !important;
   display: flex !important;
   align-items: center !important;
   gap: 16px !important;

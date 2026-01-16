@@ -18,6 +18,16 @@
   padding-bottom: 40px;
 }
 
+/* 查询和筛选整合容器 */
+.search-filter-container {
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  margin: 16px 0;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
 /* ========== 5分钟过期警告 ========== */
 .expire-warning {
   width: 100%;

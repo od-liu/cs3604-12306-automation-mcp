@@ -244,8 +244,14 @@ const TrainListPage: React.FC = () => {
 
       {/* 主内容区域 */}
       <div className="train-list-content">
-        {/* @feature "整合查询条件栏" */}
-        <TrainSearchBar onSearch={handleSearch} />
+        {/* 查询和筛选整合容器 */}
+        <div className="search-filter-container">
+          {/* @feature "整合查询条件栏" */}
+          <TrainSearchBar onSearch={handleSearch} />
+
+          {/* @feature "整合筛选条件区域" */}
+          <TrainFilterPanel onFilter={handleFilter} />
+        </div>
 
         {/* 5分钟过期警告 */}
         {showExpireWarning && (
@@ -273,9 +279,6 @@ const TrainListPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* @feature "整合筛选条件区域" */}
-        <TrainFilterPanel onFilter={handleFilter} />
 
         {/* @feature "整合车次列表" */}
         <TrainList 

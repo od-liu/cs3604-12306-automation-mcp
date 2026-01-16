@@ -66,7 +66,17 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
   // ========== State Management ==========
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
-  const [departureDate, setDepartureDate] = useState('');
+  
+  // 初始化出发日期为今天（YYYY-MM-DD格式）
+  const getTodayString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  const [departureDate, setDepartureDate] = useState(getTodayString());
   const [returnDate, setReturnDate] = useState('');
   const [tripType, setTripType] = useState<'single' | 'round'>('single');
   const [passengerType, setPassengerType] = useState<'normal' | 'student'>('normal');
@@ -104,15 +114,10 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
    * @given 用户在车票查询页面
    * @when 用户未输入出发日期
    * @then 系统在"出发日期"输入框填入默认状态（当前日期）
+   * 
+   * ✅ 已通过useState初始化实现
    */
   useEffect(() => {
-    // 初始化默认日期（当前日期）
-    if (!departureDate) {
-      const today = new Date();
-      const formattedDate = formatDate(today);
-      setDepartureDate(formattedDate);
-    }
-    
     // 获取城市列表
     const fetchCities = async () => {
       try {
@@ -131,7 +136,12 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
     fetchCities();
   }, []);
 
-  const formatDate = (date: Date): string => {
+  // 将YYYY-MM-DD格式转换为显示格式（M月D日 周X）
+  const formatDateDisplay = (dateString: string): string => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
@@ -501,7 +511,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
         <input
           type="text"
           placeholder="请选择日期"
-          value={departureDate}
+          value={formatDateDisplay(departureDate)}
           readOnly
           onClick={handleDepartureDateClick}
         />
@@ -513,7 +523,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
         <input
           type="text"
           placeholder="请选择日期"
-          value={returnDate}
+          value={formatDateDisplay(returnDate)}
           readOnly
           disabled={tripType === 'single'}
           onClick={handleReturnDateClick}

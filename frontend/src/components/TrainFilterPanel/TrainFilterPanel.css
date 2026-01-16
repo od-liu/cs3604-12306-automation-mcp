@@ -10,12 +10,13 @@
 }
 
 .train-filter-panel {
-  width: 1160px !important;
-  margin: 16px auto !important;
-  background-color: white !important;
-  border-radius: 4px !important;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 3px 0px !important;
-  padding: 16px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 20px 24px !important;
+  padding-top: 16px !important;
   position: relative !important;
 }
 
@@ -24,10 +25,13 @@
   display: flex !important;
   gap: 8px !important;
   flex-wrap: wrap !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid #E0E0E0 !important;
 }
 
 .date-button {
-  padding: 6px 14px !important;
+  padding: 8px 16px !important;
   border: 1px solid var(--border-gray) !important;
   border-radius: 4px !important;
   background-color: white !important;

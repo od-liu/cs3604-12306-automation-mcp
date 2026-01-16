@@ -21,18 +21,36 @@ const DatePicker: React.FC<DatePickerProps> = ({
   minDate,
   maxDate 
 }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    value ? new Date(value) : null
-  );
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (value && value.trim() !== '') {
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? new Date() : date;
+    }
+    return new Date();
+  });
+  
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+    if (value && value.trim() !== '') {
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? null : date;
+    }
+    return null;
+  });
 
   useEffect(() => {
-    if (value) {
-      setSelectedDate(new Date(value));
-      setCurrentDate(new Date(value));
+    if (value && value.trim() !== '') {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date);
+        setCurrentDate(date);
+      } else {
+        const today = new Date();
+        setSelectedDate(null);
+        setCurrentDate(today);
+      }
     } else {
       const today = new Date();
-      setSelectedDate(today);
+      setSelectedDate(null);
       setCurrentDate(today);
     }
   }, [value]);
