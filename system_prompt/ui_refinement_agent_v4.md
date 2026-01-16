@@ -31,7 +31,7 @@
 1. **确认项目状态**
    - 确认前后端服务已启动
    - 确认复刻页面可以正常访问（通常是 `http://localhost:5174` 或类似端口）
-   - 确认目标参考图片 `target_image.png` 存在（项目根目录）
+   - 确认目标参考图片 `target_image.png` 存在（项目根目录），如果没有则打开目标网页并截图保存
 
 2. **获取初始截图**
    - 使用 `mcp_cursor-browser-extension_browser_navigate` 打开复刻页面
