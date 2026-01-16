@@ -40,6 +40,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../api';
 import './TrainSearchForm.css';
 
 interface TrainSearchFormProps {
@@ -65,6 +66,13 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
   const [isHighSpeed, setIsHighSpeed] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  
+  // 城市列表和下拉框状态
+  const [cities, setCities] = useState<string[]>([]);
+  const [showFromCityDropdown, setShowFromCityDropdown] = useState(false);
+  const [showToCityDropdown, setShowToCityDropdown] = useState(false);
+  const [filteredFromCities, setFilteredFromCities] = useState<string[]>([]);
+  const [filteredToCities, setFilteredToCities] = useState<string[]>([]);
 
   // ========== Scenario Implementations ==========
 
@@ -81,7 +89,38 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
     const day = today.getDate();
     const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][today.getDay()];
     setDepartureDate(`${month}月${day}日 ${weekday}`);
+    
+    // 获取城市列表
+    fetchCities();
   }, []);
+  
+  // 点击外部区域关闭下拉框
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.input-with-icon')) {
+        setShowFromCityDropdown(false);
+        setShowToCityDropdown(false);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+  
+  // 获取城市列表
+  const fetchCities = async () => {
+    try {
+      const response = await apiClient.get('/trains/cities');
+      if (response.data.success && response.data.cities) {
+        setCities(response.data.cities);
+      }
+    } catch (error) {
+      console.error('获取城市列表失败:', error);
+    }
+  };
 
   /**
    * @scenario SCENARIO-001 "校验出发地为空"
@@ -116,18 +155,8 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
    * @given 用户在首页/查询页的车票查询表单中输入了一个不在数据库的城市作为出发地或到达地
    * @when 用户在车票查询表单中点击"查询"
    * @then 查询按钮上方出现系统提示"无法匹配该出发城市"或"无法匹配该到达城市"
+   * @note 目前通过城市下拉框选择来保证城市有效性，用户只能从下拉框中选择城市
    */
-  const validateCityExists = async (city: string, type: 'from' | 'to'): Promise<boolean> => {
-    // 骨架实现：假设所有城市都存在（实际应调用 API 验证）
-    // 这里可以添加一个简单的城市列表验证
-    const validCities = ['北京', '上海', '广州', '深圳', '杭州', '南京', '武汉', '成都'];
-    
-    if (!validCities.includes(city)) {
-      setErrorMessage(type === 'from' ? '无法匹配该出发城市' : '无法匹配该到达城市');
-      return false;
-    }
-    return true;
-  };
 
   /**
    * @scenario SCENARIO-007 "出发地/到达地交换"
@@ -165,12 +194,6 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
     // 执行所有验证
     if (!validateFromCity()) return;
     if (!validateToCity()) return;
-    
-    // 验证城市是否存在（骨架实现）
-    // const fromCityValid = await validateCityExists(fromCity, 'from');
-    // if (!fromCityValid) return;
-    // const toCityValid = await validateCityExists(toCity, 'to');
-    // if (!toCityValid) return;
 
     try {
       // 调用 API-SEARCH-TRAINS
@@ -186,22 +209,16 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
         onSearch(searchParams);
       }
 
-      // 骨架实现：模拟API调用
-      // const response = await fetch('/api/trains/search', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(searchParams)
-      // });
-
-      // const data = await response.json();
-      
-      // if (data.success) {
-      //   // 跳转至车次列表页
-      //   navigate('/train-list', { state: searchParams });
-      // }
-
-      // 临时：显示成功提示
-      alert(`查询成功！\n出发地：${fromCity}\n目的地：${toCity}\n日期：${departureDate}\n学生票：${isStudent ? '是' : '否'}\n高铁/动车：${isHighSpeed ? '是' : '否'}`);
+      // 跳转至车次列表页，传递查询参数
+      navigate('/trains', { 
+        state: {
+          fromCity,
+          toCity,
+          departureDate,
+          isStudent,
+          isHighSpeed
+        }
+      });
       
     } catch (error) {
       /**
@@ -221,8 +238,30 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
    * @then 系统在出发地下拉条目中显示数据库中的所有站点
    */
   const handleFromCityFocus = () => {
-    // 骨架实现：显示城市列表下拉框
-    console.log('显示出发地城市列表');
+    setShowFromCityDropdown(true);
+    setShowToCityDropdown(false);
+    setFilteredFromCities(cities);
+  };
+  
+  const handleFromCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFromCity(value);
+    setErrorMessage('');
+    
+    // 过滤城市列表
+    if (value.trim()) {
+      const filtered = cities.filter(city => city.includes(value));
+      setFilteredFromCities(filtered);
+    } else {
+      setFilteredFromCities(cities);
+    }
+    setShowFromCityDropdown(true);
+  };
+  
+  const handleSelectFromCity = (city: string) => {
+    setFromCity(city);
+    setShowFromCityDropdown(false);
+    setErrorMessage('');
   };
 
   /**
@@ -232,8 +271,30 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
    * @then 系统在到达地下拉条目中显示数据库中的所有站点
    */
   const handleToCityFocus = () => {
-    // 骨架实现：显示城市列表下拉框
-    console.log('显示到达地城市列表');
+    setShowToCityDropdown(true);
+    setShowFromCityDropdown(false);
+    setFilteredToCities(cities);
+  };
+  
+  const handleToCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setToCity(value);
+    setErrorMessage('');
+    
+    // 过滤城市列表
+    if (value.trim()) {
+      const filtered = cities.filter(city => city.includes(value));
+      setFilteredToCities(filtered);
+    } else {
+      setFilteredToCities(cities);
+    }
+    setShowToCityDropdown(true);
+  };
+  
+  const handleSelectToCity = (city: string) => {
+    setToCity(city);
+    setShowToCityDropdown(false);
+    setErrorMessage('');
   };
 
   // ========== UI Render ==========
@@ -294,20 +355,34 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
           <div className="stations-container">
             <div className="train-search-row-horizontal">
               <label className="field-label-left">出发城市</label>
-              <div className="input-with-icon">
+              <div className="input-with-icon" style={{ position: 'relative' }}>
                 <div className="station-input">
                   <input 
                     type="text" 
                     placeholder="请选择城市" 
                     className="station-input-field"
                     value={fromCity}
-                    onChange={(e) => setFromCity(e.target.value)}
+                    onChange={handleFromCityChange}
                     onFocus={handleFromCityFocus}
                   />
                 </div>
                 <svg className="location-icon" width="18" height="18" viewBox="0 0 18 18">
                   <circle cx="9" cy="9" r="3" fill="#999999"/>
                 </svg>
+                {/* 城市下拉框 */}
+                {showFromCityDropdown && filteredFromCities.length > 0 && (
+                  <div className="city-dropdown">
+                    {filteredFromCities.slice(0, 10).map((city, index) => (
+                      <div 
+                        key={index} 
+                        className="city-dropdown-item"
+                        onClick={() => handleSelectFromCity(city)}
+                      >
+                        {city}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -324,20 +399,34 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
 
             <div className="train-search-row-horizontal">
               <label className="field-label-left">到达城市</label>
-              <div className="input-with-icon">
+              <div className="input-with-icon" style={{ position: 'relative' }}>
                 <div className="station-input">
                   <input 
                     type="text" 
                     placeholder="请选择城市" 
                     className="station-input-field"
                     value={toCity}
-                    onChange={(e) => setToCity(e.target.value)}
+                    onChange={handleToCityChange}
                     onFocus={handleToCityFocus}
                   />
                 </div>
                 <svg className="location-icon" width="18" height="18" viewBox="0 0 18 18">
                   <circle cx="9" cy="9" r="3" fill="#999999"/>
                 </svg>
+                {/* 城市下拉框 */}
+                {showToCityDropdown && filteredToCities.length > 0 && (
+                  <div className="city-dropdown">
+                    {filteredToCities.slice(0, 10).map((city, index) => (
+                      <div 
+                        key={index} 
+                        className="city-dropdown-item"
+                        onClick={() => handleSelectToCity(city)}
+                      >
+                        {city}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
