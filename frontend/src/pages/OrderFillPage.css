@@ -1,0 +1,26 @@
+/* 订单填写页面容器样式 */
+
+.order-fill-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(240, 240, 240); /* 浅灰背景 */
+}
+
+/* 主内容区域 */
+.order-fill-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+/* 占位符样式（开发阶段辅助） */
+.train-info-placeholder,
+.passenger-info-placeholder,
+.submit-section-placeholder,
+.warm-tips-placeholder,
+.order-confirm-modal-placeholder {
+  /* 子组件将覆盖这些占位符 */
+}

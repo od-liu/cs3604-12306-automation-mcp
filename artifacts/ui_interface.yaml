@@ -9,12 +9,14 @@ UI-TOP-NAV:
 UI-BOTTOM-NAV:
   related_req_id: REQ-BOTTOM-NAV
   path: frontend/src/components/BottomNavigation/BottomNavigation.tsx
-  description: 底部导航，包含友情链接、二维码和版权信息（登录页、注册页和首页共享）
+  description: 底部导航，包含友情链接、二维码和版权信息（跨页面共享组件）
   downstream_ids: []
   pages:
     - login
     - registration
     - homepage
+    - train-list
+    - order-fill
 UI-LOGIN-PAGE:
   related_req_id: REQ-LOGIN-PAGE
   path: frontend/src/pages/LoginPage.tsx
@@ -65,9 +67,13 @@ UI-HOME-PAGE:
 UI-HOME-TOP-NAV:
   related_req_id: REQ-HOME-TOP-NAV
   path: frontend/src/components/HomeTopBar/HomeTopBar.tsx
-  description: 首页顶部导航栏，包含Logo、搜索框和用户登录/注册入口
+  description: 顶部导航栏，包含Logo、搜索框和用户登录/注册入口（跨页面共享组件）
   upstream_ids: []
   downstream_ids: []
+  pages:
+    - homepage
+    - train-list
+    - order-fill
 UI-HOME-SEARCH-FORM:
   related_req_id: REQ-HOME-SEARCH-FORM
   path: frontend/src/components/TrainSearchForm/TrainSearchForm.tsx
@@ -80,4 +86,77 @@ UI-HOME-PROMOTION:
   path: frontend/src/components/PromoGrid/PromoGrid.tsx
   description: 首页宣传推广区域，显示4个快捷入口卡片（2行2列）
   upstream_ids: []
+  downstream_ids: []
+UI-MAIN-NAV:
+  related_req_id: REQ-TRAIN-LIST-PAGE
+  path: frontend/src/components/MainNavigation/MainNavigation.tsx
+  description: 主导航菜单（蓝色横栏），显示主要导航项（跨页面共享组件）
+  upstream_ids: []
+  downstream_ids: []
+  pages:
+    - train-list
+    - order-fill
+UI-TRAIN-SEARCH-BAR:
+  related_req_id: REQ-TRAIN-SEARCH-BAR
+  path: frontend/src/components/TrainSearchBar/TrainSearchBar.tsx
+  description: 查询条件栏，支持修改出发地、目的地、日期，并进行查询
+  upstream_ids: []
+  downstream_ids:
+    - API-SEARCH-TRAINS
+    - API-GET-CITIES
+UI-TRAIN-FILTER:
+  related_req_id: REQ-TRAIN-FILTER
+  path: frontend/src/components/TrainFilterPanel/TrainFilterPanel.tsx
+  description: 筛选条件区域，支持多维度筛选（车次类型、时间段、车站、席别）
+  upstream_ids: []
+  downstream_ids: []
+UI-TRAIN-LIST:
+  related_req_id: REQ-TRAIN-LIST
+  path: frontend/src/components/TrainList/TrainList.tsx
+  description: 车次列表，显示符合条件的车次信息（表格形式）
+  upstream_ids: []
+  downstream_ids:
+    - API-GET-TRAIN-DETAILS
+UI-TRAIN-LIST-PAGE:
+  related_req_id: REQ-TRAIN-LIST-PAGE
+  path: frontend/src/pages/TrainListPage.tsx
+  description: 车次列表页面容器组件，整合所有子组件
+  upstream_ids: []
+  downstream_ids: []
+UI-ORDER-FILL-PAGE:
+  related_req_id: REQ-ORDER-FILL-PAGE
+  path: frontend/src/pages/OrderFillPage.tsx
+  description: 订单填写页面容器组件，整合顶部导航、列车信息、乘客选择、提交区域和底部导航
+  downstream_ids: []
+UI-ORDER-TRAIN-INFO:
+  related_req_id: REQ-ORDER-TRAIN-INFO
+  path: frontend/src/components/OrderFill/TrainInfo.tsx
+  description: 列车信息区域，显示车次号、站点、时间、票价和余票信息
+  downstream_ids: []
+UI-ORDER-PASSENGER-SELECT:
+  related_req_id: REQ-ORDER-PASSENGER-SELECT
+  path: frontend/src/components/OrderFill/PassengerInfo.tsx
+  description: 乘客信息选择区域，支持勾选乘客、选择席别、显示购票信息表格和保险广告
+  downstream_ids:
+    - API-GET-PASSENGERS
+UI-ORDER-SUBMIT:
+  related_req_id: REQ-ORDER-SUBMIT
+  path: frontend/src/components/OrderFill/SubmitSection.tsx
+  description: 提交订单区域，包含同意条款提示和提交/返回按钮
+  downstream_ids: []
+UI-ORDER-TIPS:
+  related_req_id: REQ-ORDER-TIPS
+  path: frontend/src/components/OrderFill/WarmTips.tsx
+  description: 温馨提示区域，显示购票规则和注意事项（7条）
+  downstream_ids: []
+UI-ORDER-CONFIRM-MODAL:
+  related_req_id: REQ-ORDER-CONFIRM-MODAL
+  path: frontend/src/components/OrderFill/OrderConfirmModal.tsx
+  description: 订单确认弹窗，显示车次信息、乘客信息和余票情况，提供确认或返回修改功能
+  downstream_ids:
+    - API-SUBMIT-ORDER
+UI-ORDER-ERROR-MODAL:
+  related_req_id: REQ-ORDER-ERROR-MODAL
+  path: frontend/src/components/OrderFill/ErrorModal.tsx
+  description: 订单错误提示弹窗，显示余票不足、订票失败等错误信息
   downstream_ids: []
