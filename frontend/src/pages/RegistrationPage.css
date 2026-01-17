@@ -31,10 +31,10 @@
 }
 
 .breadcrumb a {
-  color: #0066cc;
+  color: #333333;
   text-decoration: none;
 }
 
 .breadcrumb a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }

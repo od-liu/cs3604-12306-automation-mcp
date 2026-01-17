@@ -8,29 +8,28 @@
   width: 980px;
   margin: 0 auto;
   padding: 0;
-  background-color: transparent;
-  background-image: url('/images/registration/bg.png');
-  background-repeat: repeat;
+  background-color: #ffffff;
   border: 1px solid #1678be;
   border-radius: 5px 5px 0 0;
   box-shadow: none;
+  overflow: hidden;
 }
 
 .form-header {
   height: 32px;
-  line-height: 30px;
+  line-height: 32px;
   padding: 0 0 0 20px;
   background: linear-gradient(180deg, #2798cd 0%, #1678be 100%);
   color: #e5f8ff;
   font-size: 14px;
   font-weight: 400;
-  border-radius: 5px 5px 0 0;
+  border-radius: 0;
 }
 
 .registration-form {
   width: 100%;
   margin: 0;
-  padding: 30px 0 40px;
+  padding: 30px 10px 0;
   background-color: #ffffff;
 }
 
@@ -52,6 +51,7 @@
   line-height: 30px;
   font-family: Tahoma, 宋体;
   font-weight: 400;
+  box-sizing: content-box;
 }
 
 .form-label.required::before {
@@ -67,7 +67,8 @@
   flex: none;
   display: flex;
   align-items: center;
-  gap: 15px;
+  /* 对齐原站 tips：与输入框之间间隔约 8px */
+  gap: 8px;
   position: relative;
 }
 
@@ -75,13 +76,15 @@
 .form-input {
   width: 195px;
   height: 18px;
-  border: 1px solid #cfcdb7;
+  /* 原站 input 边框 rgb(207,205,199) */
+  border: 1px solid #cfcdc7;
   border-radius: 0;
   padding: 5px 0 5px 5px;
   font-size: 12px;
   color: #333333;
   font-family: Tahoma, 宋体;
   transition: border-color 0.1s;
+  box-sizing: content-box;
 }
 
 .form-input::placeholder {
@@ -118,7 +121,8 @@
 .form-select {
   width: 202px;
   height: 30px;
-  border: 1px solid #cfcdb7;
+  /* 原站 select 边框更深 rgb(118,118,118) */
+  border: 1px solid #767676;
   border-radius: 0;
   padding: 5px 0;
   font-size: 12px;
@@ -127,6 +131,7 @@
   cursor: pointer;
   appearance: auto;
   background-image: none;
+  box-sizing: border-box;
 }
 
 .form-select:hover {
@@ -142,23 +147,27 @@
 /* ========== 手机号输入 ========== */
 .phone-input-group {
   display: flex;
-  gap: 10px;
+  /* 对齐原站：区号下拉与手机号输入之间间距更紧（约 4px） */
+  gap: 4px;
 }
 
 .country-code-select {
-  width: 100px;
+  /* 原站区号下拉宽度约 108px */
+  width: 108px;
   height: 30px;
-  border: 1px solid #cfcdb7;
+  border: 1px solid #cfcdc7;
   border-radius: 0;
-  padding: 0 10px;
+  padding: 5px 0;
   font-size: 12px;
   color: #333333;
   background-color: #ffffff;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .phone-input {
-  width: 95px;
+  /* 原站手机号输入内容宽约 84px（含 padding 后视觉宽约 91px） */
+  width: 84px;
 }
 
 /* ========== 提示文字 ========== */
@@ -199,11 +208,7 @@
 }
 
 .strength-label {
-  display: inline-block;
-  font-size: 12px;
-  color: #999999;
-  line-height: 30px;
-  margin-right: 6px;
+  display: none;
 }
 
 .strength-bars {
@@ -293,7 +298,8 @@
   line-height: 30px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 0;
+  display: inline-block;
+  margin: 0 10px;
 }
 
 .submit-button:hover {
@@ -314,4 +320,5 @@
   height: 1px;
   border-top: 1px dashed #dedede;
   margin: 15px 0;
+  width: 100%;
 }
