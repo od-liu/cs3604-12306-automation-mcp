@@ -858,3 +858,111 @@ export async function getTrainDetails(trainNumber) {
     };
   }
 }
+
+/**
+ * @function FUNC-GET-PASSENGERS
+ * @signature getPassengers(userId)
+ * @input {string} userId - 用户ID
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {Array<Object>} result.passengers - 乘客列表
+ * @output {string} result.message - 错误消息（失败时）
+ * @db_ops SELECT on passengers WHERE user_id=?
+ */
+export async function getPassengers(userId) {
+  try {
+    // Mock data for now (数据库实现待后续完成)
+    // const { getDb } = await import('./db.js');
+    // const db = getDb();
+    // const passengers = await db.allAsync(
+    //   'SELECT * FROM passengers WHERE user_id = ?',
+    //   userId
+    // );
+    
+    // Mock常用乘客数据
+    const mockPassengers = [
+      {
+        id: 'passenger-001',
+        name: '王三',
+        idType: '居民身份证',
+        idNumber: '3301**************222',
+        passengerType: '成人票'
+      },
+      {
+        id: 'passenger-002',
+        name: '刘嘉敏',
+        idType: '居民身份证',
+        idNumber: '4201**************103',
+        passengerType: '成人票'
+      }
+    ];
+    
+    return {
+      success: true,
+      passengers: mockPassengers
+    };
+  } catch (error) {
+    console.error('获取乘客列表失败:', error);
+    return {
+      success: false,
+      message: '获取乘客列表失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-SUBMIT-ORDER
+ * @signature submitOrder(userId, orderData)
+ * @input {string} userId - 用户ID
+ * @input {Object} orderData - 订单数据
+ * @input {string} orderData.trainNo - 车次号
+ * @input {string} orderData.date - 乘车日期
+ * @input {string} orderData.departureStation - 出发站
+ * @input {string} orderData.arrivalStation - 到达站
+ * @input {Array<Object>} orderData.passengers - 乘客列表
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {string} result.orderId - 订单ID（成功时）
+ * @output {string} result.message - 响应消息
+ * @db_ops INSERT into orders, INSERT into order_passengers, UPDATE train_seats
+ */
+export async function submitOrder(userId, orderData) {
+  try {
+    // Validate inputs
+    if (!userId || !orderData || !orderData.passengers || orderData.passengers.length === 0) {
+      return {
+        success: false,
+        message: '订单信息不完整'
+      };
+    }
+    
+    // Mock implementation (数据库实现待后续完成)
+    // const { getDb } = await import('./db.js');
+    // const db = getDb();
+    
+    // 1. 检查余票
+    // 2. 创建订单记录
+    // 3. 创建乘客订单关联记录
+    // 4. 更新座位库存
+    // 5. 分配座位号
+    
+    // Mock订单ID
+    const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    return {
+      success: true,
+      orderId,
+      message: '订单提交成功',
+      seats: orderData.passengers.map((p, idx) => ({
+        passengerId: p.passengerId,
+        seatNumber: `${idx + 1}车${String(idx + 1).padStart(2, '0')}A号`
+      }))
+    };
+  } catch (error) {
+    console.error('提交订单失败:', error);
+    return {
+      success: false,
+      message: '提交订单失败'
+    };
+  }
+}

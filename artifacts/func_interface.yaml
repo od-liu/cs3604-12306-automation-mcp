@@ -82,3 +82,17 @@ FUNC-GET-TRAIN-DETAILS:
   db_tables:
     - trains
     - stations
+FUNC-GET-PASSENGERS:
+  related_req_id: REQ-ORDER-PASSENGER-SELECT
+  path: backend/src/database/operations.js
+  signature: getPassengers(userId)
+  db_tables:
+    - passengers
+FUNC-SUBMIT-ORDER:
+  related_req_id: REQ-ORDER-CONFIRM-MODAL
+  path: backend/src/database/operations.js
+  signature: submitOrder(userId, orderData)
+  db_tables:
+    - orders
+    - order_passengers
+    - train_seats

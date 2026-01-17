@@ -16,6 +16,7 @@ UI-BOTTOM-NAV:
     - registration
     - homepage
     - train-list
+    - order-fill
 UI-LOGIN-PAGE:
   related_req_id: REQ-LOGIN-PAGE
   path: frontend/src/pages/LoginPage.tsx
@@ -72,6 +73,7 @@ UI-HOME-TOP-NAV:
   pages:
     - homepage
     - train-list
+    - order-fill
 UI-HOME-SEARCH-FORM:
   related_req_id: REQ-HOME-SEARCH-FORM
   path: frontend/src/components/TrainSearchForm/TrainSearchForm.tsx
@@ -88,9 +90,12 @@ UI-HOME-PROMOTION:
 UI-MAIN-NAV:
   related_req_id: REQ-TRAIN-LIST-PAGE
   path: frontend/src/components/MainNavigation/MainNavigation.tsx
-  description: 主导航菜单（蓝色横栏），显示主要导航项
+  description: 主导航菜单（蓝色横栏），显示主要导航项（跨页面共享组件）
   upstream_ids: []
   downstream_ids: []
+  pages:
+    - train-list
+    - order-fill
 UI-TRAIN-SEARCH-BAR:
   related_req_id: REQ-TRAIN-SEARCH-BAR
   path: frontend/src/components/TrainSearchBar/TrainSearchBar.tsx
@@ -117,4 +122,41 @@ UI-TRAIN-LIST-PAGE:
   path: frontend/src/pages/TrainListPage.tsx
   description: 车次列表页面容器组件，整合所有子组件
   upstream_ids: []
+  downstream_ids: []
+UI-ORDER-FILL-PAGE:
+  related_req_id: REQ-ORDER-FILL-PAGE
+  path: frontend/src/pages/OrderFillPage.tsx
+  description: 订单填写页面容器组件，整合顶部导航、列车信息、乘客选择、提交区域和底部导航
+  downstream_ids: []
+UI-ORDER-TRAIN-INFO:
+  related_req_id: REQ-ORDER-TRAIN-INFO
+  path: frontend/src/components/OrderFill/TrainInfo.tsx
+  description: 列车信息区域，显示车次号、站点、时间、票价和余票信息
+  downstream_ids: []
+UI-ORDER-PASSENGER-SELECT:
+  related_req_id: REQ-ORDER-PASSENGER-SELECT
+  path: frontend/src/components/OrderFill/PassengerInfo.tsx
+  description: 乘客信息选择区域，支持勾选乘客、选择席别、显示购票信息表格和保险广告
+  downstream_ids:
+    - API-GET-PASSENGERS
+UI-ORDER-SUBMIT:
+  related_req_id: REQ-ORDER-SUBMIT
+  path: frontend/src/components/OrderFill/SubmitSection.tsx
+  description: 提交订单区域，包含同意条款提示和提交/返回按钮
+  downstream_ids: []
+UI-ORDER-TIPS:
+  related_req_id: REQ-ORDER-TIPS
+  path: frontend/src/components/OrderFill/WarmTips.tsx
+  description: 温馨提示区域，显示购票规则和注意事项（7条）
+  downstream_ids: []
+UI-ORDER-CONFIRM-MODAL:
+  related_req_id: REQ-ORDER-CONFIRM-MODAL
+  path: frontend/src/components/OrderFill/OrderConfirmModal.tsx
+  description: 订单确认弹窗，显示车次信息、乘客信息和余票情况，提供确认或返回修改功能
+  downstream_ids:
+    - API-SUBMIT-ORDER
+UI-ORDER-ERROR-MODAL:
+  related_req_id: REQ-ORDER-ERROR-MODAL
+  path: frontend/src/components/OrderFill/ErrorModal.tsx
+  description: 订单错误提示弹窗，显示余票不足、订票失败等错误信息
   downstream_ids: []

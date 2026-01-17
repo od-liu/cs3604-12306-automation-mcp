@@ -1,0 +1,239 @@
+/* ========== 乘客信息区域容器 ========== */
+.passenger-info-section {
+  display: block !important;
+  width: 1100px !important;
+  background-color: rgb(255, 255, 255) !important;
+  border: 1px solid rgb(192, 215, 235) !important;
+  border-radius: 10px !important;
+  margin: 20px 186px !important;
+  padding: 20px !important;
+}
+
+/* ========== 标题栏 + 搜索框 ========== */
+.passenger-info-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px solid rgb(240, 240, 240) !important;
+}
+
+.passenger-info-header .section-title {
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: rgb(51, 51, 51) !important;
+  margin: 0 !important;
+}
+
+.passenger-search-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.passenger-search-box .search-input {
+  width: 200px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgb(192, 192, 192) !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+}
+
+.passenger-search-box .search-icon {
+  cursor: pointer !important;
+  font-size: 18px !important;
+}
+
+/* ========== 乘车人选择区 ========== */
+.passenger-list-container {
+  margin-bottom: 20px !important;
+}
+
+.subsection-title {
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: rgb(51, 51, 51) !important;
+  margin-bottom: 10px !important;
+}
+
+.passenger-list {
+  display: flex !important;
+  gap: 20px !important;
+  flex-wrap: wrap !important;
+}
+
+.passenger-checkbox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  padding: 8px 15px !important;
+  border: 1px solid rgb(220, 220, 220) !important;
+  border-radius: 4px !important;
+  background-color: rgb(250, 250, 250) !important;
+  transition: all 0.2s !important;
+}
+
+.passenger-checkbox:hover {
+  background-color: rgb(240, 248, 255) !important;
+  border-color: rgb(39, 138, 204) !important;
+}
+
+.passenger-checkbox-input {
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer !important;
+}
+
+.passenger-checkbox-label {
+  font-size: 14px !important;
+  color: rgb(51, 51, 51) !important;
+  user-select: none !important;
+}
+
+/* ========== 购票信息表格 ========== */
+.purchase-info-container {
+  margin-bottom: 20px !important;
+}
+
+.purchase-info-table {
+  width: 100% !important;
+  border: 1px solid rgb(220, 220, 220) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+/* 表头 */
+.table-header {
+  display: grid !important;
+  grid-template-columns: 60px 120px 180px 150px 150px 200px 80px !important;
+  background-color: rgb(245, 245, 245) !important;
+  border-bottom: 1px solid rgb(220, 220, 220) !important;
+}
+
+.table-header-cell {
+  padding: 12px 10px !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  color: rgb(51, 51, 51) !important;
+  text-align: center !important;
+}
+
+/* 表格主体 */
+.table-body {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+.purchase-info-row {
+  display: grid !important;
+  grid-template-columns: 60px 120px 180px 150px 150px 200px 80px !important;
+  border-bottom: 1px solid rgb(240, 240, 240) !important;
+}
+
+.purchase-info-row:last-child {
+  border-bottom: none !important;
+}
+
+.row-cell {
+  padding: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 下拉框样式 */
+.select-dropdown {
+  position: relative !important;
+  width: 100% !important;
+  height: 32px !important;
+  border: 1px solid rgb(192, 192, 192) !important;
+  border-radius: 4px !important;
+  background-color: rgb(255, 255, 255) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 10px !important;
+}
+
+.select-dropdown:hover {
+  border-color: rgb(39, 138, 204) !important;
+}
+
+.selected-value-display {
+  flex: 1 !important;
+  font-size: 14px !important;
+  color: rgb(51, 51, 51) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.arrow {
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 4px solid transparent !important;
+  border-right: 4px solid transparent !important;
+  border-top: 5px solid rgb(102, 102, 102) !important;
+  margin-left: 8px !important;
+}
+
+/* 原生select样式 */
+.seat-select-native {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 14px !important;
+  color: rgb(51, 51, 51) !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+/* 只读输入框 */
+.readonly-input {
+  width: 100% !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgb(220, 220, 220) !important;
+  border-radius: 4px !important;
+  background-color: rgb(245, 245, 245) !important;
+  color: rgb(102, 102, 102) !important;
+  font-size: 14px !important;
+  cursor: not-allowed !important;
+}
+
+/* 删除乘客按钮 */
+.remove-passenger-btn {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background-color: rgb(253, 129, 0) !important;
+  color: rgb(255, 255, 255) !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+}
+
+.remove-passenger-btn:hover {
+  background-color: rgb(255, 136, 51) !important;
+}
+
+/* ========== 保险广告横幅 ========== */
+.railway-insurance-banner {
+  width: 100% !important;
+  margin-top: 20px !important;
+}
+
+.railway-insurance-banner img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+}
