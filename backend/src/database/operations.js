@@ -969,3 +969,72 @@ export async function submitOrder(userId, orderData) {
     };
   }
 }
+
+/**
+ * @function FUNC-GET-PERSONAL-INFO
+ * @signature getPersonalInfo(userId)
+ * @input {string} userId - 用户ID
+ * @output {Object} - 个人信息对象
+ * @db_ops SELECT on users
+ */
+export async function getPersonalInfo(userId) {
+  try {
+    // 骨架实现：从数据库查询用户个人信息
+    // 实际实现需要连接数据库并执行 SELECT 查询
+    console.log('获取个人信息:', userId);
+    
+    // Mock数据
+    const mockData = {
+      username: 'od12322',
+      realName: '刘嘉敏',
+      country: '中国China',
+      idType: '居民身份证',
+      idNumber: '3301***********028',
+      verificationStatus: '已通过',
+      phone: '(+86) 198****9256',
+      phoneVerification: '已通过核验',
+      email: '3279882704@qq.com',
+      discountType: '成人'
+    };
+    
+    return {
+      success: true,
+      data: mockData
+    };
+  } catch (error) {
+    console.error('获取个人信息失败:', error);
+    return {
+      success: false,
+      message: '获取个人信息失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-UPDATE-CONTACT-INFO
+ * @signature updateContactInfo(userId, contactData)
+ * @input {string} userId - 用户ID
+ * @input {Object} contactData - 联系方式数据
+ * @input {string} contactData.email - 邮箱
+ * @output {Object} - 更新结果
+ * @db_ops UPDATE on users
+ */
+export async function updateContactInfo(userId, contactData) {
+  try {
+    // 骨架实现：更新数据库中的联系方式
+    // 实际实现需要连接数据库并执行 UPDATE 语句
+    console.log('更新联系方式:', userId, contactData);
+    
+    // Mock实现
+    return {
+      success: true,
+      message: '联系方式更新成功'
+    };
+  } catch (error) {
+    console.error('更新联系方式失败:', error);
+    return {
+      success: false,
+      message: '更新联系方式失败'
+    };
+  }
+}
