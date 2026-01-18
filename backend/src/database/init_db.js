@@ -15,6 +15,7 @@ const createUsersTable = `
     phone TEXT UNIQUE,
     password_hash TEXT NOT NULL,
     name TEXT,
+    real_name TEXT,
     id_type TEXT DEFAULT '1',
     id_number TEXT,
     id_card_last4 TEXT NOT NULL,
@@ -101,8 +102,76 @@ const createTrainSeatsTable = `
     total_seats INTEGER NOT NULL,
     available_seats INTEGER NOT NULL,
     price REAL,
+    seat_status TEXT DEFAULT '空闲',
+    order_id TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (train_id) REFERENCES trains(id)
+  )
+`;
+
+// Create passengers table
+const createPassengersTable = `
+  CREATE TABLE IF NOT EXISTS passengers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    id_type TEXT NOT NULL,
+    id_number TEXT NOT NULL,
+    phone TEXT,
+    passenger_type TEXT DEFAULT '成人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+`;
+
+// Create orders table
+const createOrdersTable = `
+  CREATE TABLE IF NOT EXISTS orders (
+    id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    train_number TEXT NOT NULL,
+    from_station TEXT NOT NULL,
+    to_station TEXT NOT NULL,
+    departure_date TEXT NOT NULL,
+    departure_time TEXT NOT NULL,
+    arrival_time TEXT NOT NULL,
+    total_price REAL NOT NULL,
+    status TEXT DEFAULT '已确认未支付',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    paid_at DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+`;
+
+// Create order_passengers table
+const createOrderPassengersTable = `
+  CREATE TABLE IF NOT EXISTS order_passengers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    id_type TEXT NOT NULL,
+    id_number TEXT NOT NULL,
+    ticket_type TEXT NOT NULL,
+    seat_class TEXT NOT NULL,
+    car_number TEXT,
+    seat_number TEXT,
+    price REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+  )
+`;
+
+// Create user_daily_cancel_count table
+const createUserDailyCancelCountTable = `
+  CREATE TABLE IF NOT EXISTS user_daily_cancel_count (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    cancel_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, date),
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )
 `;
 
@@ -113,48 +182,39 @@ export async function initDatabase() {
   try {
     const db = getDb();
     
-    // Create tables using exec (wrapped in promise for better error handling)
-    await new Promise((resolve, reject) => {
-      db.serialize(() => {
-        db.run(createUsersTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Users table created or already exists');
-        });
-        
-        db.run(createVerificationCodesTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Verification codes table created or already exists');
-        });
-        
-        db.run(createSessionsTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Sessions table created or already exists');
-        });
-        
-        db.run(createCitiesTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Cities table created or already exists');
-        });
-        
-        db.run(createStationsTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Stations table created or already exists');
-        });
-        
-        db.run(createTrainsTable, (err) => {
-          if (err) reject(err);
-          else console.log('✓ Trains table created or already exists');
-        });
-        
-        db.run(createTrainSeatsTable, (err) => {
-          if (err) reject(err);
-          else {
-            console.log('✓ Train seats table created or already exists');
-            resolve();
-          }
-        });
-      });
-    });
+    // Create tables sequentially using runAsync
+    await db.runAsync(createUsersTable);
+    console.log('✓ Users table created or already exists');
+    
+    await db.runAsync(createVerificationCodesTable);
+    console.log('✓ Verification codes table created or already exists');
+    
+    await db.runAsync(createSessionsTable);
+    console.log('✓ Sessions table created or already exists');
+    
+    await db.runAsync(createCitiesTable);
+    console.log('✓ Cities table created or already exists');
+    
+    await db.runAsync(createStationsTable);
+    console.log('✓ Stations table created or already exists');
+    
+    await db.runAsync(createTrainsTable);
+    console.log('✓ Trains table created or already exists');
+    
+    await db.runAsync(createTrainSeatsTable);
+    console.log('✓ Train seats table created or already exists');
+    
+    await db.runAsync(createPassengersTable);
+    console.log('✓ Passengers table created or already exists');
+    
+    await db.runAsync(createOrdersTable);
+    console.log('✓ Orders table created or already exists');
+    
+    await db.runAsync(createOrderPassengersTable);
+    console.log('✓ Order passengers table created or already exists');
+    
+    await db.runAsync(createUserDailyCancelCountTable);
+    console.log('✓ User daily cancel count table created or already exists');
     
     return true;
   } catch (err) {
@@ -181,17 +241,35 @@ export async function insertDemoData() {
       const passwordHash2 = bcrypt.hashSync('admin123', 10);
       
       // Insert demo users (use INSERT OR IGNORE to avoid conflicts in parallel tests)
-      await db.runAsync(`
+      const result1 = await db.runAsync(`
         INSERT OR IGNORE INTO users (username, email, phone, password_hash, name, id_type, id_number, id_card_last4, passenger_type)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, 'testuser', 'test@12306.cn', '13800138000', passwordHash, '张三', '1', '110101199001011234', '1234', '1');
       console.log('✓ Demo user inserted: testuser / password123 / 证件号后4位: 1234');
       
-      await db.runAsync(`
+      // 为 testuser 添加乘客记录（本人）
+      if (result1.lastID) {
+        await db.runAsync(`
+          INSERT OR IGNORE INTO passengers (user_id, name, id_type, id_number, phone, passenger_type)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `, result1.lastID, '张三', '1', '110101199001011234', '13800138000', '1');
+        console.log('✓ Demo passenger added for testuser: 张三');
+      }
+      
+      const result2 = await db.runAsync(`
         INSERT OR IGNORE INTO users (username, email, phone, password_hash, name, id_type, id_number, id_card_last4, passenger_type)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, 'admin', 'admin@12306.cn', '13900139000', passwordHash2, '李四', '1', '110101199002025678', '5678', '1');
       console.log('✓ Demo user inserted: admin / admin123 / 证件号后4位: 5678');
+      
+      // 为 admin 添加乘客记录（本人）
+      if (result2.lastID) {
+        await db.runAsync(`
+          INSERT OR IGNORE INTO passengers (user_id, name, id_type, id_number, phone, passenger_type)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `, result2.lastID, '李四', '1', '110101199002025678', '13900139000', '1');
+        console.log('✓ Demo passenger added for admin: 李四');
+      }
     }
     
     // Check if demo cities already exist

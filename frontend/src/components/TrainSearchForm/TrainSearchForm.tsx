@@ -41,6 +41,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api';
+import DatePicker from '../DatePicker/DatePicker';
 import './TrainSearchForm.css';
 
 interface TrainSearchFormProps {
@@ -83,16 +84,34 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
    * @then 系统在出发日期自动填入当前日期
    */
   useEffect(() => {
-    // 自动设置当前日期
+    // 自动设置当前日期（YYYY-MM-DD格式）
     const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][today.getDay()];
-    setDepartureDate(`${month}月${day}日 ${weekday}`);
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    setDepartureDate(`${year}-${month}-${day}`);
     
     // 获取城市列表
     fetchCities();
   }, []);
+
+  // 将YYYY-MM-DD格式转换为显示格式（M月D日 周X）
+  const formatDateDisplay = (dateString: string): string => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
+    return `${month}月${day}日 ${weekday}`;
+  };
+
+  // 处理日期选择
+  const handleDateChange = (date: string) => {
+    setDepartureDate(date);
+    setShowDatePicker(false);
+  };
   
   // 点击外部区域关闭下拉框
   useEffect(() => {
@@ -434,14 +453,14 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
           {/* 出发日期 */}
           <div className="train-search-row-horizontal date-row">
             <label className="field-label-left">出发日期</label>
-            <div className="input-with-icon">
-              <div className="date-picker">
+            <div className="input-with-icon" style={{ position: 'relative' }}>
+              <div className="date-picker-trigger">
                 <input 
                   type="text" 
                   readOnly 
                   placeholder="请选择日期" 
                   className="date-input" 
-                  value={departureDate}
+                  value={formatDateDisplay(departureDate)}
                   onClick={handleDateClick}
                 />
                 <svg className="calendar-icon" width="16" height="16" viewBox="0 0 16 16">
@@ -449,6 +468,16 @@ const TrainSearchForm: React.FC<TrainSearchFormProps> = ({ onSearch }) => {
                   <line x1="2" y1="6" x2="14" y2="6" stroke="#999999" strokeWidth="1"/>
                 </svg>
               </div>
+              {/* 日期选择器 */}
+              {showDatePicker && (
+                <DatePicker
+                  value={departureDate}
+                  onChange={handleDateChange}
+                  onClose={() => setShowDatePicker(false)}
+                  minDate={new Date()} // 今天之后可选
+                  maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)} // 30天内
+                />
+              )}
             </div>
           </div>
 

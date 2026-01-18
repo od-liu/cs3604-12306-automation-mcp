@@ -31,7 +31,8 @@
  *   - 内容居中: max-width 1512px
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import HomeTopBar from '../components/HomeTopBar/HomeTopBar';
 import MainNavigation from '../components/MainNavigation/MainNavigation';
 import TrainSearchBar from '../components/TrainSearchBar/TrainSearchBar';
@@ -59,12 +60,31 @@ interface Train {
 
 const TrainListPage: React.FC = () => {
   // ========== State Management ==========
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
+  const location = useLocation();
+  
+  // 从 localStorage 检查登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem('userId');
+  });
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem('username') || '';
+  });
+  
+  // 从路由 state 获取初始查询参数
+  const initialFromCity = location.state?.fromCity || '北京';
+  const initialToCity = location.state?.toCity || '上海';
+  const initialDate = location.state?.departureDate || (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
+  
   const [searchParams, setSearchParams] = useState({
-    fromCity: '北京',
-    toCity: '上海',
-    date: '1月16日 周五'
+    fromCity: initialFromCity,
+    toCity: initialToCity,
+    date: initialDate
   });
   const [trains, setTrains] = useState<Train[]>([]);
   const [allTrains, setAllTrains] = useState<Train[]>([]); // 保存原始查询结果
@@ -74,13 +94,13 @@ const TrainListPage: React.FC = () => {
   // ========== Lifecycle ==========
   
   /**
-   * 页面加载时自动查询默认车次
+   * 页面加载时自动查询（使用从首页传递的参数或默认值）
    */
-  React.useEffect(() => {
+  useEffect(() => {
     handleSearch({
-      fromCity: '北京',
-      toCity: '上海',
-      departureDate: '2024-01-16',
+      fromCity: initialFromCity,
+      toCity: initialToCity,
+      departureDate: initialDate,
       tripType: 'single',
       passengerType: 'normal'
     });
@@ -110,6 +130,42 @@ const TrainListPage: React.FC = () => {
   // ========== Feature Implementations ==========
 
   /**
+   * 过滤已发车的车次
+   * @param trains 车次列表
+   * @param queryDate 查询日期 (YYYY-MM-DD 格式)
+   * @returns 过滤后的车次列表（只保留未发车的）
+   */
+  const filterDepartedTrains = (trains: Train[], queryDate: string): Train[] => {
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // 解析查询日期
+    const queryDateObj = new Date(queryDate);
+    queryDateObj.setHours(0, 0, 0, 0);
+    
+    // 如果查询的是未来日期，所有车次都显示
+    if (queryDateObj > today) {
+      return trains;
+    }
+    
+    // 如果查询的是今天，过滤掉已发车的
+    if (queryDateObj.getTime() === today.getTime()) {
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+      
+      return trains.filter(train => {
+        // 比较发车时间和当前时间
+        return train.departureTime > currentTimeStr;
+      });
+    }
+    
+    // 如果查询的是过去日期，不显示任何车次
+    return [];
+  };
+
+  /**
    * @feature "整合查询条件栏"
    * 处理查询参数更新
    */
@@ -123,7 +179,7 @@ const TrainListPage: React.FC = () => {
     
     // 调用 API 获取车次列表
     try {
-      const response = await fetch('http://localhost:3000/api/trains/search', {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -140,8 +196,11 @@ const TrainListPage: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
-        setAllTrains(data.trains); // 保存原始结果
-        setTrains(data.trains); // 显示所有结果
+        // 过滤已发车的车次
+        const filteredTrains = filterDepartedTrains(data.trains, params.departureDate);
+        
+        setAllTrains(filteredTrains); // 保存过滤后的结果
+        setTrains(filteredTrains); // 显示过滤后的结果
         setLastQueryTime(Date.now()); // 更新查询时间
         setShowExpireWarning(false); // 隐藏过期警告
       } else {
@@ -225,6 +284,10 @@ const TrainListPage: React.FC = () => {
    * @feature "用户登录/退出"
    */
   const handleLogout = () => {
+    // 清除登录状态
+    localStorage.removeItem('userId');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('username');
     setIsLoggedIn(false);
     setUsername('');
   };
@@ -247,7 +310,12 @@ const TrainListPage: React.FC = () => {
         {/* 查询和筛选整合容器 */}
         <div className="search-filter-container">
           {/* @feature "整合查询条件栏" */}
-          <TrainSearchBar onSearch={handleSearch} />
+          <TrainSearchBar 
+            onSearch={handleSearch}
+            initialFromCity={initialFromCity}
+            initialToCity={initialToCity}
+            initialDate={initialDate}
+          />
 
           {/* @feature "整合筛选条件区域" */}
           <TrainFilterPanel onFilter={handleFilter} />
@@ -286,6 +354,7 @@ const TrainListPage: React.FC = () => {
           fromCity={searchParams.fromCity}
           toCity={searchParams.toCity}
           date={searchParams.date}
+          isLoggedIn={isLoggedIn}
         />
       </div>
 

@@ -71,12 +71,14 @@ interface PassengerInfoProps {
   trainNo: string; // 车次号，用于判断默认席别
   availableSeats: SeatOption[]; // 可选席别列表
   onPassengersChange: (passengers: SelectedPassenger[]) => void; // 乘客选择变化回调
+  userId?: string | number; // 当前登录用户ID
 }
 
 const PassengerInfo: React.FC<PassengerInfoProps> = ({
   trainNo,
   availableSeats,
-  onPassengersChange
+  onPassengersChange,
+  userId
 }) => {
   // ========== State Management ==========
   const [passengerList, setPassengerList] = useState<Passenger[]>([]);
@@ -85,9 +87,9 @@ const PassengerInfo: React.FC<PassengerInfoProps> = ({
 
   // ========== Lifecycle ==========
   useEffect(() => {
-    // 加载常用乘客列表
+    // 加载常用乘客列表（仅当用户已登录时）
     fetchPassengers();
-  }, []);
+  }, [userId]);
 
   // 当选中的乘客发生变化时通知父组件
   useEffect(() => {
@@ -98,11 +100,18 @@ const PassengerInfo: React.FC<PassengerInfoProps> = ({
   const fetchPassengers = async () => {
     // @calls API-GET-PASSENGERS
     try {
-      const response = await fetch('/api/passengers');
+      // 如果没有用户ID，不获取乘客列表
+      if (!userId) {
+        setPassengerList([]);
+        return;
+      }
+      
+      const response = await fetch(`/api/passengers?userId=${userId}`);
       const data = await response.json();
       setPassengerList(data.passengers || []);
     } catch (error) {
       console.error('获取乘客列表失败:', error);
+      setPassengerList([]);
     }
   };
 

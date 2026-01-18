@@ -34,6 +34,7 @@
  */
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './TrainList.css';
 
 interface Train {
@@ -58,18 +59,22 @@ interface TrainListProps {
   fromCity?: string;
   toCity?: string;
   date?: string;
+  isLoggedIn?: boolean;
 }
 
 const TrainList: React.FC<TrainListProps> = ({ 
   trains = [], 
   fromCity = '北京', 
   toCity = '上海', 
-  date = '1月16日 周五' 
+  date = '1月16日 周五',
+  isLoggedIn = false
 }) => {
   // ========== State Management ==========
+  const navigate = useNavigate();
   const [showDiscount, setShowDiscount] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
   const [showAllBookable, setShowAllBookable] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 使用真实数据
   const displayTrains = trains;
@@ -112,15 +117,81 @@ const TrainList: React.FC<TrainListProps> = ({
     );
   };
 
+  // 转换座位数量为数字（处理"有"/"无"/"--"等字符串）
+  const getSeatCount = (seatValue: string | number): number => {
+    if (typeof seatValue === 'number') return seatValue;
+    if (seatValue === '有') return 999; // "有"表示大量余票
+    if (seatValue === '无' || seatValue === '--') return 0;
+    const num = parseInt(seatValue);
+    return isNaN(num) ? 0 : num;
+  };
+
   /**
    * @feature "无票时预订按钮置灰不可点击"
+   * @feature "点击预订按钮跳转到订单填写页"
+   * @feature "未登录时弹窗提示登录"
    */
   const handleBook = (train: Train) => {
     if (!hasAvailableSeats(train)) {
       return;
     }
-    console.log(`预订车次 ${train.trainNumber}`);
-    alert(`预订车次 ${train.trainNumber}（骨架实现）`);
+    
+    // 检查是否已登录
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    
+    // 已登录，直接跳转到订单填写页
+    navigateToOrder(train);
+  };
+
+  /**
+   * 跳转到订单填写页
+   */
+  const navigateToOrder = (train: Train) => {
+    // 准备传递给订单填写页的车次数据
+    const trainData = {
+      date: date, // 使用当前查询的日期
+      trainNo: train.trainNumber,
+      departureStation: train.departureStation,
+      departureTime: train.departureTime,
+      arrivalStation: train.arrivalStation,
+      arrivalTime: train.arrivalTime,
+      prices: {
+        secondClass: { 
+          price: 662.0, // 二等座默认价格（实际应从API获取）
+          available: getSeatCount(train.seats['二等座'] || 0)
+        },
+        firstClass: { 
+          price: 1060.0, // 一等座默认价格
+          available: getSeatCount(train.seats['一等座'] || 0)
+        },
+        businessClass: { 
+          price: 2318.0, // 商务座默认价格
+          available: getSeatCount(train.seats['商务座'] || 0)
+        }
+      }
+    };
+    
+    // 跳转到订单填写页，并传递车次数据
+    navigate('/order', { state: { trainData } });
+  };
+
+  /**
+   * 处理登录弹窗确认按钮
+   */
+  const handleLoginConfirm = () => {
+    setShowLoginModal(false);
+    // 跳转到登录页
+    navigate('/login');
+  };
+
+  /**
+   * 处理登录弹窗关闭
+   */
+  const handleLoginCancel = () => {
+    setShowLoginModal(false);
   };
 
   // ========== UI Render ==========
@@ -250,6 +321,29 @@ const TrainList: React.FC<TrainListProps> = ({
           </button>
         </div>
       ))
+      )}
+
+      {/* 登录提示弹窗 */}
+      {showLoginModal && (
+        <div className="login-modal-overlay" onClick={handleLoginCancel}>
+          <div className="login-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="login-modal-header">
+              <span className="login-modal-icon">⚠️</span>
+              <h3>提示</h3>
+            </div>
+            <div className="login-modal-body">
+              <p>请先进行登录</p>
+            </div>
+            <div className="login-modal-footer">
+              <button className="login-modal-cancel" onClick={handleLoginCancel}>
+                取消
+              </button>
+              <button className="login-modal-confirm" onClick={handleLoginConfirm}>
+                确认
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

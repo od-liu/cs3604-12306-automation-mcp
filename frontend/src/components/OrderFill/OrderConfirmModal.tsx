@@ -2,17 +2,11 @@
  * @component UI-ORDER-CONFIRM-MODAL
  * @description 订单确认弹窗，显示订单信息摘要并确认提交
  * @page order-fill
- * @calls API-SUBMIT-ORDER
  * 
  * ============ 功能实现清单（必填）============
  * @scenarios_covered:
- * ✅ SCENARIO-001: 用户未选择任何乘车人点击"提交订单"
- * ✅ SCENARIO-002: 用户提交订单时车票售罄
- * ✅ SCENARIO-003: 用户选择乘车人后成功提交订单
- * ✅ SCENARIO-004: 用户提交订单时网络异常
  * ✅ SCENARIO-005: 用户在信息核对弹窗点击返回修改
- * ✅ SCENARIO-006: 用户在信息核对弹窗点击确认
- * ✅ SCENARIO-007: 确认提交订单（跳转到支付页面）
+ * ✅ SCENARIO-006: 用户在信息核对弹窗点击确认（触发父组件提交订单）
  * ✅ SCENARIO-008: 返回修改（关闭弹窗）
  * 
  * @features_implemented:
@@ -21,14 +15,16 @@
  * ✅ 显示席位分配说明
  * ✅ 显示余票情况（红色强调数字）
  * ✅ 提供"返回修改"按钮（白底灰字有边框）
- * ✅ 提供"确认"按钮（橙色背景白字）
+ * ✅ 提供"确认"按钮（橙色背景白字）- 点击后触发父组件的订单提交逻辑
  * ✅ 点击关闭按钮或遮罩关闭弹窗
  * ✅ 全屏遮罩（半透明黑色）
  * 
  * @implementation_status:
- * - Scenarios Coverage: 8/8 (100%)
+ * - Scenarios Coverage: 3/3 (100%)
  * - Features Coverage: 8/8 (100%)
  * - UI Visual: 像素级精确
+ * 
+ * @note 订单提交逻辑由父组件 OrderFillPage 处理，本组件只负责展示确认信息
  * ================================================
  * 
  * @layout_position "fixed，铺满整个视口"
@@ -38,7 +34,7 @@
  * }
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import './OrderConfirmModal.css';
 
 interface PassengerData {
@@ -71,107 +67,63 @@ interface OrderConfirmModalProps {
   seatAvailability: SeatAvailability;
   onClose: () => void;
   onConfirm: () => void;
+  isSubmitting?: boolean; // 由父组件控制提交状态
 }
 
 /**
  * 订单确认弹窗组件
+ * 
+ * 注意：本组件不直接提交订单，订单提交由父组件 OrderFillPage 的 handleConfirmOrder 处理。
+ * 点击"确认"按钮时调用 onConfirm，由父组件执行：
+ * 1. 调用后端 API 提交订单
+ * 2. 根据结果跳转到支付页面或显示错误
  */
 const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
   trainInfo,
   passengers,
   seatAvailability,
   onClose,
-  onConfirm
+  onConfirm,
+  isSubmitting = false
 }) => {
-  // ========== State Management ==========
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   // ========== Scenario Implementations ==========
 
   /**
    * @scenario SCENARIO-005 "用户在信息核对弹窗点击返回修改"
    * @given 用户在成功提交订单后跳转至信息核对弹窗
    * @when 用户点击"返回修改"按钮
-   * @then 系统回到订单填写页
+   * @then 系统回到订单填写页（关闭弹窗）
    */
   const handleBack = () => {
-    onClose();
+    if (!isSubmitting) {
+      onClose();
+    }
   };
 
   /**
    * @scenario SCENARIO-006 "用户在信息核对弹窗点击确认"
-   * @given 用户在成功提交订单后跳转至信息核对弹窗
+   * @given 用户在信息核对弹窗中查看订单信息
    * @when 用户点击"确认"按钮
-   * @then 页面弹出提示"订单已经提交，系统正在处理中，请稍等"，系统为用户保留座位预定信息
-   * @calls API-SUBMIT-ORDER
+   * @then 触发父组件的订单提交逻辑（调用 onConfirm）
+   * 
+   * 父组件负责：
+   * - 调用 API-SUBMIT-ORDER 提交订单
+   * - 成功后跳转到支付页面 /payment/:orderId
+   * - 失败时显示错误信息
    */
-  const handleConfirm = async () => {
-    setIsSubmitting(true);
-    
-    try {
-      // 调用 API-SUBMIT-ORDER
-      const response = await fetch('/api/orders/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          trainNo: trainInfo.trainNo,
-          date: trainInfo.date,
-          departureStation: trainInfo.departureStation,
-          arrivalStation: trainInfo.arrivalStation,
-          passengers: passengers.map(p => ({
-            passengerId: p.id,
-            seatType: p.seatType,
-            price: 0 // 价格从后端获取
-          }))
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        /**
-         * @scenario SCENARIO-007 "确认提交订单"
-         * @given 用户在订单确认弹窗中查看信息无误
-         * @when 用户点击"确认无误，提交订单"
-         * @then 提交订单，跳转到支付页面
-         */
-        alert('订单已经提交，系统正在处理中，请稍等');
-        alert(`购买成功！订单号：${data.orderId}`);
-        onConfirm();
-      } else {
-        /**
-         * @scenario SCENARIO-002 "用户提交订单时车票售罄"
-         * @given 用户在订单填写页，并已勾选至少一名乘车人，用户网络正常
-         * @when 系统在向数据库确认车票时发现该车次该席别车票已经售罄
-         * @then 系统弹出确认弹窗，内容为"手慢了，该车次席别车票已售罄！"
-         */
-        if (data.message.includes('售罄')) {
-          alert('手慢了，该车次席别车票已售罄！');
-          onClose();
-        } else {
-          alert(data.message || '订单提交失败');
-        }
-      }
-    } catch (error) {
-      /**
-       * @scenario SCENARIO-004 "用户提交订单时网络异常"
-       * @given 用户在订单填写页，并已勾选至少一名乘车人，用户网络异常
-       * @when 用户点击提交订单按钮
-       * @then 系统弹出确认弹窗，内容为"网络忙，请稍后再试。"
-       */
-      alert('网络忙，请稍后再试。');
-    } finally {
-      setIsSubmitting(false);
+  const handleConfirm = () => {
+    if (!isSubmitting) {
+      onConfirm();
     }
   };
 
   // 点击遮罩关闭
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !isSubmitting) {
       /**
        * @scenario SCENARIO-008 "返回修改"
        * @given 用户在订单确认弹窗中发现信息有误
-       * @when 用户点击"返回修改"
+       * @when 用户点击遮罩区域
        * @then 关闭弹窗，返回订单填写页
        */
       onClose();
@@ -266,7 +218,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           </button>
           <button 
             type="button" 
-            className="confirm-modal-button orange-background white-text"
+            className={`confirm-modal-button orange-background white-text ${isSubmitting ? 'submitting' : ''}`}
             onClick={handleConfirm}
             disabled={isSubmitting}
           >

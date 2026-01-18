@@ -51,6 +51,9 @@ import DatePicker from '../DatePicker/DatePicker';
 
 interface TrainSearchBarProps {
   onSearch?: (params: SearchParams) => void;
+  initialFromCity?: string;
+  initialToCity?: string;
+  initialDate?: string;
 }
 
 interface SearchParams {
@@ -62,10 +65,13 @@ interface SearchParams {
   passengerType: 'normal' | 'student';
 }
 
-const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
+const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ 
+  onSearch,
+  initialFromCity = '',
+  initialToCity = '',
+  initialDate
+}) => {
   // ========== State Management ==========
-  const [fromCity, setFromCity] = useState('');
-  const [toCity, setToCity] = useState('');
   
   // 初始化出发日期为今天（YYYY-MM-DD格式）
   const getTodayString = () => {
@@ -76,7 +82,9 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
     return `${year}-${month}-${day}`;
   };
   
-  const [departureDate, setDepartureDate] = useState(getTodayString());
+  const [fromCity, setFromCity] = useState(initialFromCity);
+  const [toCity, setToCity] = useState(initialToCity);
+  const [departureDate, setDepartureDate] = useState(initialDate || getTodayString());
   const [returnDate, setReturnDate] = useState('');
   const [tripType, setTripType] = useState<'single' | 'round'>('single');
   const [passengerType, setPassengerType] = useState<'normal' | 'student'>('normal');
@@ -121,7 +129,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
     // 获取城市列表
     const fetchCities = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/trains/cities');
+        const response = await fetch('http://localhost:5175/api/trains/cities');
         const data = await response.json();
         if (data.success) {
           setCities(data.cities);
@@ -341,7 +349,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       const startTime = Date.now();
       
       // 调用真实API
-      const response = await fetch('http://localhost:3000/api/trains/search', {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
