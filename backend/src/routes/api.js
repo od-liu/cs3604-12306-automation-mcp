@@ -14,7 +14,12 @@ import {
   checkUsername,
   checkPhone,
   checkIdNumber,
-  checkEmail
+  checkEmail,
+  getCities,
+  searchTrains,
+  getTrainDetails,
+  getPassengers,
+  submitOrder
 } from '../database/operations.js';
 
 const router = express.Router();
@@ -391,31 +396,190 @@ router.post('/api/trains/search', async (req, res) => {
   }
   
   // 调用 FUNC-SEARCH-TRAINS 进行实际查询
-  // const result = await searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed);
+  const result = await searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed);
   
-  // 骨架实现：返回 501 Not Implemented 和模拟数据
-  return res.status(501).json({
-    success: false,
-    message: 'API尚未实现（骨架代码）',
-    mockData: {
-      fromCity,
-      toCity,
-      departureDate,
-      isStudent,
-      isHighSpeed,
-      trains: [
-        {
-          trainNumber: 'G1',
-          departureStation: fromCity,
-          arrivalStation: toCity,
-          departureTime: '08:00',
-          arrivalTime: '13:00',
-          duration: '5小时',
-          price: '553.5元'
-        }
-      ]
+  if (result.success) {
+    return res.status(200).json({
+      success: true,
+      trains: result.trains
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: result.message || '查询失败，请稍后重试'
+    });
+  }
+});
+
+/**
+ * @api API-GET-CITIES GET /api/trains/cities
+ * @summary 获取所有城市列表（用于查询条件栏的城市推荐）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Array<string>} response.cities - 城市列表
+ * @calls FUNC-GET-CITIES - 委托给数据库查询函数
+ */
+router.get('/api/trains/cities', async (req, res) => {
+  try {
+    // 调用 FUNC-GET-CITIES 从数据库获取
+    const result = await getCities();
+    
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        cities: result.cities
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: result.message || '获取城市列表失败'
+      });
     }
-  });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: '获取城市列表失败'
+    });
+  }
+});
+
+/**
+ * @api API-GET-TRAIN-DETAILS GET /api/trains/:trainNumber/details
+ * @summary 获取指定车次的详细信息（停靠站信息）
+ * @param {string} trainNumber - 车次号（如 G12）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.trainDetails - 车次详情
+ * @returns {string} response.trainDetails.trainNumber - 车次号
+ * @returns {Array<Object>} response.trainDetails.stops - 停靠站列表
+ * @calls FUNC-GET-TRAIN-DETAILS - 委托给数据库查询函数
+ */
+router.get('/api/trains/:trainNumber/details', async (req, res) => {
+  const { trainNumber } = req.params;
+  
+  try {
+    // 调用 FUNC-GET-TRAIN-DETAILS 从数据库获取
+    const result = await getTrainDetails(trainNumber);
+    
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        trainDetails: result.trainDetails
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: result.message || '车次不存在'
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: '获取车次详情失败'
+    });
+  }
+});
+
+/**
+ * @api API-GET-PASSENGERS GET /api/passengers
+ * @summary 获取当前用户的常用乘客列表
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Array<Object>} response.passengers - 乘客列表
+ * @returns {string} response.passengers[].id - 乘客ID
+ * @returns {string} response.passengers[].name - 姓名
+ * @returns {string} response.passengers[].idType - 证件类型
+ * @returns {string} response.passengers[].idNumber - 证件号码
+ * @returns {string} response.passengers[].passengerType - 乘客类型（成人票/儿童票/学生票）
+ * @calls FUNC-GET-PASSENGERS - 委托给数据库查询函数
+ */
+router.get('/api/passengers', async (req, res) => {
+  // 从session或token中获取用户ID（这里暂时mock）
+  const userId = req.session?.userId || 'mock-user-id';
+  
+  try {
+    // 调用 FUNC-GET-PASSENGERS 从数据库获取
+    const result = await getPassengers(userId);
+    
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        passengers: result.passengers
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: result.message || '获取乘客列表失败'
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: '获取乘客列表失败'
+    });
+  }
+});
+
+/**
+ * @api API-SUBMIT-ORDER POST /api/orders/submit
+ * @summary 提交订单
+ * @param {Object} body - 请求体
+ * @param {string} body.trainNo - 车次号
+ * @param {string} body.date - 乘车日期
+ * @param {string} body.departureStation - 出发站
+ * @param {string} body.arrivalStation - 到达站
+ * @param {Array<Object>} body.passengers - 乘客列表
+ * @param {string} body.passengers[].passengerId - 乘客ID
+ * @param {string} body.passengers[].seatType - 席别
+ * @param {number} body.passengers[].price - 票价
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.orderId - 订单ID（成功时）
+ * @returns {string} response.message - 响应消息
+ * @calls FUNC-SUBMIT-ORDER - 委托给订单处理函数
+ */
+router.post('/api/orders/submit', async (req, res) => {
+  const { trainNo, date, departureStation, arrivalStation, passengers } = req.body;
+  
+  // 参数验证
+  if (!trainNo || !date || !departureStation || !arrivalStation || !passengers || passengers.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: '订单信息不完整'
+    });
+  }
+  
+  // 从session或token中获取用户ID
+  const userId = req.session?.userId || 'mock-user-id';
+  
+  try {
+    // 调用 FUNC-SUBMIT-ORDER 处理订单
+    const result = await submitOrder(userId, {
+      trainNo,
+      date,
+      departureStation,
+      arrivalStation,
+      passengers
+    });
+    
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        orderId: result.orderId,
+        message: '订单提交成功'
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: result.message || '订单提交失败'
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: '订单提交失败'
+    });
+  }
 });
 
 export default router;

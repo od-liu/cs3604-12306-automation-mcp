@@ -1,0 +1,104 @@
+/* ========== 列车信息区域容器 ========== */
+.train-info-section {
+  display: block !important;
+  width: 1100px !important;
+  background-color: rgb(255, 255, 255) !important; /* 白色背景 */
+  border: 1px solid rgb(192, 215, 235) !important; /* 浅蓝灰边框 */
+  border-radius: 10px !important;
+  margin: 20px 186px !important;
+  overflow: hidden !important;
+}
+
+/* ========== 标题栏 ========== */
+.train-info-header {
+  background-color: rgb(39, 138, 204) !important; /* 蓝色背景 */
+  padding: 15px 20px !important;
+}
+
+.train-info-header .section-title {
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: rgb(255, 255, 255) !important; /* 白色文字 */
+  margin: 0 !important;
+}
+
+/* ========== 内容区 ========== */
+.train-info-content {
+  padding: 20px !important;
+}
+
+/* ========== 基础信息行 ========== */
+.train-basic-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  margin-bottom: 15px !important;
+  font-size: 16px !important;
+  color: rgb(51, 51, 51) !important;
+}
+
+.train-date {
+  font-weight: bold !important;
+  color: rgb(51, 51, 51) !important;
+}
+
+.train-no {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: rgb(39, 138, 204) !important; /* 蓝色车次号 */
+}
+
+.train-station {
+  font-weight: bold !important;
+}
+
+.train-bold-group {
+  font-weight: bold !important;
+}
+
+/* ========== 票价信息区 ========== */
+.train-fare-info {
+  display: flex !important;
+  gap: 40px !important;
+  margin-bottom: 15px !important;
+  padding: 10px 0 !important;
+  border-top: 1px solid rgb(240, 240, 240) !important;
+  border-bottom: 1px solid rgb(240, 240, 240) !important;
+}
+
+.fare-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 15px !important;
+}
+
+.seat-type-label {
+  font-weight: bold !important;
+  color: rgb(51, 51, 51) !important;
+}
+
+.seat-price {
+  color: rgb(253, 129, 0) !important; /* 橙色价格 */
+  font-weight: bold !important;
+}
+
+.seat-available {
+  color: rgb(102, 102, 102) !important; /* 中灰色 */
+}
+
+/* ========== 价格说明 ========== */
+.train-info-notice {
+  font-size: 13px !important;
+  color: rgb(102, 102, 102) !important;
+  line-height: 1.6 !important;
+}
+
+.train-info-notice a {
+  color: rgb(39, 138, 204) !important; /* 蓝色链接 */
+  text-decoration: underline !important;
+}
+
+.train-info-notice a:hover {
+  color: rgb(253, 129, 0) !important; /* hover变橙色 */
+}

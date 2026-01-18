@@ -1,0 +1,81 @@
+/* ========== 提交订单区域容器 ========== */
+.order-submit-section {
+  display: block !important;
+  width: 1100px !important;
+  margin: 20px 186px !important;
+}
+
+/* ========== 同意条款提示 ========== */
+.submit-notice {
+  margin-bottom: 15px !important;
+}
+
+.submit-notice .notice-text {
+  font-size: 13px !important;
+  color: rgb(102, 102, 102) !important;
+  line-height: 1.6 !important;
+}
+
+.submit-notice a {
+  color: rgb(39, 138, 204) !important;
+  text-decoration: underline !important;
+  margin: 0 5px !important;
+}
+
+.submit-notice a:hover {
+  color: rgb(253, 129, 0) !important;
+}
+
+/* ========== 按钮区 ========== */
+.submit-buttons {
+  display: flex !important;
+  gap: 20px !important;
+  justify-content: flex-end !important;
+}
+
+/* 上一步按钮 */
+.order-back-button {
+  min-width: 120px !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  background-color: rgb(255, 255, 255) !important; /* 白色背景 */
+  color: rgb(51, 51, 51) !important; /* 深灰文字 */
+  border: 1px solid rgb(192, 192, 192) !important; /* 灰色边框 */
+  border-radius: 3px !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.order-back-button:hover {
+  background-color: rgb(245, 245, 245) !important;
+  border-color: rgb(150, 150, 150) !important;
+}
+
+/* 提交订单按钮 */
+.order-submit-button {
+  min-width: 120px !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  background-color: rgb(253, 129, 0) !important; /* 橙色背景 */
+  color: rgb(255, 255, 255) !important; /* 白色文字 */
+  border: none !important;
+  border-radius: 3px !important;
+  font-size: 15px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+.order-submit-button:hover {
+  background-color: rgb(255, 136, 51) !important; /* hover变浅橙色 */
+}
+
+.order-submit-button:active {
+  background-color: rgb(230, 115, 0) !important; /* active变深橙色 */
+}
+
+.order-submit-button:disabled {
+  background-color: rgb(200, 200, 200) !important;
+  cursor: not-allowed !important;
+}

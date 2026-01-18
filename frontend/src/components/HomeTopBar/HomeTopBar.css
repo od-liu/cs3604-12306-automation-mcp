@@ -9,10 +9,12 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 12px 40px !important;
+  /* 原站左右留白来自“居中 1190px 容器”，而不是 padding */
+  padding: 0 !important;
   background-color: transparent !important;
-  width: 100% !important;
-  height: 84px !important;
+  width: 1190px !important;
+  margin: 0 auto !important;
+  height: 80px !important;
 }
 
 /* ========== Logo区域 ========== */
@@ -52,20 +54,30 @@
 .home-search-box {
   display: flex !important;
   align-items: center !important;
-  background-color: #ffffff !important;
-  border: 1px solid #d0d0d0 !important;
-  border-radius: 4px !important;
-  overflow: hidden !important;
-  min-width: 400px !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  width: 380px !important; /* 350(input) + 30(btn) */
+  height: 30px !important;
+  /* 参考原站：logo 右侧到搜索框左侧的空隙更大一些 */
+  /* 微调：对齐原站 header-search 的水平位置 */
+  margin-left: 53px !important;
 }
 
 .home-search-input {
-  flex: 1 !important;
-  border: none !important;
+  flex: none !important;
+  width: 350px !important;
+  height: 30px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #efefef !important;
+  border-right: 0 !important;
   outline: none !important;
-  padding: 10px 16px !important;
+  padding: 4px 10px !important;
   font-size: 14px !important;
-  color: #000000 !important;
+  color: #333333 !important;
+  line-height: 20px !important;
+  background-color: #ffffff !important;
 }
 
 .home-search-input::placeholder {
@@ -76,11 +88,13 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 8px 16px !important;
+  padding: 0 !important;
   background-color: #3B99FC !important;
   border: none !important;
   cursor: pointer !important;
   transition: background-color 0.2s !important;
+  width: 30px !important;
+  height: 30px !important;
 }
 
 .home-search-button:hover {
@@ -88,48 +102,83 @@
 }
 
 .home-search-icon {
-  width: 30px !important;
-  height: 30px !important;
+  width: 14px !important;
+  height: 14px !important;
 }
 
 /* ========== 顶部链接区域 ========== */
 .home-top-links {
   display: flex !important;
   align-items: center !important;
-  gap: 16px !important;
+  gap: 0 !important;
+  /* 对齐原站：右侧菜单整体位于 header 顶部区域，行高 40px */
+  align-self: flex-start !important;
+  margin-top: 24px !important;
+  height: 40px !important;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif !important;
 }
 
 .home-top-link {
-  font-size: 14px !important;
+  display: block !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  font-size: 12px !important;
   color: #3B99FC !important;
   text-decoration: none !important;
   transition: opacity 0.2s !important;
   cursor: pointer !important;
+  white-space: nowrap !important;
 }
 
 .home-top-link:hover {
   opacity: 0.8 !important;
 }
 
+/* 顶部链接下拉小箭头（仅 English / 我的12306） */
+.home-top-caret {
+  /* 对齐原站 .caret:
+     - width:10px; height:5px
+     - margin-left:5px
+     - border-left/right:5px dashed transparent
+     - border-top:5px solid rgb(172,209,249)
+  */
+  display: inline-block;
+  width: 10px;
+  height: 5px;
+  margin-left: 5px;
+  vertical-align: baseline;
+  border-left: 5px dashed transparent;
+  border-right: 5px dashed transparent;
+  border-top: 5px solid #ACD1F9;
+  border-bottom: 0;
+  transform: none;
+}
+
 /* 分隔符 */
 .home-top-sep {
-  color: #999999 !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
+  display: block !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  color: #ACD1F9 !important; /* rgb(172,209,249) */
+  font-size: 12px !important;
+  margin: 0 10px !important;
 }
 
 .home-top-greeting {
   color: #333333 !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
+  font-size: 12px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  white-space: nowrap !important;
 }
 
 .home-top-auth-link-text {
-  color: #3B99FC !important;
+  color: #0077FF !important;
 }
 
 .home-top-auth-space {
-  width: 6px;
+  width: 10px;
   height: 1px;
 }
 

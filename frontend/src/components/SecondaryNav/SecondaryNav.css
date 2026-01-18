@@ -11,21 +11,25 @@
 }
 
 .secondary-nav-container {
-  max-width: 1118px;
+  /* 原站导航/顶部内容都在 1190px 居中容器内（1512-1190)/2 = 161px） */
+  max-width: 1190px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding: 0;
-  gap: 62px;
+  gap: 0;
 }
 
 /* ========== 导航项 ========== */
 .secondary-nav-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 40px;
   line-height: 40px;
+  /* 对齐原站：8 个导航项宽度之和为 1190px（145*2 + 150*6） */
+  width: 150px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 400;
@@ -35,20 +39,44 @@
   position: relative;
 }
 
+/* 原站前两个（首页/车票）为 145px，其余为 150px */
+.secondary-nav-container > .secondary-nav-item:nth-child(-n + 2) {
+  width: 145px;
+}
+
 .secondary-nav-item:hover {
   opacity: 0.9;
 }
 
-.secondary-nav-item:first-child {
-  font-weight: 600;
+/* ========== 选中态（与原站一致） ========== */
+.secondary-nav-item.active {
+  /* 原站“首页”选中态背景为 rgb(38,118,227) */
+  background-color: #2676e3;
 }
+
+/* 原站“首页”并不明显加粗，这里保持一致 */
 
 /* ========== 下拉箭头 ========== */
 .dropdown-arrow {
-  margin-left: 6px;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 6px solid rgba(255, 255, 255, 0.95);
+  /* 对齐原站 icon-down：12px，margin-left:4px，且占满 40px 行高 */
+  display: inline-block;
+  width: 12px;
+  height: 40px;
+  line-height: 40px;
+  margin-left: 4px;
+  position: relative;
+  flex: none;
+}
+
+.dropdown-arrow::before {
+  /* 原站为 iconfont 的 “” 下拉符号；这里用 CSS 画一个更接近的细线 chevron */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.95);
+  transform: translate(-50%, -60%) rotate(45deg);
 }

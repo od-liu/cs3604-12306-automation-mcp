@@ -633,45 +633,97 @@ export async function searchTrains(fromCity, toCity, departureDate, isStudent = 
   try {
     console.log(`🔍 查询车票: ${fromCity} → ${toCity}, 日期: ${departureDate}, 学生票: ${isStudent}, 高铁/动车: ${isHighSpeed}`);
     
-    // 骨架实现：返回模拟数据
-    // 实际实现应查询 trains 表和 stations 表
-    // SELECT t.* FROM trains t
-    // JOIN stations s1 ON t.departure_station_id = s1.id
-    // JOIN stations s2 ON t.arrival_station_id = s2.id
-    // WHERE s1.city = ? AND s2.city = ? AND t.departure_date = ?
-    // AND (? = false OR t.supports_student = true)
-    // AND (? = false OR t.train_type IN ('G', 'D', 'C'))
+    const { getDb } = await import('./db.js');
+    const db = getDb();
+    
+    // 查询车次（连接trains、stations、cities表）
+    let query = `
+      SELECT 
+        t.id as train_id,
+        t.train_number,
+        t.train_type,
+        s1.station_name as departure_station,
+        s2.station_name as arrival_station,
+        c1.city_name as departure_city,
+        c2.city_name as arrival_city,
+        t.departure_time,
+        t.arrival_time,
+        t.duration,
+        t.arrival_day
+      FROM trains t
+      JOIN stations s1 ON t.departure_station_id = s1.id
+      JOIN stations s2 ON t.arrival_station_id = s2.id
+      JOIN cities c1 ON s1.city_id = c1.id
+      JOIN cities c2 ON s2.city_id = c2.id
+      WHERE c1.city_name = ? AND c2.city_name = ? AND t.is_active = 1
+    `;
+    
+    const params = [fromCity, toCity];
+    
+    // 如果只查高铁/动车
+    if (isHighSpeed) {
+      query += ` AND (t.train_type = 'GC' OR t.train_type = 'D')`;
+    }
+    
+    query += ` ORDER BY t.departure_time`;
+    
+    const trains = await db.allAsync(query, ...params);
+    
+    if (!trains || trains.length === 0) {
+      return {
+        success: true,
+        trains: []
+      };
+    }
+    
+    // 查询每个车次的座位信息
+    const trainsWithSeats = [];
+    for (const train of trains) {
+      const seats = await db.allAsync(`
+        SELECT seat_type, total_seats, available_seats, price
+        FROM train_seats
+        WHERE train_id = ?
+      `, train.train_id);
+      
+      // 将座位信息转换为对象格式
+      const seatsObj = {};
+      seats.forEach(seat => {
+        const key = seat.seat_type;
+        if (seat.available_seats === 0) {
+          seatsObj[key] = '无';
+        } else if (seat.available_seats >= 20) {
+          seatsObj[key] = '有';
+        } else if (seat.available_seats > 0) {
+          seatsObj[key] = seat.available_seats.toString();
+        } else {
+          seatsObj[key] = '--';
+        }
+        
+        // 保存价格信息
+        if (seat.price) {
+          seatsObj[`${key}_price`] = seat.price;
+        }
+      });
+      
+      trainsWithSeats.push({
+        trainNumber: train.train_number,
+        trainType: train.train_type,
+        departureStation: train.departure_station,
+        arrivalStation: train.arrival_station,
+        departureCity: train.departure_city,
+        arrivalCity: train.arrival_city,
+        departureTime: train.departure_time,
+        arrivalTime: train.arrival_time,
+        duration: train.duration,
+        arrivalDay: train.arrival_day === 0 ? '当日到达' : '次日到达',
+        seats: seatsObj,
+        supportsStudent: true // 简化实现：所有车次都支持学生票
+      });
+    }
     
     return {
       success: true,
-      trains: [
-        {
-          trainNumber: 'G1',
-          trainType: 'G',
-          departureStation: fromCity,
-          arrivalStation: toCity,
-          departureTime: '08:00',
-          arrivalTime: '13:00',
-          duration: '5小时',
-          secondClassPrice: '553.5',
-          firstClassPrice: '888.5',
-          businessClassPrice: '1748.5',
-          supportsStudent: true
-        },
-        {
-          trainNumber: 'G2',
-          trainType: 'G',
-          departureStation: fromCity,
-          arrivalStation: toCity,
-          departureTime: '10:00',
-          arrivalTime: '15:00',
-          duration: '5小时',
-          secondClassPrice: '553.5',
-          firstClassPrice: '888.5',
-          businessClassPrice: '1748.5',
-          supportsStudent: true
-        }
-      ]
+      trains: trainsWithSeats
     };
   } catch (error) {
     console.error('查询车票失败:', error);
@@ -682,3 +734,238 @@ export async function searchTrains(fromCity, toCity, departureDate, isStudent = 
   }
 }
 
+/**
+ * @function FUNC-GET-CITIES
+ * @signature getCities()
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {Array<string>} result.cities - 城市列表
+ * @db_ops SELECT DISTINCT city_name FROM stations
+ */
+export async function getCities() {
+  try {
+    const { getDb } = await import('./db.js');
+    const db = getDb();
+    
+    // 查询所有城市（从cities表获取）
+    const cities = await db.allAsync(
+      'SELECT city_name FROM cities ORDER BY city_name'
+    );
+    
+    return {
+      success: true,
+      cities: cities.map(c => c.city_name)
+    };
+  } catch (error) {
+    console.error('获取城市列表失败:', error);
+    return {
+      success: false,
+      message: '获取城市列表失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-GET-TRAIN-DETAILS
+ * @signature getTrainDetails(trainNumber)
+ * @input {string} trainNumber - 车次号
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {Object} result.trainDetails - 车次详情
+ * @output {Array<Object>} result.trainDetails.stops - 停靠站列表
+ * @db_ops SELECT * FROM trains WHERE train_number=?
+ * @db_ops SELECT * FROM train_stops WHERE train_number=? ORDER BY stop_sequence
+ * @db_ops JOIN stations ON train_stops.station_id = stations.id
+ */
+export async function getTrainDetails(trainNumber) {
+  try {
+    // 骨架实现：返回模拟数据
+    // 实际应查询 trains 表和 train_stops 表
+    // SELECT t.*, ts.station_id, ts.arrival_time, ts.departure_time, s.station_name
+    // FROM trains t
+    // JOIN train_stops ts ON t.train_number = ts.train_number
+    // JOIN stations s ON ts.station_id = s.id
+    // WHERE t.train_number = ?
+    // ORDER BY ts.stop_sequence
+    
+    if (!trainNumber) {
+      return {
+        success: false,
+        message: '车次号不能为空'
+      };
+    }
+
+    const trainType = trainNumber.startsWith('G') ? '高铁' : 
+                      trainNumber.startsWith('D') ? '动车' : '普通列车';
+
+    return {
+      success: true,
+      trainDetails: {
+        trainNumber,
+        trainType,
+        totalDistance: '1318公里',
+        stops: [
+          {
+            stopSequence: 1,
+            stationName: '北京南',
+            arrivalTime: '始发站',
+            departureTime: '14:10',
+            stopDuration: '-',
+            platform: '5',
+            distance: '0公里'
+          },
+          {
+            stopSequence: 2,
+            stationName: '天津南',
+            arrivalTime: '14:40',
+            departureTime: '14:42',
+            stopDuration: '2分钟',
+            platform: '3',
+            distance: '120公里'
+          },
+          {
+            stopSequence: 3,
+            stationName: '济南西',
+            arrivalTime: '16:15',
+            departureTime: '16:17',
+            stopDuration: '2分钟',
+            platform: '7',
+            distance: '406公里'
+          },
+          {
+            stopSequence: 4,
+            stationName: '南京南',
+            arrivalTime: '17:50',
+            departureTime: '17:52',
+            stopDuration: '2分钟',
+            platform: '9',
+            distance: '1023公里'
+          },
+          {
+            stopSequence: 5,
+            stationName: '上海虹桥',
+            arrivalTime: '18:41',
+            departureTime: '终点站',
+            stopDuration: '-',
+            platform: '12',
+            distance: '1318公里'
+          }
+        ]
+      }
+    };
+  } catch (error) {
+    console.error('获取车次详情失败:', error);
+    return {
+      success: false,
+      message: '获取车次详情失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-GET-PASSENGERS
+ * @signature getPassengers(userId)
+ * @input {string} userId - 用户ID
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {Array<Object>} result.passengers - 乘客列表
+ * @output {string} result.message - 错误消息（失败时）
+ * @db_ops SELECT on passengers WHERE user_id=?
+ */
+export async function getPassengers(userId) {
+  try {
+    // Mock data for now (数据库实现待后续完成)
+    // const { getDb } = await import('./db.js');
+    // const db = getDb();
+    // const passengers = await db.allAsync(
+    //   'SELECT * FROM passengers WHERE user_id = ?',
+    //   userId
+    // );
+    
+    // Mock常用乘客数据
+    const mockPassengers = [
+      {
+        id: 'passenger-001',
+        name: '王三',
+        idType: '居民身份证',
+        idNumber: '3301**************222',
+        passengerType: '成人票'
+      },
+      {
+        id: 'passenger-002',
+        name: '刘嘉敏',
+        idType: '居民身份证',
+        idNumber: '4201**************103',
+        passengerType: '成人票'
+      }
+    ];
+    
+    return {
+      success: true,
+      passengers: mockPassengers
+    };
+  } catch (error) {
+    console.error('获取乘客列表失败:', error);
+    return {
+      success: false,
+      message: '获取乘客列表失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-SUBMIT-ORDER
+ * @signature submitOrder(userId, orderData)
+ * @input {string} userId - 用户ID
+ * @input {Object} orderData - 订单数据
+ * @input {string} orderData.trainNo - 车次号
+ * @input {string} orderData.date - 乘车日期
+ * @input {string} orderData.departureStation - 出发站
+ * @input {string} orderData.arrivalStation - 到达站
+ * @input {Array<Object>} orderData.passengers - 乘客列表
+ * @output {Object} result
+ * @output {boolean} result.success - 是否成功
+ * @output {string} result.orderId - 订单ID（成功时）
+ * @output {string} result.message - 响应消息
+ * @db_ops INSERT into orders, INSERT into order_passengers, UPDATE train_seats
+ */
+export async function submitOrder(userId, orderData) {
+  try {
+    // Validate inputs
+    if (!userId || !orderData || !orderData.passengers || orderData.passengers.length === 0) {
+      return {
+        success: false,
+        message: '订单信息不完整'
+      };
+    }
+    
+    // Mock implementation (数据库实现待后续完成)
+    // const { getDb } = await import('./db.js');
+    // const db = getDb();
+    
+    // 1. 检查余票
+    // 2. 创建订单记录
+    // 3. 创建乘客订单关联记录
+    // 4. 更新座位库存
+    // 5. 分配座位号
+    
+    // Mock订单ID
+    const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    return {
+      success: true,
+      orderId,
+      message: '订单提交成功',
+      seats: orderData.passengers.map((p, idx) => ({
+        passengerId: p.passengerId,
+        seatNumber: `${idx + 1}车${String(idx + 1).padStart(2, '0')}A号`
+      }))
+    };
+  } catch (error) {
+    console.error('提交订单失败:', error);
+    return {
+      success: false,
+      message: '提交订单失败'
+    };
+  }
+}

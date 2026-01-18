@@ -1,0 +1,768 @@
+# 订单填写页 UI 需求文档（完整版）
+# 基于初始需求文档 + UI Analyzer 自动分析生成
+# 生成时间: 2026-01-17
+
+- id: REQ-ORDER-FILL-PAGE
+  name: 订单填写页
+  description: |
+    用户预订车票后填写订单信息的页面。
+    
+    **网站地址**: http://localhost:5173/order
+    **页面宽度参考**: 1512px（实际DOM测量）
+    **页面高度**: 1335px（实际DOM测量）
+    **页面标识**: order-fill
+    
+    **访问方式**:
+    1. 需要先登录（打开http://localhost:5173/为已经自动登录状态，从该页面开始操作）
+    2. 在首页选择出发地北京，到达地上海，时间为明天（1月18日）
+    3. 点击查询后，在车次列表页选择G103次（北京南站06:20开 - 上海虹桥站11:58到）
+    4. 点击"预订"按钮
+    5. 自动跳转到订单填写页（http://localhost:5173/order）
+    
+    --- 以下是 UI Analyzer 添加的详细分析 ---
+    
+    **整体布局分析**:
+    
+    ```
+    +---------------------------------------------------------------------+
+    |  顶部导航栏 (复用首页)                                                |
+    |  - Logo、搜索框、用户信息、导航菜单                                     |
+    +---------------------------------------------------------------------+
+    |  列车信息区域 (train-info-section)                                   |
+    |  - 蓝色标题栏：列车信息（以下余票信息仅供参考）                            |
+    |  - 白色内容区：日期、车次、站点、时间                                     |
+    |  - 票价信息：二等座/一等座/商务座（价格+余票）                             |
+    |  - 价格说明链接                                                        |
+    +---------------------------------------------------------------------+
+    |  乘客信息区域 (passenger-info-section)                               |
+    |  - 标题：乘客信息（填写说明） + 搜索框                                   |
+    |  - 乘车人选择：👤 乘车人 + 复选框列表（王三、刘嘉敏）                      |
+    |  - 购票信息表格：序号/票种/席别/姓名/证件类型/证件号码                     |
+    |  - 保险广告横幅（中国铁路保险）                                          |
+    +---------------------------------------------------------------------+
+    |  提交订单区域 (order-submit-section)                                 |
+    |  - 同意条款提示文字 + 链接                                             |
+    |  - 按钮：上一步（白色） + 提交订单（橙色）                                |
+    +---------------------------------------------------------------------+
+    |  温馨提示区域 (warm-tips-section)                                    |
+    |  - 浅黄色背景，7条购票规则和注意事项                                      |
+    +---------------------------------------------------------------------+
+    |  底部导航栏 (复用首页)                                                |
+    |  - 友情链接（4个）、二维码（4个）、版权信息                               |
+    +---------------------------------------------------------------------+
+    ```
+    
+    **颜色体系**:
+    - 主题色：rgb(253, 129, 0) #FD8100（橙色按钮）
+    - 标题背景：rgb(39, 138, 204) #278ACC（蓝色）
+    - 白色容器：rgb(255, 255, 255) #FFFFFF
+    - 边框色：rgb(192, 215, 235) #C0D7EB（浅蓝灰）
+    - 温馨提示背景：rgb(255, 251, 229) #FFFBE5（浅黄）
+    - 温馨提示边框：rgb(245, 230, 168) #F5E6A8（黄色）
+    - 深色文字：rgb(51, 51, 51) #333333
+    - 中性灰边框：rgb(192, 192, 192) #C0C0C0
+    
+    **网页资源**:
+    - Logo: requirements/images/logo.png（复用首页）
+    - 搜索图标: requirements/images/search.svg（复用首页）
+    - 保险广告: requirements/images/order-fill/order-fill-保险广告.jpg（958×112px → 显示1058×124px）
+    - 友情链接: requirements/images/友情链接-*.png（复用首页，4张）
+    - 二维码: requirements/images/*二维码.png（复用首页，4张）
+    
+    参考图片: "./images/order-fill/整体页面截图/订单填写页-整体截图.png"
+  
+  dependencies:
+    - REQ-LOGIN-PAGE
+    - REQ-TRAIN-LIST-PAGE
+  scenarios: []
+  
+  children:
+    - id: REQ-ORDER-TOP-NAV
+      name: 顶部导航栏（复用首页顶部导航栏内容）
+      description: |
+        页面顶部导航栏（与其他页面共用）。
+        
+        **功能要求**：
+        - 显示12306品牌Logo
+        - 显示主导航菜单
+        - 显示用户登录状态
+        - Logo点击返回首页
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **说明**: 该组件与首页完全一致，详细UI规范请参考首页需求文档。
+        
+        **关键信息**:
+        - 复用首页资源：Logo、搜索图标
+        - 用户状态显示："您好，刘嘉敏 | 退出"
+        - 导航菜单：首页、车票、团购服务、会员服务、站车服务、商旅服务、出行指南、信息查询
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-ORDER-TRAIN-INFO
+      name: 列车信息区域
+      description: |
+        显示用户选择的车次信息。
+        
+        **功能要求**：
+        - 显示车次号（如G103）
+        - 显示出发车站和到达车站
+        - 显示出发时间和到达时间
+        - 显示日期（如2026-01-18（周日））
+        - 显示席别价格和余票信息
+        - 信息清晰易读，不可修改
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 位置: 页面主内容区域顶部，位于导航栏下方
+        - 尺寸: 1100px × 169px
+        - 坐标: x: 206px, y: 151px
+        - 外边距: 20px 186px
+        
+        **HTML 结构**（基于实际 HTML 源代码）:
+        
+        ```html
+        <div class="train-info-section" id="ui-train-info-full">
+          <!-- 标题栏：蓝色背景 -->
+          <div class="train-info-header">
+            <h2 class="section-title">列车信息（以下余票信息仅供参考）</h2>
+          </div>
+          
+          <!-- 内容区：白色背景 -->
+          <div class="train-info-content">
+            <!-- 基础信息：日期、车次、站点 -->
+            <div class="train-basic-info">
+              <span class="train-date">2026-01-18（周日）</span>
+              <span class="train-info-group">
+                <span class="train-no">G103</span>
+                <span class="train-text">次</span>
+              </span>
+              <span class="train-info-group">
+                <span class="train-station">北京南</span>
+                <span class="train-text">站</span>
+                <span class="train-bold-group">（06:20开）—上海虹桥</span>
+                <span class="train-text">站（11:58到）</span>
+              </span>
+            </div>
+            
+            <!-- 票价信息：三种席别 -->
+            <div class="train-fare-info">
+              <div class="fare-item">
+                <span class="seat-type-label">二等座</span>
+                <span class="seat-price-bracket">（</span>
+                <span class="seat-price">¥662.0元</span>
+                <span class="seat-price-bracket">）</span>
+                <span class="seat-available"> 960张票</span>
+              </div>
+              <div class="fare-item">
+                <span class="seat-type-label">一等座</span>
+                <span class="seat-price">¥1060.0元</span>
+                <span class="seat-available"> 80张票</span>
+              </div>
+              <div class="fare-item">
+                <span class="seat-type-label">商务座</span>
+                <span class="seat-price">¥2318.0元</span>
+                <span class="seat-available"> 10张票</span>
+              </div>
+            </div>
+            
+            <!-- 价格说明 -->
+            <div class="train-info-notice">
+              <p class="notice-text">
+                *显示的价格均为实际活动折扣后票价，供您参考，查看
+                <a href="#">公布票价</a>。
+                具体票价以您确认支付时实际购买的铺别票价为准。
+              </p>
+            </div>
+          </div>
+        </div>
+        ```
+        
+        **CSS 样式**:
+        - 容器背景: rgb(255, 255, 255) 白色
+        - 边框: 1px solid rgb(192, 215, 235) 浅蓝灰
+        - 圆角: 10px
+        - 标题背景: 蓝色（从截图可见）
+        - 标题文字: 白色
+        
+        参考图片: "./images/order-fill/组件特写截图/列车信息区域.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-ORDER-PASSENGER-SELECT
+      name: 乘客信息区域
+      description: |
+        选择乘客和席别的区域。
+        
+        **功能要求**：
+        - 显示常用乘客列表（姓名、证件类型、证件号部分信息）
+        - 支持勾选乘客（复选框）
+        - 支持为每位乘客选择席别（下拉框或单选按钮）
+        - 显示每个席别的票价
+        - 支持添加新乘客（按钮）
+        - 显示乘客类型（成人/儿童/学生）
+        - 限制乘客数量（最多5人，根据实际规则）
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 位置: 列车信息区域下方
+        - 尺寸: 1100px × 383px
+        - 坐标: x: 206px, y: 340px
+        - 外边距: 20px 186px
+        
+        **HTML 结构**（基于实际 HTML 源代码）:
+        
+        ```html
+        <div class="passenger-info-section">
+          <!-- 标题栏 + 搜索框 -->
+          <div class="passenger-info-header">
+            <h2 class="section-title">乘客信息（填写说明）</h2>
+            <div class="passenger-search-box">
+              <input type="text" placeholder="输入乘客姓名" class="search-input">
+              <span class="search-icon">🔍</span>
+            </div>
+          </div>
+          
+          <!-- 内容区 -->
+          <div class="passenger-info-content">
+            <!-- 乘车人选择区 -->
+            <div class="passenger-list-container">
+              <h3 class="subsection-title">👤 乘车人</h3>
+              <div class="passenger-list">
+                <label class="passenger-checkbox">
+                  <input type="checkbox" class="passenger-checkbox-input">
+                  <span class="passenger-checkbox-label">王三</span>
+                </label>
+                <label class="passenger-checkbox">
+                  <input type="checkbox" class="passenger-checkbox-input">
+                  <span class="passenger-checkbox-label">刘嘉敏</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 购票信息表格 -->
+            <div class="purchase-info-container">
+              <div class="purchase-info-table">
+                <!-- 表头 -->
+                <div class="table-header">
+                  <div class="table-header-cell">序号</div>
+                  <div class="table-header-cell">票种</div>
+                  <div class="table-header-cell">席别</div>
+                  <div class="table-header-cell">姓名</div>
+                  <div class="table-header-cell">证件类型</div>
+                  <div class="table-header-cell">证件号码</div>
+                </div>
+                <!-- 数据行 -->
+                <div class="table-body">
+                  <div class="purchase-info-row">
+                    <div class="row-cell">1</div>
+                    <div class="row-cell">
+                      <!-- 票种下拉框 -->
+                      <div class="select-dropdown">
+                        <div class="selected-value-display">成人票</div>
+                        <input type="hidden" value="成人票">
+                        <span class="arrow"></span>
+                      </div>
+                    </div>
+                    <div class="row-cell">
+                      <!-- 席别下拉框 -->
+                      <div class="select-dropdown">
+                        <div class="selected-value-display">二等座（¥662.0元）</div>
+                        <input type="hidden" value="二等座">
+                        <span class="arrow"></span>
+                      </div>
+                    </div>
+                    <div class="row-cell">
+                      <input type="text" readonly class="readonly-input">
+                    </div>
+                    <div class="row-cell">
+                      <!-- 证件类型下拉框 -->
+                      <div class="select-dropdown">
+                        <div class="selected-value-display">居民身份证</div>
+                        <input type="hidden" value="居民身份证">
+                        <span class="arrow"></span>
+                      </div>
+                    </div>
+                    <div class="row-cell">
+                      <input type="text" readonly class="readonly-input">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 保险广告横幅 -->
+            <div class="railway-insurance-banner">
+              <img src="/images/order.jpg" alt="乘意相伴 安心出行 - 中国铁路保险">
+            </div>
+          </div>
+        </div>
+        ```
+        
+        **网页资源**:
+        - 保险广告图: requirements/images/order-fill/order-fill-保险广告.jpg
+          * 原始尺寸: 958px × 112px
+          * 显示尺寸: 1058px × 124px
+          * CSS策略: width: 100%; height: auto; object-fit: contain;
+        
+        参考图片: "./images/order-fill/组件特写截图/乘客信息区域.png"
+      
+      dependencies: []
+      
+      scenarios:
+        - name: 用户为G字头城际列车购票席别默认设置
+          given: 用户选择了G字头车次进行购票
+          when: 系统加载购票页面
+          then: 页面购票信息区域的"席位"下拉框自动选择"二等座（¥xx元）"，xx为查询数据库得到的该车次二等座车票价格
+          
+        - name: 用户为C字头城际列车购票席别默认设置
+          given: 用户选择了C字头车次进行购票
+          when: 系统加载购票页面
+          then: 页面购票信息区域的"席位"下拉框自动选择"二等座（¥xx元）"，xx为查询数据库得到的该车次二等座车票价格
+          
+        - name: 用户为D字头车次购票席别默认设置
+          given: 用户选择了D字头车次进行购票
+          when: 系统加载购票页面
+          then: 页面购票信息区域的"席位"下拉框自动选择"二等座（¥xx元）"，xx为查询数据库得到的该车次二等座车票价格
+          
+        - name: 用户从列表中勾选第一名乘车人
+          given: 用户在订单填写页且未勾选乘车人
+          when: 用户点击某个乘车人前的勾选栏（如用户选择乘车人"王三"）
+          then: 系统为该乘车人自动填充购票信息填写区域的序号为1的购票信息行，该行的"姓名"显示为乘车人姓名（如，王三）且不可修改，"证件类型"自动填充为该乘车人在数据库中保存的类型（如"居民身份证"）且不可修改，"证件号码"自动填充为该乘车人在数据库中保存的号码（如"3301************028"）且不可修改
+          
+        - name: 用户从列表中勾选额外的乘车人
+          given: 用户在订单填写页且已勾选至少一个乘车人
+          when: 用户点击某个乘车人前的勾选栏（如用户选择乘车人"王三"）
+          then: 系统自动为该乘车人添加一个的购票信息行，该行的"姓名"显示为乘车人姓名（如，王三）且不可修改，"证件类型"自动填充为该乘车人在数据库中保存的类型（如"居民身份证"）且不可修改，"证件号码"自动填充为该乘车人在数据库中保存的号码（如"3301************028"）且不可修改
+          
+        - name: 用户尝试手动输入乘车人姓名
+          given: 用户在订单填写页
+          when: 用户点击"姓名"输入框并尝试输入文字
+          then: 系统不响应任何输入，输入框内容无变化
+          
+        - name: 用户取消勾选唯一已选乘车人
+          given: 用户已勾选一个乘车人（如"刘蕊蕊"）
+          when: 用户再次点击该乘车人前的复选框，取消勾选
+          then: 系统移除序号为1的购票信息行中该乘车人的信息，恢复至默认状态
+          
+        - name: 用户取消勾选多个已选乘车人中的一个
+          given: 用户已勾选至少两个乘车人（如"刘蕊蕊"，"王三"）
+          when: 用户再次点击该乘车人前的复选框，取消勾选
+          then: 系统移除为该乘车人添加的乘车人信息行，其他乘车人信息行内容保持不变，序号自动做出调整
+          
+        - name: 用户展开席位下拉菜单
+          given: 用户在订单填写页
+          when: 用户点击该行的"席别"下拉菜单
+          then: 下拉菜单中仅显示当前有票的席位及其价格（如"二等座（¥xx元）"，xx为查询数据库得到的该车次二等座车票价格，已售罄的席位不会出现在选项中
+          
+        - name: 用户更改席位选择
+          given: 系统已为乘车人默认选择席别
+          when: 用户从"席别"下拉菜单中选择其他席别
+          then: 该乘车人的席位变更为用户选择的席别，票价信息随之更新
+          
+        - name: 未选择乘客
+          given: 用户在订单填写页未选择任何乘客
+          when: 用户点击"提交订单"
+          then: 显示错误提示"请选择至少一位乘客！"
+          
+        - name: 未选择席别
+          given: 用户选择了乘客但未为其选择席别
+          when: 用户点击"提交订单"
+          then: 显示错误提示"请为乘客选择席别！"
+          
+        - name: 选择的席别无票
+          given: 用户选择的席别已售罄
+          when: 用户点击"提交订单"
+          then: 显示错误提示"所选席别余票不足！"或弹窗提示
+          
+        - name: 乘客信息不完整
+          given: 用户添加的新乘客信息不完整
+          when: 用户保存新乘客或提交订单
+          then: 显示错误提示"乘客信息不完整！"
+      
+      children: []
+    
+    - id: REQ-ORDER-SUBMIT
+      name: 提交订单区域
+      description: |
+        提交订单按钮和温馨提示。
+        
+        **功能要求**：
+        - 显示"提交订单"按钮（醒目的橙色）
+        - 显示温馨提示（如"请核对订单信息"）
+        - 显示购票须知（如退改签规则）
+        - 按钮点击后显示加载状态
+        - 提交成功后跳转到支付页面
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 位置: 乘客信息区域下方
+        - 尺寸: 1100px × 75px
+        - 坐标: x: 206px, y: 742px
+        - 外边距: 20px 186px
+        
+        **HTML 结构**（基于实际 HTML 源代码）:
+        
+        ```html
+        <div class="order-submit-section">
+          <!-- 同意条款提示 -->
+          <div class="submit-notice">
+            <p class="notice-text">
+              *提交订单表示已阅读并同意
+              <a href="#">《国铁集团铁路旅客运输规程》</a>
+              <a href="#">《服务条款》</a>
+            </p>
+          </div>
+          
+          <!-- 按钮区 -->
+          <div class="submit-buttons">
+            <button class="order-back-button">上一步</button>
+            <button class="order-submit-button">提交订单</button>
+          </div>
+        </div>
+        ```
+        
+        **按钮样式**（从DOM获取）:
+        - 上一步按钮:
+          * 背景: rgb(255, 255, 255) 白色
+          * 文字: rgb(51, 51, 51) 深灰
+          * 边框: 1px solid rgb(192, 192, 192) 灰色
+          * 圆角: 3px
+          * 内边距: 0px 10px
+        
+        - 提交订单按钮:
+          * 背景: rgb(253, 129, 0) #FD8100 橙色
+          * 文字: rgb(255, 255, 255) 白色
+          * 边框: 无
+          * 圆角: 3px
+          * 内边距: 0px 10px
+        
+        参考图片: "./images/order-fill/组件特写截图/提交订单区域.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-ORDER-TIPS
+      name: 温馨提示区域
+      description: |
+        显示购票规则和注意事项。
+        
+        --- 以下是 UI Analyzer 添加的详细分析 ---
+        
+        **位置信息**:
+        - 位置: 提交订单区域下方
+        - 尺寸: 1100px × 282px
+        - 坐标: x: 206px, y: 837px
+        - 外边距: 20px 186px
+        
+        **HTML 结构**（基于实际 HTML 源代码）:
+        
+        ```html
+        <div class="warm-tips-section order-page-tips">
+          <h3 class="tips-title">温馨提示：</h3>
+          <ol class="tips-list">
+            <li class="tip-item">一张有效身份证件同一乘车日期同一车次只能购买一张车票...</li>
+            <li class="tip-item">购买儿童票时，乘车儿童有有效身份证件的...</li>
+            <li class="tip-item">购买残疾军人（伤残警察）优待票的...</li>
+            <li class="tip-item">一天内3次申请车票成功后取消订单...</li>
+            <li class="tip-item">购买铁路乘意险的注册用户年龄须在18周岁以上...</li>
+            <li class="tip-item">父母为未成年子女投保...</li>
+            <li class="tip-item">未尽事宜详见《铁路旅客运输规程》...</li>
+          </ol>
+        </div>
+        ```
+        
+        **CSS 样式**（从DOM获取）:
+        - 背景: rgb(255, 251, 229) #FFFBE5 浅黄色
+        - 边框: 1px solid rgb(245, 230, 168) #F5E6A8 黄色
+        - 圆角: 10px
+        - 内边距: 10px 15px
+        - 共7条提示信息（有序列表）
+        
+        参考图片: "./images/order-fill/组件特写截图/温馨提示区域.png"
+      
+      dependencies: []
+      scenarios: []
+      children: []
+    
+    - id: REQ-ORDER-CONFIRM-MODAL
+      name: 订单确认弹窗（提交订单弹窗）
+      description: |
+        提交订单前的信息核对弹窗。
+        
+        --- 以下是 UI Analyzer 添加的详细分析（基于交互截图）---
+        
+        **位置信息**:
+        - 定位: fixed，铺满整个视口
+        - 尺寸: 全屏遮罩，弹窗内容宽度800px
+        - z-index: 1000
+        
+        **HTML 结构**（基于实际 HTML 源代码）:
+        
+        ```html
+        <div class="order-confirmation-modal">
+          <!-- 遮罩层 -->
+          <div class="modal-overlay"></div>
+          
+          <!-- 弹窗主体 -->
+          <div class="modal-content">
+            <!-- 弹窗头部 -->
+            <div class="modal-header blue-background">
+              <h2 class="modal-title">请核对以下信息</h2>
+              <button class="modal-close">×</button>
+            </div>
+            
+            <!-- 弹窗内容 -->
+            <div class="modal-body white-background">
+              <!-- 列车信息展示 -->
+              <div class="train-info-display">
+                <div class="train-info-line">
+                  <span class="info-date">2026-01-18（周日）</span>
+                  <span class="info-group">
+                    <span class="info-train-no">G103</span>
+                    <span class="info-text">次</span>
+                  </span>
+                  <span class="info-group">
+                    <span class="info-station">北京南</span>
+                    <span class="info-text">站</span>
+                    <span class="info-bold-group">（06:20开）—上海虹桥</span>
+                    <span class="info-text">站（11:58到）</span>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- 乘客信息表格 -->
+              <div class="confirmation-table-container">
+                <table class="confirmation-passenger-table">
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>席别</th>
+                      <th>票种</th>
+                      <th>姓名</th>
+                      <th>证件类型</th>
+                      <th>证件号码</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>二等座</td>
+                      <td>成人票</td>
+                      <td>王三</td>
+                      <td>居民身份证</td>
+                      <td>330106200503102222</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- 席位分配提示 -->
+              <div class="seat-allocation-notice">
+                系统将随机为您申请席位，暂不支持自选席位。
+              </div>
+              
+              <!-- 余票信息展示 -->
+              <div class="seat-availability-display">
+                <p class="availability-text">
+                  本次列车，<span>商务座余票 <span class="seat-count">10</span> 张</span>
+                  <span>，二等座余票 <span class="seat-count">960</span> 张</span>
+                  <span>，一等座余票 <span class="seat-count">80</span> 张</span>。
+                </p>
+              </div>
+            </div>
+            
+            <!-- 弹窗底部按钮 -->
+            <div class="modal-footer">
+              <button type="button" class="back-modal-button white-background gray-text">返回修改</button>
+              <button type="button" class="confirm-modal-button orange-background white-text">确认</button>
+            </div>
+          </div>
+        </div>
+        ```
+        
+        **CSS 样式**（从DOM获取）:
+        
+        1. **弹窗容器** (.order-confirmation-modal):
+           - position: fixed
+           - top: 0, left: 0, right: 0, bottom: 0
+           - z-index: 1000
+           - display: flex
+           - justify-content: center
+           - align-items: center
+        
+        2. **遮罩层** (.modal-overlay):
+           - position: absolute
+           - top: 0, left: 0, right: 0, bottom: 0
+           - background-color: rgba(0, 0, 0, 0.5)
+        
+        3. **弹窗主体** (.modal-content):
+           - position: relative
+           - width: 800px
+           - max-width: 800px
+           - background-color: rgb(255, 255, 255) #FFFFFF
+           - box-shadow: rgba(0, 0, 0, 0.3) 0px 8px 24px 0px
+           - display: flex
+           - flex-direction: column
+        
+        4. **弹窗头部** (.modal-header):
+           - padding: 8px 20px
+           - display: flex
+           - justify-content: space-between
+           - align-items: center
+           - background: 蓝色渐变（通过.blue-background类）
+        
+        5. **标题** (.modal-title):
+           - font-size: 18px
+           - font-weight: 500
+           - color: rgb(255, 255, 255) #FFFFFF
+        
+        6. **关闭按钮** (.modal-close):
+           - width: 30px, height: 30px
+           - font-size: 28px
+           - font-weight: 500
+           - color: rgb(255, 255, 255) #FFFFFF
+           - border-radius: 8px
+           - display: flex
+           - justify-content: center
+           - align-items: center
+           - hover时背景变化
+        
+        7. **弹窗内容** (.modal-body):
+           - padding: 15px 50px
+           - background-color: rgb(255, 255, 255) #FFFFFF
+        
+        8. **表格** (.confirmation-passenger-table):
+           - width: 100%
+           - border-collapse: collapse
+           - 表头背景: 浅灰色
+           - 单元格边框: 1px solid #e0e0e0
+           - 内边距: 10px
+        
+        9. **席位分配提示** (.seat-allocation-notice):
+           - text-align: center
+           - color: #666 灰色
+           - margin: 10px 0
+        
+        10. **余票信息** (.seat-availability-display):
+            - text-align: center
+            - .seat-count: color: red 红色，强调余票数量
+        
+        11. **弹窗底部** (.modal-footer):
+            - padding: 0px 25px 25px
+            - display: flex
+            - justify-content: center
+            - gap: 25px
+        
+        12. **返回修改按钮** (.back-modal-button):
+            - width: 150px, height: 45px
+            - padding: 10px 40px
+            - background-color: rgb(255, 255, 255) #FFFFFF
+            - color: rgb(85, 85, 85) #555555
+            - border: 1px solid rgb(85, 85, 85) #555555
+            - border-radius: 4px
+            - font-size: 16px
+        
+        13. **确认按钮** (.confirm-modal-button):
+            - width: 150px, height: 45px
+            - padding: 10px 40px
+            - background-color: rgb(255, 149, 0) #FF9500 橙色
+            - color: rgb(255, 255, 255) #FFFFFF
+            - border-radius: 4px
+            - font-size: 16px
+        
+        **交互状态截图**:
+        - 截图路径: `./images/order-fill/交互状态截图/订单填写-提交订单弹窗.png`
+        - 触发场景: 选择乘车人王三后点击"提交订单"按钮
+        - 展示内容: 完整的订单确认弹窗，包含列车信息、乘客表格、余票提示、操作按钮
+        - 用途: 用于实现订单确认弹窗的完整UI和交互逻辑
+        
+        **功能要求**：
+        - 显示车次信息摘要（日期、车次号、站点、时间）
+        - 显示乘客信息表格（序号、席别、票种、姓名、证件类型、证件号码）
+        - 显示席位分配说明
+        - 显示余票情况
+        - 提供"返回修改"按钮（白底灰字有边框）
+        - 提供"确认"按钮（橙色背景白字）
+        - 点击关闭按钮或遮罩关闭弹窗
+      
+      dependencies:
+        - REQ-ORDER-PASSENGER-SELECT
+      
+      scenarios:
+        - name: 用户未选择任何乘车人点击"提交订单"
+          given: 用户在订单填写页，未在乘客信息区域勾选任何乘车人
+          when: 用户点击"提交订单"按钮
+          then: 系统弹出确认弹窗（ConfirmModal），弹窗宽度90%，最大宽度400px，背景white（白色），圆角8px，阴影0 4px 12px rgba(0, 0, 0, 0.3)，弹窗标题栏内边距10px 20px，底部边框为#e0e0e0（浅灰色），标题字体大小18px，字体加粗，颜色white（白色），弹窗内容区域内边距20px，提示文字字体大小18px，行高1.6，颜色#333（深灰色），内容为"请选择乘车人！"，弹窗底部按钮区域内边距15px 20px，顶部边框为#e0e0e0（浅灰色），flex布局，居中对齐，间距30px，弹窗有"确认"按钮，内边距8px 20px，背景#ff6600（橙色），文字white（白色），圆角4px，字体大小14px，字体加粗，hover时背景#ff8833（浅橙色），点击可关闭弹窗，页面回到订单填写页
+          
+        - name: 用户提交订单时车票售罄
+          given: 用户在订单填写页，并已勾选至少一名乘车人，用户网络正常
+          when: 用户点击提交订单按钮，系统在向数据库确认车票时发现该车次该席别车票已经售罄，或者该席别车票余票数小于用户订单需求数量（可能因为其他用户在同一时间购买了该席别车票）
+          then: 系统弹出确认弹窗（ConfirmModal），弹窗宽度90%，最大宽度400px，背景white（白色），圆角8px，阴影0 4px 12px rgba(0, 0, 0, 0.3)，弹窗标题栏内边距10px 20px，底部边框为#e0e0e0（浅灰色），标题字体大小18px，字体加粗，颜色white（白色），弹窗内容区域内边距20px，提示文字字体大小18px，行高1.6，颜色#333（深灰色），内容为"手慢了，该车次席别车票已售罄！"，弹窗底部按钮区域内边距15px 20px，顶部边框为#e0e0e0（浅灰色），flex布局，居中对齐，间距30px，弹窗有"确认"按钮，内边距8px 20px，背景#ff6600（橙色），文字white（白色），圆角4px，字体大小14px，字体加粗，hover时背景#ff8833（浅橙色），点击可关闭弹窗，页面回到车票查询界面
+          
+        - name: 用户选择乘车人后成功提交订单
+          given: 用户在订单填写页，并已勾选至少一名乘车人，用户网络正常
+          when: 用户点击"提交订单"按钮，系统确认用户选择的乘车人信息和席位，车票未售罄且可以满足用户提交订单的需求数量
+          then: 页面在100ms之内跳出信息核对弹窗（OrderConfirmationModal）
+          
+        - name: 用户提交订单时网络异常
+          given: 用户在订单填写页，并已勾选至少一名乘车人，用户网络异常
+          when: 用户点击提交订单按钮
+          then: 系统弹出确认弹窗（ConfirmModal），弹窗宽度90%，最大宽度400px，背景white（白色），圆角8px，阴影0 4px 12px rgba(0, 0, 0, 0.3)，弹窗标题栏内边距10px 20px，底部边框为#e0e0e0（浅灰色），标题字体大小18px，字体加粗，颜色white（白色），弹窗内容区域内边距20px，提示文字字体大小18px，行高1.6，颜色#333（深灰色），内容为"网络忙，请稍后再试。"，弹窗底部按钮区域内边距15px 20px，顶部边框为#e0e0e0（浅灰色），flex布局，居中对齐，间距30px，弹窗有"确认"按钮，内边距8px 20px，背景#ff6600（橙色），文字white（白色），圆角4px，字体大小14px，字体加粗，hover时背景#ff8833（浅橙色），点击可关闭提示弹窗，回到购票页面
+          
+        - name: 用户在信息核对弹窗点击返回修改
+          given: 用户在成功提交订单后跳转至信息核对弹窗
+          when: 用户点击"返回修改"按钮
+          then: 系统回到订单填写页
+          
+        - name: 用户在信息核对弹窗点击确认
+          given: 用户在成功提交订单后跳转至信息核对弹窗
+          when: 用户点击"确认"按钮
+          then: 页面弹出提示"订单已经提交，系统正在处理中，请稍等"，系统为用户保留座位预定信息，弹出提示"购买成功"，并显示用户预定的车票信息（包括座位号），将数据库中该座位从用户出发站到用户到达站之间的所有状态从"空闲"标记为"已被预定"
+          
+        - name: 确认提交订单
+          given: 用户在订单确认弹窗中查看信息无误
+          when: 用户点击"确认无误，提交订单"
+          then: 提交订单，跳转到支付页面
+          
+        - name: 返回修改
+          given: 用户在订单确认弹窗中发现信息有误
+          when: 用户点击"返回修改"
+          then: 关闭弹窗，返回订单填写页
+      
+      children: []
+    
+    - id: REQ-ORDER-ERROR-MODAL
+      name: 订单错误提示弹窗
+      description: |
+        订单提交失败或余票不足时的提示弹窗。
+        
+        **功能要求**：
+        - 显示错误图标（红色感叹号或叉号）
+        - 显示错误信息（如"余票不足"、"订票失败"等）
+        - 提供"我知道了"或"关闭"按钮
+        - 点击按钮或遮罩关闭弹窗
+        
+        **说明**: 该组件需要通过交互场景触发，Phase 7 将执行交互并获取截图。
+      
+      dependencies: []
+      scenarios:
+        - name: 余票不足
+          given: 用户提交订单时所选席别余票已被抢光
+          when: 系统检测到余票不足
+          then: 显示"很抱歉，您选择的席别余票不足！"弹窗
+          
+        - name: 订票失败
+          given: 用户提交订单时系统出现异常
+          when: 订单提交失败
+          then: 显示"订票失败，请稍后重试！"弹窗
+      
+      children: []

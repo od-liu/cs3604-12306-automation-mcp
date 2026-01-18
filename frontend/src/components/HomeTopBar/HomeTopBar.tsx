@@ -196,12 +196,16 @@ const HomeTopBar: React.FC<HomeTopBarProps> = ({
         <span className="home-top-sep">|</span>
         <a href="#" className="home-top-link">敬老版</a>
         <span className="home-top-sep">|</span>
-        <a href="#" className="home-top-link">English</a>
+        <a href="#" className="home-top-link">
+          English<span className="home-top-caret" aria-hidden="true" />
+        </a>
         <span className="home-top-sep">|</span>
         <a href="#" className="home-top-link" onClick={(e) => {
           e.preventDefault();
           handleMyAccount();
-        }}>我的12306</a>
+        }}>
+          我的12306<span className="home-top-caret" aria-hidden="true" />
+        </a>
         <span className="home-top-sep">|</span>
 
         {/* @scenario SCENARIO-003: 已登录显示用户名和退出按钮 */}

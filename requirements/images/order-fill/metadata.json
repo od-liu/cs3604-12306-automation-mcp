@@ -1,0 +1,60 @@
+{
+  "page": "订单填写页",
+  "pageUrl": "http://localhost:5173/order",
+  "generatedAt": "2026-01-17T08:20:00Z",
+  "images": [
+    {
+      "filename": "order-fill-保险广告.jpg",
+      "originalUrl": "http://localhost:5173/images/order.jpg",
+      "alt": "乘意相伴 安心出行 - 中国铁路保险",
+      "category": "广告横幅",
+      "location": "乘客信息区域底部",
+      "naturalSize": {
+        "width": 958,
+        "height": 112
+      },
+      "displaySize": {
+        "width": 1058,
+        "height": 124
+      },
+      "scale": 1.104,
+      "cssStrategy": "width: 100%; height: auto; object-fit: contain;",
+      "note": "保险广告横幅，位于乘客信息表单下方"
+    }
+  ],
+  "reusedResources": [
+    {
+      "type": "Logo",
+      "source": "requirements/images/logo.png",
+      "location": "顶部导航左侧",
+      "note": "复用首页Logo资源"
+    },
+    {
+      "type": "搜索图标",
+      "source": "requirements/images/search.svg",
+      "location": "顶部导航搜索框",
+      "note": "复用首页搜索图标"
+    },
+    {
+      "type": "友情链接",
+      "source": "requirements/images/友情链接-*.png",
+      "count": 4,
+      "location": "底部导航友情链接区域",
+      "note": "复用首页友情链接图片（左上、右上、左下、右下）"
+    },
+    {
+      "type": "二维码",
+      "source": "requirements/images/*二维码.png",
+      "count": 4,
+      "location": "底部导航二维码区域",
+      "note": "复用首页二维码（中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306）"
+    }
+  ],
+  "iconFonts": [],
+  "summary": {
+    "totalNewImages": 1,
+    "totalReusedResources": 4,
+    "downloadedSuccessfully": 1,
+    "downloadedFailed": 0
+  }
+}

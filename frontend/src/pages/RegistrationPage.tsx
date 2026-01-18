@@ -17,11 +17,11 @@ const RegistrationPage: React.FC = () => {
       <SecondaryNav />
       <main className="registration-main">
         <div className="breadcrumb">
-          您现在的位置：<a href="/">客运首页</a> &gt; 注册
+          您现在的位置：<a href="/">客运首页</a>&nbsp;&gt;&nbsp;<a href="/register">注册</a>
         </div>
         <RegistrationForm />
       </main>
-      <BottomNavigation />
+      <BottomNavigation pageType="registration" />
     </div>
   );
 };

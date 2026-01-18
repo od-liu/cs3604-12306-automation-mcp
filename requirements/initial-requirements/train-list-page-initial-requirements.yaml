@@ -12,20 +12,23 @@
   description: |
     显示查询结果的车次列表页面，用户可以筛选和选择车次。
     
-    **网站地址**: http://localhost:5174/trains (需要先从首页查询后跳转)
+    **网站地址**: http://localhost:5173/trains (需要先从首页查询后跳转)
     **页面宽度参考**: 1920px
+    **页面标识**: train-list
     
     **访问方式**:
-    1. 先访问首页 http://localhost:5174/trains
+    1. 先访问首页 http://localhost:5173
     2. 填写查询条件（如：北京 -> 上海，明天日期）
     3. 点击查询按钮
     4. 自动跳转到车次列表页
     
     **需要的图片资源**:
-    - Logo（顶部导航）
+    - Logo（顶部导航，可以复用首页该资源）
     - 导航菜单图标（如有）
     - 筛选图标（如有）
     - 无结果提示图片（如有）
+    - 二维码（底部导航，4个：中国铁路官方微信、中国铁路官方微博、12306公众号、铁路12306，可以复用首页资源）
+    - 友情链接（底部导航，4个：2行2列布局，可以复用首页资源）
     
     **主要功能**：
     - 显示查询条件摘要
@@ -40,7 +43,7 @@
   
   children:
     - id: REQ-TRAIN-LIST-TOP-NAV
-      name: 顶部导航栏
+      name: 顶部导航栏（可以直接复用注册页/首页的顶部导航栏）
       description: |
         页面顶部导航栏（与首页共用）。
         
@@ -79,12 +82,13 @@
             description: "测试点击出发地修改查询条件"
             steps:
               - action: click
-                target: "出发地区域"
+                target: "出发城市"
                 target_hint: ".from-station, [class*='from'], input[placeholder*='出发']"
               - action: wait
                 duration: 1
               - action: screenshot
                 filename: "查询条件栏-修改出发地.png"
+              - action: 在需求文档中注明出发城市下拉框的详细参数
       
       dependencies: []
       
@@ -183,24 +187,148 @@
           - name: "车次类型筛选"
             description: "测试点击高铁/动车筛选"
             steps:
+              - action: evaluate
+                script: "location.reload()"
+              - action: wait
+                duration: 2
+              - action: click
+                target: "出发城市输入框"
+                target_hint: "input[placeholder*='出发'], .from-station, [class*='from']"
+              - action: type
+                text: "北京"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "到达城市输入框"
+                target_hint: "input[placeholder*='到达'], .to-station, [class*='to']"
+              - action: type
+                text: "上海"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "查询按钮"
+                target_hint: "button:has-text('查询'), .search-button, [class*='search']"
+              - action: wait
+                duration: 2
               - action: click
                 target: "高铁/动车筛选按钮"
-                target_hint: "button:has-text('高铁'), .filter-item:has-text('高铁'), [data-type='高铁']"
+                target_hint: "button:has-text('GC-高铁/城际'), .filter-item:has-text('GC-高铁/城际'), [data-type='GC-高铁/城际']"
               - action: wait
                 duration: 1
               - action: screenshot
                 filename: "筛选条件-高铁筛选激活.png"
+              - action: 在说明文档标注筛选中的选项✅按钮的参数信息
                 
           - name: "出发时间段筛选"
-            description: "测试点击早上时间段筛选"
+            description: "测试点击时间段下拉选择器并筛选"
             steps:
+              - action: evaluate
+                script: "location.reload()"
+              - action: wait
+                duration: 2
               - action: click
-                target: "早上时间段筛选按钮"
-                target_hint: "button:has-text('06:00-12:00'), [data-time='morning']"
+                target: "出发城市输入框"
+                target_hint: "input[placeholder*='出发'], .from-station, [class*='from']"
+              - action: type
+                text: "北京"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "到达城市输入框"
+                target_hint: "input[placeholder*='到达'], .to-station, [class*='to']"
+              - action: type
+                text: "上海"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "查询按钮"
+                target_hint: "button:has-text('查询'), .search-button, [class*='search']"
+              - action: wait
+                duration: 2
+              - action: click
+                target: "发车时间按钮"
+                target_hint: "button:has-text('00:00--24:00'), .time-filter-button, [class*='time']"
               - action: wait
                 duration: 1
               - action: screenshot
-                filename: "筛选条件-时间段筛选激活.png"
+                filename: "筛选条件-时间段下拉框展开.png"
+              - action: click
+                target: "00:00-06:00时间段选项"
+                target_hint: "button:has-text('00:00--06:00'), li:has-text('00:00--06:00')"
+              - action: wait
+                duration: 0.5
+              - action: click
+                target: "筛选按钮"
+                target_hint: "button:has-text('筛选'), .filter-confirm-button"
+              - action: wait
+                duration: 1
+              - action: screenshot
+                filename: "筛选条件-时间段筛选后结果.png"
+        
+        **时间筛选下拉框参数说明**:
+          组件名称: 发车时间筛选下拉框
+          触发方式: 点击"00:00--24:00"按钮
+          
+          下拉框样式:
+            - 容器: 白色背景，边框1px solid #e0e0e0，圆角4px，阴影0 2px 8px rgba(0,0,0,0.15)
+            - 定位: 绝对定位，在触发按钮下方，左对齐
+            - z-index: 1000
+            - 宽度: 与触发按钮宽度一致或稍宽（约200-240px）
+            
+          下拉框选项列表:
+            - 选项1: "00:00--24:00" (默认选中，带✓图标)
+            - 选项2: "00:00--06:00"
+            - 选项3: "06:00--12:00"
+            - 选项4: "12:00--18:00"
+            - 选项5: "18:00--24:00"
+            
+          选项样式:
+            - 正常状态: 
+              - 内边距: 12px 16px
+              - 字体大小: 14px
+              - 颜色: #333333
+              - 背景: 白色
+            - 悬停状态:
+              - 背景: #f5f5f5
+            - 选中状态:
+              - 背景: #fff7e6
+              - 颜色: #ff6600
+              - 右侧显示✓图标，颜色#ff6600
+              
+          筛选按钮:
+            - 位置: 下拉框底部
+            - 文字: "筛选"
+            - 样式: 宽度100%，高度40px，背景#ff6600（橙色），颜色白色，字体大小14px，无边框，圆角0 0 4px 4px
+            - 悬停: 背景变为#ff8533
+            
+        **车次列表为空时的界面参数**:
+          触发条件: 筛选条件过严或查询的时间段内无车次
+          
+          显示内容:
+            - 提示图标: 
+              - 类型: 空状态图标（如空文件夹、搜索无结果图标）
+              - 大小: 120px x 120px
+              - 颜色: #d0d0d0（浅灰色）
+              - 位置: 垂直水平居中
+              
+            - 提示文字:
+              - 主标题: "暂无符合条件的车次"
+              - 字体大小: 18px
+              - 颜色: #666666（深灰色）
+              - 字体粗细: font-weight: 500
+              - 位置: 图标下方，上边距24px
+              
+            - 副标题（可选）:
+              - 文字: "请尝试调整筛选条件或选择其他日期"
+              - 字体大小: 14px
+              - 颜色: #999999（灰色）
+              - 位置: 主标题下方，上边距12px
+              
+          容器样式:
+            - 最小高度: 400px
+            - 内边距: 60px 20px
+            - 背景: #fafafa或白色
+            - 对齐方式: 垂直水平居中（display: flex, justify-content: center, align-items: center）
       
       dependencies: []
       
@@ -281,31 +409,6 @@
                 duration: 2
               - action: screenshot
                 filename: "车次列表-正常显示.png"
-                
-          - name: "悬停车次行"
-            description: "测试鼠标悬停在某一车次上的效果"
-            steps:
-              - action: evaluate
-                script: |
-                  const firstRow = document.querySelector('.train-list tr:first-child, .ticket-item:first-child');
-                  if (firstRow) {
-                    firstRow.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-                  }
-              - action: wait
-                duration: 0.5
-              - action: screenshot
-                filename: "车次列表-悬停高亮.png"
-                
-          - name: "点击车次号查看详情"
-            description: "测试点击车次号展开停靠站信息"
-            steps:
-              - action: click
-                target: "第一个车次号"
-                target_hint: ".train-number:first-child, a:has-text('G'), a:has-text('D')"
-              - action: wait
-                duration: 1
-              - action: screenshot
-                filename: "车次列表-车次详情展开.png"
       
       dependencies: []
       

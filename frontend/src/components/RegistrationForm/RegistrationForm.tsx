@@ -524,7 +524,6 @@ const RegistrationForm: React.FC = () => {
                 <span className="validation-check">✓</span>
               )}
               <div className="password-strength" aria-label="密码强度">
-                <span className="strength-label">密码强度</span>
                 <div className="strength-bars" aria-hidden="true">
                   <span className={`strength-bar ${calculatePasswordStrength(formData.password) >= 1 ? 'active' : ''}`}></span>
                   <span className={`strength-bar ${calculatePasswordStrength(formData.password) >= 2 ? 'active' : ''}`}></span>
@@ -642,7 +641,7 @@ const RegistrationForm: React.FC = () => {
 
           {/* 邮箱 */}
           <div className="form-row">
-            <label className="form-label">邮箱：</label>
+            <label className="form-label">邮    箱：</label>
             <div className="form-input-wrapper">
               <input
                 type="email"
