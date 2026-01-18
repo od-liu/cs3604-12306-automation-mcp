@@ -62,9 +62,9 @@ const TrainListPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [searchParams, setSearchParams] = useState({
-    fromCity: '北京',
-    toCity: '上海',
-    date: '1月16日 周五'
+    fromCity: '',
+    toCity: '',
+    date: ''
   });
   const [trains, setTrains] = useState<Train[]>([]);
   const [allTrains, setAllTrains] = useState<Train[]>([]); // 保存原始查询结果
@@ -73,18 +73,7 @@ const TrainListPage: React.FC = () => {
 
   // ========== Lifecycle ==========
   
-  /**
-   * 页面加载时自动查询默认车次
-   */
-  React.useEffect(() => {
-    handleSearch({
-      fromCity: '北京',
-      toCity: '上海',
-      departureDate: '2024-01-16',
-      tripType: 'single',
-      passengerType: 'normal'
-    });
-  }, []);
+  // 页面加载时不自动查询，等待用户输入条件后再查询
 
   /**
    * 5分钟过期检测
