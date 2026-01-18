@@ -33,7 +33,7 @@
 
 import React, { useState } from 'react';
 import HomeTopBar from '../components/HomeTopBar/HomeTopBar';
-import MainNavigation from '../components/MainNavigation/MainNavigation';
+import SecondaryNav from '../components/SecondaryNav/SecondaryNav';
 import TrainSearchBar from '../components/TrainSearchBar/TrainSearchBar';
 import TrainFilterPanel from '../components/TrainFilterPanel/TrainFilterPanel';
 import TrainList from '../components/TrainList/TrainList';
@@ -239,8 +239,8 @@ const TrainListPage: React.FC = () => {
         onLogout={handleLogout}
       />
 
-      {/* @feature "整合主导航菜单" */}
-      <MainNavigation activeItem="车票" />
+      {/* @feature "整合主导航菜单" - 复用主页的SecondaryNav组件 */}
+      <SecondaryNav />
 
       {/* 主内容区域 */}
       <div className="train-list-content">
