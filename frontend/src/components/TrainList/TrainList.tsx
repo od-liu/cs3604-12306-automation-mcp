@@ -146,9 +146,9 @@ const TrainList: React.FC<TrainListProps> = ({
     const trainData = {
       date: date, // 使用传入的日期
       trainNo: train.trainNumber,
-      departureStation: train.fromStation,
+      departureStation: train.departureStation,  // ✅ 修正：使用正确的字段名
       departureTime: train.departureTime,
-      arrivalStation: train.toStation,
+      arrivalStation: train.arrivalStation,      // ✅ 修正：使用正确的字段名
       arrivalTime: train.arrivalTime,
       duration: train.duration,
       arrivalDay: train.arrivalDay,
@@ -167,6 +167,8 @@ const TrainList: React.FC<TrainListProps> = ({
         }
       }
     };
+    
+    console.log('🎫 跳转到订单页，车次数据:', trainData);
     
     // 跳转到订单填写页面，通过 state 传递车次数据
     navigate('/order', { state: { trainData } });
