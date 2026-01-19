@@ -110,9 +110,11 @@ const TrainList: React.FC<TrainListProps> = ({
    * 检查车次是否有票
    */
   const hasAvailableSeats = (train: Train): boolean => {
-    return Object.values(train.seats).some(seat => 
+    const hasSeats = Object.values(train.seats).some(seat => 
       seat && seat !== '--' && seat !== '无'
     );
+    console.log(`🎫 车次 ${train.trainNumber} 是否有票:`, hasSeats, '座位信息:', train.seats);
+    return hasSeats;
   };
 
   /**
@@ -120,9 +122,14 @@ const TrainList: React.FC<TrainListProps> = ({
    * 点击预订按钮，跳转到订单填写页面
    */
   const handleBook = (train: Train) => {
+    console.log('🔘 预订按钮被点击，车次:', train.trainNumber);
+    
     if (!hasAvailableSeats(train)) {
+      console.log('❌ 该车次无可用座位');
       return;
     }
+    
+    console.log('✅ 车次有可用座位，准备跳转');
     
     // 辅助函数：获取席别价格（从 train.seats['xxx_price'] 获取，如果没有则使用默认值）
     const getSeatPrice = (seatType: string, defaultPrice: number): number => {
@@ -168,10 +175,15 @@ const TrainList: React.FC<TrainListProps> = ({
       }
     };
     
-    console.log('🎫 跳转到订单页，车次数据:', trainData);
+    console.log('🎫 准备跳转到订单页，车次数据:', trainData);
     
     // 跳转到订单填写页面，通过 state 传递车次数据
-    navigate('/order', { state: { trainData } });
+    try {
+      navigate('/order', { state: { trainData } });
+      console.log('✅ navigate 函数已调用');
+    } catch (error) {
+      console.error('❌ 跳转失败:', error);
+    }
   };
 
   /**
