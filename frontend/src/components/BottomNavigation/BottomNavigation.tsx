@@ -146,7 +146,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ pageType = 'login' 
       };
       return `/images/${fileNames[qrCodeType]}`;
     } else if (pageType === 'homepage') {
-      return `/images/首页-底部导航-${qrCodeType}二维码.png`;
+      // 首页使用专用的文件名（注意：文件名中"12306公众号"没有空格）
+      const fileNames: { [key: string]: string } = {
+        '中国铁路官方微信': '首页-底部导航-中国铁路官方微信二维码.png',
+        '中国铁路官方微博': '首页-底部导航-中国铁路官方微博二维码.png',
+        '12306 公众号': '首页-底部导航-12306公众号二维码.png',
+        '铁路12306': '首页-底部导航-铁路12306二维码.png'
+      };
+      return `/images/${fileNames[qrCodeType]}`;
     } else {
       const pagePrefix = pageType === 'registration' ? '注册页面' : '登录页面';
       return `/images/${pageType}/${pagePrefix}-底部导航-${qrCodeType}二维码.png`;
