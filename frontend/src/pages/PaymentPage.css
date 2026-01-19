@@ -3,7 +3,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #F5F5F5;
+  background-color: #ffffff; /* 与其他页面一致：纯白背景 */
 }
 
 /* ========== 顶部导航区域（白色背景） ========== */
