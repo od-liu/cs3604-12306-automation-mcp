@@ -57,6 +57,14 @@ const OrderFillPage: React.FC = () => {
   const [selectedPassengers, setSelectedPassengers] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // 订单提交中状态
   
+  // 从 localStorage 读取登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem('userId');
+  });
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem('username') || '';
+  });
+  
   // 从 localStorage 获取当前登录用户ID
   const userId = localStorage.getItem('userId');
   
@@ -82,7 +90,30 @@ const OrderFillPage: React.FC = () => {
     { type: '商务座' as const, price: trainData.prices.businessClass.price, available: trainData.prices.businessClass.available }
   ];
 
+  // ========== Lifecycle ==========
+  // 监听 localStorage 变化（用于跨标签页同步登录状态）
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const userId = localStorage.getItem('userId');
+      const storedUsername = localStorage.getItem('username');
+      setIsLoggedIn(!!userId);
+      setUsername(storedUsername || '');
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // ========== Event Handlers ==========
+  // 处理退出登录
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('username');
+    setIsLoggedIn(false);
+    setUsername('');
+    navigate('/');
+  };
   const handleSubmitOrder = () => {
     // 验证是否选择了乘客
     if (selectedPassengers.length === 0) {
@@ -186,7 +217,11 @@ const OrderFillPage: React.FC = () => {
   return (
     <div className="order-fill-page">
       {/* 顶部导航栏（复用首页） */}
-      <HomeTopBar />
+      <HomeTopBar 
+        isLoggedIn={isLoggedIn} 
+        username={username}
+        onLogout={handleLogout}
+      />
       
       {/* 主导航菜单 */}
       <MainNavigation />

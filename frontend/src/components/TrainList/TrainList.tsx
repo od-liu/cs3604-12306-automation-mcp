@@ -34,6 +34,7 @@
  */
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './TrainList.css';
 
 interface Train {
@@ -64,10 +65,11 @@ const TrainList: React.FC<TrainListProps> = ({
   trains = [], 
   fromCity = '北京', 
   toCity = '上海', 
-  // 与原站一致：使用 YYYY-MM-DD（默认给一个稳定值，避免“1月xx日 周x”格式）
+  // 与原站一致：使用 YYYY-MM-DD（默认给一个稳定值，避免"1月xx日 周x"格式）
   date = '2026-01-19'
 }) => {
   // ========== State Management ==========
+  const navigate = useNavigate();
   const [showDiscount, setShowDiscount] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
   const [showAllBookable, setShowAllBookable] = useState(false);
@@ -115,13 +117,41 @@ const TrainList: React.FC<TrainListProps> = ({
 
   /**
    * @feature "无票时预订按钮置灰不可点击"
+   * 点击预订按钮，跳转到订单填写页面
    */
   const handleBook = (train: Train) => {
     if (!hasAvailableSeats(train)) {
       return;
     }
-    console.log(`预订车次 ${train.trainNumber}`);
-    alert(`预订车次 ${train.trainNumber}（骨架实现）`);
+    
+    // 构造订单填写页需要的车次数据
+    const trainData = {
+      date: date, // 使用传入的日期
+      trainNo: train.trainNumber,
+      departureStation: train.fromStation,
+      departureTime: train.departureTime,
+      arrivalStation: train.toStation,
+      arrivalTime: train.arrivalTime,
+      duration: train.duration,
+      arrivalDay: train.arrivalDay,
+      prices: {
+        secondClass: { 
+          price: parseFloat(String(train.seats['二等座'])) || 0, 
+          available: train.seats['二等座'] === '有' ? 999 : (parseInt(String(train.seats['二等座'])) || 0)
+        },
+        firstClass: { 
+          price: parseFloat(String(train.seats['一等座'])) || 0, 
+          available: train.seats['一等座'] === '有' ? 999 : (parseInt(String(train.seats['一等座'])) || 0)
+        },
+        businessClass: { 
+          price: parseFloat(String(train.seats['商务座'])) || 0, 
+          available: train.seats['商务座'] === '有' ? 999 : (parseInt(String(train.seats['商务座'])) || 0)
+        }
+      }
+    };
+    
+    // 跳转到订单填写页面，通过 state 传递车次数据
+    navigate('/order', { state: { trainData } });
   };
 
   /**
