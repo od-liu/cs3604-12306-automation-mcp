@@ -11,6 +11,8 @@ import { dirname, join } from 'path';
 import apiRoutes from './routes/api.js';
 import { initDatabase, insertDemoData } from './database/init_db.js';
 import { cleanupOldOrders } from './database/operations.js';
+import { migrateSeatSystem } from './database/migrate_seat_system.js';
+import { cleanupExpiredSeatLocks } from './database/seat_management.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -77,12 +79,38 @@ function setupCleanupScheduler() {
   console.log('⏰ [定时任务] 订单清理任务已启动（每天凌晨3点执行）');
 }
 
+// 🆕 座位锁定清理任务：每分钟执行一次
+function setupSeatLockCleanup() {
+  const runCleanup = async () => {
+    try {
+      await cleanupExpiredSeatLocks();
+    } catch (error) {
+      console.error('❌ [座位清理] 执行失败:', error);
+    }
+  };
+  
+  // 每分钟执行一次
+  setInterval(runCleanup, 60 * 1000);
+  
+  console.log('⏰ [定时任务] 座位锁定清理任务已启动（每分钟执行）');
+}
+
 // Initialize database and start server
 (async () => {
   try {
     await initDatabase();
     await insertDemoData();
     console.log('✅ Database initialized successfully');
+    
+    // 🆕 运行座位管理系统迁移
+    try {
+      await migrateSeatSystem();
+      console.log('✅ Seat management system migration completed');
+    } catch (error) {
+      console.error('⚠️  Seat system migration failed:', error.message);
+      // 不中断服务器启动
+    }
+    
   } catch (error) {
     console.error('Failed to initialize database:', error);
     process.exit(1);
@@ -93,6 +121,7 @@ function setupCleanupScheduler() {
     
     // 🆕 启动定时清理任务
     setupCleanupScheduler();
+    setupSeatLockCleanup();
   });
 })();
 

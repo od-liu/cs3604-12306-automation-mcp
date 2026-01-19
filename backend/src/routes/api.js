@@ -29,6 +29,10 @@ import {
   getUserOrders
 } from '../database/operations.js';
 
+// 🆕 导入 V2 版本的函数（使用新的座位管理系统）
+import { searchTrainsV2 } from '../database/search_trains_v2.js';
+import { submitOrderV2, confirmPaymentV2, cancelOrderV2 } from '../database/submit_order_v2.js';
+
 const router = express.Router();
 
 /**
@@ -391,7 +395,7 @@ router.post('/api/auth/check-email', async (req, res) => {
  * @calls FUNC-SEARCH-TRAINS - 委托给车票查询服务函数
  */
 router.post('/api/trains/search', async (req, res) => {
-  const { fromCity, toCity, departureDate, isStudent, isHighSpeed } = req.body;
+  const { fromCity, toCity, departureDate, isStudent, isHighSpeed, useV2 } = req.body;
   
   // 参数验证
   if (!fromCity || !toCity || !departureDate) {
@@ -401,8 +405,12 @@ router.post('/api/trains/search', async (req, res) => {
     });
   }
   
-  // 调用 FUNC-SEARCH-TRAINS 进行实际查询
-  const result = await searchTrains(fromCity, toCity, departureDate, isStudent, isHighSpeed);
+  // 🆕 支持使用V2版本的座位管理系统
+  const searchFunc = useV2 ? searchTrainsV2 : searchTrains;
+  console.log(`🔍 [车次搜索] 使用${useV2 ? 'V2(区间座位)' : 'V1(旧系统)'}版本`);
+  
+  // 调用搜索函数
+  const result = await searchFunc(fromCity, toCity, departureDate, isStudent, isHighSpeed);
   
   if (result.success) {
     return res.status(200).json({
@@ -605,7 +613,7 @@ router.get('/api/orders', async (req, res) => {
  * @calls FUNC-SUBMIT-ORDER - 委托给订单处理函数
  */
 router.post('/api/orders/submit', async (req, res) => {
-  const { trainNumber, departureDate, fromStation, toStation, departureTime, arrivalTime, passengers } = req.body;
+  const { trainNumber, departureDate, fromStation, toStation, departureTime, arrivalTime, passengers, useV2 } = req.body;
   
   // 参数验证
   if (!trainNumber || !departureDate || !fromStation || !toStation || !passengers || passengers.length === 0) {
@@ -615,12 +623,16 @@ router.post('/api/orders/submit', async (req, res) => {
     });
   }
   
-  // 从session或token中获取用户ID (暂时使用固定ID，实际应从session获取)
-  const userId = req.session?.userId || 1;
+  // 从 header 或 session 获取用户ID
+  const userId = req.headers['x-user-id'] || req.session?.userId || 1;
   
   try {
-    // 调用 FUNC-SUBMIT-ORDER 处理订单
-    const result = await submitOrder(userId, {
+    // 🆕 支持使用V2版本的座位管理系统
+    const submitFunc = useV2 ? submitOrderV2 : submitOrder;
+    console.log(`📝 [订单提交] 使用${useV2 ? 'V2(区间座位)' : 'V1(旧系统)'}版本`);
+    
+    // 调用订单处理函数
+    const result = await submitFunc(userId, {
       trainNumber,
       departureDate,
       fromStation,
@@ -634,6 +646,8 @@ router.post('/api/orders/submit', async (req, res) => {
       return res.status(200).json({
         success: true,
         orderId: result.orderId,
+        orderNumber: result.orderNumber,
+        seats: result.seats,
         message: '订单提交成功'
       });
     } else {
@@ -643,9 +657,10 @@ router.post('/api/orders/submit', async (req, res) => {
       });
     }
   } catch (error) {
+    console.error('❌ [订单提交API] 错误:', error);
     return res.status(500).json({
       success: false,
-      message: '订单提交失败'
+      message: '订单提交失败: ' + error.message
     });
   }
 });
