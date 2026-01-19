@@ -25,7 +25,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HomeTopBar from '../components/HomeTopBar/HomeTopBar';
-import MainNavigation from '../components/MainNavigation/MainNavigation';
+import SecondaryNav from '../components/SecondaryNav/SecondaryNav';
 import BottomNavigation from '../components/BottomNavigation/BottomNavigation';
 import TrainInfo from '../components/OrderFill/TrainInfo';
 import PassengerInfo from '../components/OrderFill/PassengerInfo';
@@ -216,15 +216,15 @@ const OrderFillPage: React.FC = () => {
   // ========== UI Render ==========
   return (
     <div className="order-fill-page">
-      {/* 顶部导航栏（复用首页） */}
-      <HomeTopBar 
-        isLoggedIn={isLoggedIn} 
-        username={username}
-        onLogout={handleLogout}
-      />
-      
-      {/* 主导航菜单 */}
-      <MainNavigation />
+      {/* 顶部导航区域（白色背景） */}
+      <header className="order-fill-header">
+        <HomeTopBar 
+          isLoggedIn={isLoggedIn} 
+          username={username}
+          onLogout={handleLogout}
+        />
+        <SecondaryNav activeItem="车票" />
+      </header>
       
       {/* 主内容区域 */}
       <div className="order-fill-main-content">
