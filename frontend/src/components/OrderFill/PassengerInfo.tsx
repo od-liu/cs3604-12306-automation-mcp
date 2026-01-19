@@ -47,11 +47,13 @@ import React, { useState, useEffect } from 'react';
 import './PassengerInfo.css';
 
 interface Passenger {
-  id: string;
+  id: number; // 🔧 修正：后端返回的是 number 类型
   name: string;
   idType: string; // 证件类型
   idNumber: string; // 证件号码
+  phone?: string; // 🆕 添加手机号字段
   passengerType: '成人票' | '儿童票' | '学生票';
+  isSelf?: boolean; // 🆕 添加用户本人标识
 }
 
 interface SeatOption {

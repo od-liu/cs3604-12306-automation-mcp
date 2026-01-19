@@ -133,38 +133,24 @@ const OrderFillPage: React.FC = () => {
     setSelectedPassengers(passengers);
   };
 
-  const handleConfirmOrder = async () => {
-    // 提交订单到后端
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          trainNo: trainData.trainNo,
-          date: trainData.date,
-          departureStation: trainData.departureStation,
-          arrivalStation: trainData.arrivalStation,
-          passengers: selectedPassengers
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // 跳转到支付页面
-        navigate('/payment', { state: { orderId: data.orderId } });
-      } else {
-        const error = await response.json();
-        setErrorMessage(error.message || '提交订单失败');
-        setShowErrorModal(true);
-      }
-    } catch (error) {
-      setErrorMessage('网络错误，请稍后重试');
-      setShowErrorModal(true);
-    } finally {
-      setShowConfirmModal(false);
+  const handleConfirmOrder = (orderId: string) => {
+    // 🔧 修改：直接接收订单ID并跳转到支付页面
+    // OrderConfirmModal 已经提交了订单，这里只需要跳转
+    console.log('🎫 [OrderFillPage] 收到订单确认，订单号:', orderId);
+    console.log('🎫 [OrderFillPage] orderId 类型:', typeof orderId);
+    console.log('🎫 [OrderFillPage] orderId 值:', JSON.stringify(orderId));
+    
+    if (!orderId) {
+      console.error('❌ [OrderFillPage] 订单号为空，无法跳转！');
+      return;
     }
+    
+    setShowConfirmModal(false);
+    
+    // 跳转到支付页面
+    const paymentUrl = `/payment/${orderId}`;
+    console.log('🎫 [OrderFillPage] 跳转到支付页面:', paymentUrl);
+    navigate(paymentUrl);
   };
 
   const handleBack = () => {

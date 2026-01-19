@@ -513,23 +513,11 @@ router.get('/api/passengers', async (req, res) => {
     const result = await getPassengers(userId);
     
     if (result.success) {
-      // 补充完整的乘客数据字段（骨架实现）
-      const enrichedPassengers = result.passengers.map((p, index) => ({
-        id: index + 1,
-        name: p.name,
-        idType: p.idType,
-        idNumber: p.idNumber,
-        phone: p.phone || '(+86)138****8000',
-        discountType: p.passengerType || '成人',
-        verificationStatus: '已通过',
-        addedDate: '2024-01-15'
-      }));
-      
-      console.log('✅ [乘客列表] 返回', enrichedPassengers.length, '条记录');
+      console.log('✅ [乘客列表] 返回', result.passengers.length, '条记录');
       
       return res.status(200).json({
         success: true,
-        data: enrichedPassengers // 前端期望的字段名是data，不是passengers
+        passengers: result.passengers // 保持与前端一致的字段名
       });
     } else {
       return res.status(404).json({
@@ -988,6 +976,188 @@ router.get('/api/orders', async (req, res) => {
     success: true,
     data: mockOrders
   });
+});
+
+/**
+ * @api API-GET-PAYMENT-INFO GET /api/payment/:orderId
+ * @summary 获取订单支付信息
+ * @param {string} orderId - 订单ID（从URL参数获取）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.order - 订单信息
+ */
+router.get('/api/payment/:orderId', async (req, res) => {
+  const { orderId } = req.params;
+  
+  console.log(`💰 [支付页面] 获取订单信息, orderId: ${orderId}`);
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单号不能为空'
+    });
+  }
+  
+  try {
+    // Mock订单信息（后续需要从数据库获取）
+    const mockOrderInfo = {
+      orderId: orderId,
+      trainNumber: 'G103',
+      date: '2026-01-19（周日）',
+      fromStation: '北京南',
+      toStation: '上海虹桥',
+      departTime: '06:20',
+      arriveTime: '11:58',
+      passengers: [
+        {
+          name: '嗷嗷',
+          idType: '居民身份证',
+          idNumber: '508401201009152655',
+          ticketType: '成人票',
+          seatClass: '二等座',
+          carNumber: '01',
+          seatNumber: '01A',
+          price: 553.5
+        }
+      ],
+      totalPrice: 553.5,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 20 * 60 * 1000).toISOString() // 20分钟后过期
+    };
+    
+    console.log(`✅ [支付页面] 返回订单信息, 总价: ${mockOrderInfo.totalPrice}元`);
+    
+    return res.status(200).json({
+      success: true,
+      order: mockOrderInfo
+    });
+  } catch (error) {
+    console.error('❌ [支付页面] 获取订单信息失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '获取订单信息失败'
+    });
+  }
+});
+
+/**
+ * @api API-CONFIRM-PAYMENT POST /api/payment/:orderId/confirm
+ * @summary 确认支付订单
+ * @param {string} orderId - 订单ID
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ */
+router.post('/api/payment/:orderId/confirm', async (req, res) => {
+  const { orderId } = req.params;
+  
+  console.log(`💳 [支付确认] 确认支付订单, orderId: ${orderId}`);
+  
+  try {
+    // Mock支付成功
+    console.log(`✅ [支付确认] 支付成功`);
+    
+    return res.status(200).json({
+      success: true,
+      message: '支付成功'
+    });
+  } catch (error) {
+    console.error('❌ [支付确认] 支付失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '支付失败'
+    });
+  }
+});
+
+/**
+ * @api API-CANCEL-ORDER POST /api/payment/:orderId/cancel
+ * @summary 取消订单
+ * @param {string} orderId - 订单ID
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ */
+router.post('/api/payment/:orderId/cancel', async (req, res) => {
+  const { orderId } = req.params;
+  
+  console.log(`❌ [取消订单] 取消订单, orderId: ${orderId}`);
+  
+  try {
+    // Mock取消成功
+    console.log(`✅ [取消订单] 取消成功`);
+    
+    return res.status(200).json({
+      success: true,
+      message: '订单已取消'
+    });
+  } catch (error) {
+    console.error('❌ [取消订单] 取消失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '取消订单失败'
+    });
+  }
+});
+
+/**
+ * @api API-GET-ORDER-SUCCESS GET /api/orders/:orderId/success
+ * @summary 获取购票成功页订单信息
+ * @param {string} orderId - 订单ID（从URL参数获取）
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.order - 订单详细信息
+ */
+router.get('/api/orders/:orderId/success', async (req, res) => {
+  const { orderId } = req.params;
+  
+  console.log(`🎉 [购票成功] 获取订单详情, orderId: ${orderId}`);
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单号不能为空'
+    });
+  }
+  
+  try {
+    // Mock订单详细信息（包含座位信息）
+    const mockOrderInfo = {
+      orderId: orderId,
+      trainNumber: 'G103',
+      date: '2026-01-19（周日）',
+      fromStation: '北京南',
+      toStation: '上海虹桥',
+      departTime: '06:20',
+      arriveTime: '11:58',
+      paymentMethod: '中国工商银行',
+      paymentTime: new Date().toISOString(),
+      totalPrice: 553.5,
+      passengers: [
+        {
+          name: '嗷嗷',
+          idType: '居民身份证',
+          idNumber: '508401201009152655',
+          ticketType: '成人票',
+          seatClass: '二等座',
+          carNumber: '01',
+          seatNumber: '01A',
+          price: 553.5
+        }
+      ]
+    };
+    
+    console.log(`✅ [购票成功] 返回订单详情, 订单号: ${orderId}`);
+    
+    return res.status(200).json({
+      success: true,
+      order: mockOrderInfo
+    });
+  } catch (error) {
+    console.error('❌ [购票成功] 获取订单详情失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '获取订单详情失败'
+    });
+  }
 });
 
 export default router;

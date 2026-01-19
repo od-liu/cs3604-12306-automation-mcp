@@ -70,7 +70,7 @@ interface OrderConfirmModalProps {
   passengers: PassengerData[];
   seatAvailability: SeatAvailability;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (orderId: string) => void; // 🔧 修改：传递订单ID
 }
 
 /**
@@ -109,6 +109,14 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     setIsSubmitting(true);
     
     try {
+      console.log('📤 [订单确认] 提交订单请求:', {
+        trainNo: trainInfo.trainNo,
+        date: trainInfo.date,
+        departureStation: trainInfo.departureStation,
+        arrivalStation: trainInfo.arrivalStation,
+        passengersCount: passengers.length
+      });
+      
       // 调用 API-SUBMIT-ORDER
       const response = await fetch('/api/orders/submit', {
         method: 'POST',
@@ -126,18 +134,20 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         })
       });
 
+      console.log('📥 [订单确认] 收到响应:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📦 [订单确认] 响应数据:', data);
 
       if (data.success) {
         /**
          * @scenario SCENARIO-007 "确认提交订单"
          * @given 用户在订单确认弹窗中查看信息无误
          * @when 用户点击"确认无误，提交订单"
-         * @then 提交订单，跳转到支付页面
+         * @then 提交订单，直接跳转到支付页面（不显示弹窗）
          */
-        alert('订单已经提交，系统正在处理中，请稍等');
-        alert(`购买成功！订单号：${data.orderId}`);
-        onConfirm();
+        console.log('✅ [订单确认] 订单提交成功，订单号:', data.orderId);
+        onConfirm(data.orderId); // 🔧 修改：传递订单ID给父组件，直接跳转
       } else {
         /**
          * @scenario SCENARIO-002 "用户提交订单时车票售罄"

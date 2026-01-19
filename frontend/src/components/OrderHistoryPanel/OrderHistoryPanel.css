@@ -3,16 +3,52 @@
   display: flex;
   flex-direction: column;
   background-color: #FFFFFF;
-  padding: 20px;
   min-height: 600px;
+}
+
+/* ========== Tab切换区域 ========== */
+.order-tabs {
+  display: flex;
+  gap: 2px;
+  background-color: #F0F0F0;
+  padding: 0;
+  border-bottom: 2px solid #0066CC;
+}
+
+.tab-button {
+  flex: 0 0 auto;
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border: none;
+  background-color: #F0F0F0;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 4px 4px 0 0;
+}
+
+.tab-button:hover {
+  background-color: #E0E0E0;
+  color: #333333;
+}
+
+.tab-button.active {
+  background-color: #FFFFFF;
+  color: #0066CC;
+  font-weight: 600;
+  border-bottom: 2px solid #FFFFFF;
+  margin-bottom: -2px;
 }
 
 /* ========== 筛选区域 ========== */
 .order-filter-section {
   margin-bottom: 20px;
-  padding: 15px 20px;
-  background-color: #F5F5F5;
-  border-radius: 4px;
+  padding: 20px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #EEEEEE;
 }
 
 .filter-row {
@@ -22,9 +58,13 @@
 }
 
 .filter-item {
-  position: relative;
   display: flex;
   align-items: center;
+}
+
+/* 日期选择器容器 - 修复重影问题 */
+.filter-item.date-picker {
+  position: relative;
 }
 
 /* 订单类型下拉选择 */
@@ -52,15 +92,17 @@
   border-color: #0066CC;
 }
 
-/* 日期输入 */
+/* 日期输入 - 修复重影问题 */
 .date-input {
   height: 36px;
   padding: 0 12px;
   border: 1px solid #CCCCCC;
   border-radius: 4px;
   font-size: 14px;
-  color: #333333;
+  color: transparent; /* 隐藏原生日期选择器的文字，避免重影 */
+  background-color: #FFFFFF;
   cursor: pointer;
+  min-width: 140px;
 }
 
 .date-input:hover {
@@ -72,12 +114,17 @@
   border-color: #0066CC;
 }
 
+/* 只有选择了日期才显示格式化的日期 */
 .date-display {
   position: absolute;
   left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 14px;
   color: #333333;
   pointer-events: none;
+  background-color: #FFFFFF;
+  padding: 0 4px;
 }
 
 .date-separator {
@@ -165,6 +212,7 @@
 .order-list-section {
   flex: 1;
   margin-bottom: 30px;
+  padding: 0 20px;
 }
 
 /* 表头 */
@@ -300,10 +348,10 @@
 /* ========== 温馨提示区域 ========== */
 .warm-tips-section {
   padding: 20px;
+  margin: 0 20px 20px 20px;
   background-color: #FFF9E6;
   border: 1px solid #FFE4A3;
   border-radius: 4px;
-  margin-top: 20px;
 }
 
 .tips-title {

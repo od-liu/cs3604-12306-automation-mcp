@@ -189,13 +189,17 @@ const PaymentPage: React.FC = () => {
    * @then 系统弹出超时提示弹窗
    */
   const handlePayment = async () => {
+    console.log('💳 [支付页面] 用户点击确认支付');
+    
     if (isTimeout) {
+      console.log('⏰ [支付页面] 订单已超时');
       setShowTimeoutModal(true);
       return;
     }
 
     try {
       setIsProcessing(true);
+      console.log('📤 [支付页面] 调用支付确认API:', `/api/payment/${orderId}/confirm`);
 
       const response = await fetch(`/api/payment/${orderId}/confirm`, {
         method: 'POST',
@@ -203,14 +207,19 @@ const PaymentPage: React.FC = () => {
         credentials: 'include'
       });
 
+      console.log('📥 [支付页面] 收到响应:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📦 [支付页面] 响应数据:', data);
 
       if (data.success) {
+        console.log('✅ [支付页面] 支付成功，跳转到购票成功页:', `/success/${orderId}`);
         // 支付成功，跳转到购票成功页
         setTimeout(() => {
           navigate(`/success/${orderId}`);
         }, 100);
       } else {
+        console.log('❌ [支付页面] 支付失败:', data.message);
         if (data.timeout) {
           setIsTimeout(true);
           setShowTimeoutModal(true);
@@ -219,7 +228,7 @@ const PaymentPage: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('支付失败:', error);
+      console.error('❌ [支付页面] 网络错误:', error);
       alert('网络请求失败，请稍后再试');
     } finally {
       setIsProcessing(false);

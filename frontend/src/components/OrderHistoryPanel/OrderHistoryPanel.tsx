@@ -49,6 +49,7 @@ interface Order {
 
 const OrderHistoryPanel: React.FC = () => {
   // ========== State Management ==========
+  const [activeTab, setActiveTab] = useState<'uncompleted' | 'upcoming' | 'history'>('uncompleted'); // 🆕 Tab状态
   const [queryType, setQueryType] = useState('按订票日期查询');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -69,6 +70,13 @@ const OrderHistoryPanel: React.FC = () => {
     // 加载订单数据
     fetchOrders();
   }, []);
+
+  // 🆕 当Tab切换时重新加载数据
+  useEffect(() => {
+    if (startDate && endDate) {
+      fetchOrders();
+    }
+  }, [activeTab]);
 
   // ========== Helper Functions ==========
   const formatDate = (date: Date): string => {
@@ -96,8 +104,31 @@ const OrderHistoryPanel: React.FC = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      console.log('📋 [订单历史] 获取订单列表');
-      const response = await fetch('/api/orders');
+      // 从 localStorage 获取用户ID
+      const userInfoStr = localStorage.getItem('user_info');
+      if (!userInfoStr) {
+        console.error('❌ 未登录，无法获取订单列表');
+        return;
+      }
+      
+      const userInfo = JSON.parse(userInfoStr);
+      const userId = userInfo.userId;
+      
+      console.log('📋 [订单历史] 获取订单列表, userId:', userId, 'tab:', activeTab);
+      
+      // 构建查询参数
+      const params = new URLSearchParams({
+        tab: activeTab,
+        startDate: startDate || '',
+        endDate: endDate || '',
+        keyword: searchKeyword || ''
+      });
+      
+      const response = await fetch(`/api/orders?${params.toString()}`, {
+        headers: {
+          'X-User-Id': userId
+        }
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -129,13 +160,58 @@ const OrderHistoryPanel: React.FC = () => {
       return;
     }
 
-    console.log('🔍 [订单历史] 查询订单:', { queryType, startDate, endDate, searchKeyword });
+    console.log('🔍 [订单历史] 查询订单:', { activeTab, queryType, startDate, endDate, searchKeyword });
     await fetchOrders();
   };
+
+  /**
+   * @feature "支持按订单状态筛选"
+   * 根据当前Tab过滤订单
+   */
+  const getFilteredOrders = (): Order[] => {
+    return orders.filter(order => {
+      // 根据Tab类型过滤
+      if (activeTab === 'uncompleted') {
+        // 未完成订单：状态为"未支付"或"待出行"
+        return order.status === '未支付' || order.status === '待支付' || order.status === '待出行';
+      } else if (activeTab === 'upcoming') {
+        // 未出行订单：已支付但未出行
+        return order.status === '待出行' || order.status === '已支付';
+      } else if (activeTab === 'history') {
+        // 历史订单：已完成或已取消
+        return order.status === '已完成' || order.status === '已取消' || order.status === '已退票';
+      }
+      return true;
+    });
+  };
+
+  const displayOrders = getFilteredOrders();
 
   // ========== UI Render ==========
   return (
     <div className="order-history-panel" id="ui-order-history-content">
+      {/* 🆕 Tab切换区域 */}
+      <div className="order-tabs">
+        <button
+          className={`tab-button ${activeTab === 'uncompleted' ? 'active' : ''}`}
+          onClick={() => setActiveTab('uncompleted')}
+        >
+          未完成订单
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'upcoming' ? 'active' : ''}`}
+          onClick={() => setActiveTab('upcoming')}
+        >
+          未出行订单
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          历史订单
+        </button>
+      </div>
+
       {/* 筛选区域 */}
       <div className="order-filter-section">
         <div className="filter-row">
@@ -151,33 +227,37 @@ const OrderHistoryPanel: React.FC = () => {
             </select>
           </div>
 
-          {/* 开始日期 */}
-          <div className="filter-item">
+          {/* 开始日期 - 修复重影问题 */}
+          <div className="filter-item date-picker">
             <input
               type="date"
               className="date-input"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
-            <span className="date-display">
-              {formatDateDisplay(startDate)}
-            </span>
+            {startDate && (
+              <span className="date-display">
+                {formatDateDisplay(startDate)}
+              </span>
+            )}
           </div>
 
           {/* 分隔符 */}
           <span className="date-separator">-</span>
 
-          {/* 结束日期 */}
-          <div className="filter-item">
+          {/* 结束日期 - 修复重影问题 */}
+          <div className="filter-item date-picker">
             <input
               type="date"
               className="date-input"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
-            <span className="date-display">
-              {formatDateDisplay(endDate)}
-            </span>
+            {endDate && (
+              <span className="date-display">
+                {formatDateDisplay(endDate)}
+              </span>
+            )}
           </div>
 
           {/* 搜索框 */}
@@ -221,12 +301,12 @@ const OrderHistoryPanel: React.FC = () => {
         <div className="order-list-body">
           {loading ? (
             <div className="empty-state">加载中...</div>
-          ) : orders.length === 0 ? (
+          ) : displayOrders.length === 0 ? (
             <div className="empty-state">
-              暂无订单数据
+              暂无{activeTab === 'uncompleted' ? '未完成' : activeTab === 'upcoming' ? '未出行' : '历史'}订单
             </div>
           ) : (
-            orders.map(order => (
+            displayOrders.map(order => (
               <div key={order.id} className="order-row">
                 <div className="order-col col-train">
                   <div className="train-number">{order.trainNumber}</div>
