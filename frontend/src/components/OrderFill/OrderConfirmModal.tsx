@@ -126,11 +126,25 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         passengersCount: passengers.length
       });
       
+      // 🔧 从 localStorage 获取当前登录用户ID
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        alert('请先登录！');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log('👤 [订单确认] 当前用户ID:', userId);
+      
       // 调用 API-SUBMIT-ORDER
       // 注意：后端API期望的字段名与前端不同，需要映射
       const response = await fetch('/api/orders/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId  // 🆕 发送用户ID到后端
+        },
         body: JSON.stringify({
           trainNumber: trainInfo.trainNo,           // 后端期望 trainNumber
           departureDate: trainInfo.date,            // 后端期望 departureDate

@@ -624,7 +624,18 @@ router.post('/api/orders/submit', async (req, res) => {
   }
   
   // 从 header 或 session 获取用户ID
-  const userId = req.headers['x-user-id'] || req.session?.userId || 1;
+  const userId = req.headers['x-user-id'] || req.session?.userId;
+  
+  // 🔧 如果没有用户ID，返回401错误（不再默认使用userId=1）
+  if (!userId) {
+    console.error('❌ [订单提交] 未登录或缺少用户ID');
+    return res.status(401).json({
+      success: false,
+      message: '请先登录'
+    });
+  }
+  
+  console.log('👤 [订单提交] 用户ID:', userId);
   
   try {
     // 🆕 支持使用V2版本的座位管理系统
