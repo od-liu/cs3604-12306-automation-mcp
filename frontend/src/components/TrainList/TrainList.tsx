@@ -159,10 +159,12 @@ const TrainList: React.FC<TrainListProps> = ({
   const renderSingleSeatCell = (value: string | number | undefined) => {
     const displayValue = isValidSeatValue(value) ? String(value) : '--';
     // 只有"有"显示为绿色，数字显示为黑色
+    const isNumber = isValidSeatValue(value) && /^\d+$/.test(String(value));
     const colorClass = isGreenText(value) ? 'has-tickets' : (isValidSeatValue(value) ? '' : 'not-available');
+    const weightClass = isNumber ? 'seat-availability--number' : '';
     
     return (
-      <div className={`seat-availability ${colorClass}`}>
+      <div className={`seat-availability ${colorClass} ${weightClass}`.trim()}>
         {displayValue}
       </div>
     );
@@ -175,15 +177,21 @@ const TrainList: React.FC<TrainListProps> = ({
   const renderSeatCell = (topValue: string | number | undefined, bottomValue: string | number | undefined) => {
     const topValid = isValidSeatValue(topValue);
     const bottomValid = isValidSeatValue(bottomValue);
+    const topIsNumber = topValid && /^\d+$/.test(String(topValue));
+    const bottomIsNumber = bottomValid && /^\d+$/.test(String(bottomValue));
     
     // 如果两个都有效，显示两行
     if (topValid && bottomValid) {
       return (
         <div className="seat-availability seat-availability--double">
-          <div className={`seat-availability__top ${isGreenText(topValue) ? 'has-tickets' : ''}`}>
+          <div
+            className={`seat-availability__top ${isGreenText(topValue) ? 'has-tickets' : ''} ${topIsNumber ? 'seat-availability--number' : ''}`.trim()}
+          >
             {String(topValue)}
           </div>
-          <div className={`seat-availability__bottom ${isGreenText(bottomValue) ? 'has-tickets' : ''}`}>
+          <div
+            className={`seat-availability__bottom ${isGreenText(bottomValue) ? 'has-tickets' : ''} ${bottomIsNumber ? 'seat-availability--number' : ''}`.trim()}
+          >
             {String(bottomValue)}
           </div>
         </div>
@@ -192,8 +200,9 @@ const TrainList: React.FC<TrainListProps> = ({
     
     // 如果只有上面的有效，显示上面的
     if (topValid) {
+      const topIsNum = /^\d+$/.test(String(topValue));
       return (
-        <div className={`seat-availability ${isGreenText(topValue) ? 'has-tickets' : ''}`}>
+        <div className={`seat-availability ${isGreenText(topValue) ? 'has-tickets' : ''} ${topIsNum ? 'seat-availability--number' : ''}`.trim()}>
           {String(topValue)}
         </div>
       );
@@ -201,8 +210,9 @@ const TrainList: React.FC<TrainListProps> = ({
     
     // 如果只有下面的有效，显示下面的
     if (bottomValid) {
+      const bottomIsNum = /^\d+$/.test(String(bottomValue));
       return (
-        <div className={`seat-availability ${isGreenText(bottomValue) ? 'has-tickets' : ''}`}>
+        <div className={`seat-availability ${isGreenText(bottomValue) ? 'has-tickets' : ''} ${bottomIsNum ? 'seat-availability--number' : ''}`.trim()}>
           {String(bottomValue)}
         </div>
       );
@@ -261,8 +271,8 @@ const TrainList: React.FC<TrainListProps> = ({
       <div className="list-header">
         <div className="header-cell">车次</div>
         <div className="header-cell">出发站<br/>到达站</div>
-        <div className="header-cell sortable">出发时间 ▲<br/>到达时间 ▼</div>
-        <div className="header-cell sortable">历时 ▲</div>
+        <div className="header-cell">出发时间<br/>到达时间</div>
+        <div className="header-cell">历时</div>
         <div className="header-cell">商务座<br/>特等座</div>
         <div className="header-cell">优选<br/>一等座</div>
         <div className="header-cell">一等座</div>

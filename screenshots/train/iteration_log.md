@@ -424,3 +424,66 @@
 ### 验证结果
 - **部分修复（明显接近）**：筛选日期条起始日期/灰渐变质感已贴近；表头列宽与分隔线对齐明显提升；首行站名不再被全局污染，且“始/终” icon 位置与目标一致。
 - **剩余问题**：表头排序三角图标仍与目标的橙色/位置细节有差异；个别筛选行（车次席别）的换行策略与目标仍略不同，可在下一轮继续微调。
+
+## Iteration 10（/trains）
+- **目标截图（同一批次 / 同一查询）**：
+  - 日期条：`target_iteration_10_date_tabs.png`
+  - 筛选表单：`target_iteration_10_filter.png`
+  - 车次表表头：`target_iteration_10_table_header.png`
+  - 车次表首行：`target_iteration_10_table_row1.png`
+- **复刻验证截图（修复后）**：
+  - 日期条：`replica_iteration_10_date_tabs_verify4.png`（过程：`replica_iteration_10_date_tabs_verify.png` / `replica_iteration_10_date_tabs_verify2.png` / `replica_iteration_10_date_tabs_verify3.png`）
+  - 筛选表单：`replica_iteration_10_filter_verify.png`
+  - 车次表表头：`replica_iteration_10_table_header_verify.png`
+  - 车次表首行：`replica_iteration_10_table_row1_verify.png`
+
+### 差异点（至少 5 处；缺失/多余 > 位置尺寸 > 颜色 > 其他）
+1. **日期条起始日期与“今天”感知不一致** - 日期快捷条最左侧 - **内容/结构**
+   - 目标截图最左侧为 `01-18`，而用户期望“第一天是今天（01-19）”；本轮以目标截图为准：**保留 01-18**，但默认选中仍为 **01-19 周一**。
+2. **日期条选中态样式不一致（宽度/背景/描边）** - 日期快捷条 `01-19 周一` - **位置/尺寸/视觉效果**
+   - 复刻早期选中态过窄导致“周一”被截断；选中态的强调方式（粗蓝边框）也与目标不同。
+3. **表头竖向分隔线贴图不一致** - 车次表表头蓝色条列分隔 - **缺失/资源**
+   - 目标为清晰的竖分割线贴图；复刻资源不正确导致分割线观感不一致。
+4. **表头背景贴图不一致** - 表头蓝色渐变底 - **缺失/资源**
+   - 目标表头为 `bg_tlisthd.png` 的贴图渐变；复刻贴图版本不一致导致色阶/纹理差异。
+5. **车次首行余票数字字体粗细不一致** - 首行余票（如“15”“18”） - **字体/样式**
+   - 目标中数字余票为更醒目的粗体，而“有”保持常规字重；复刻早期数字未加粗。
+6. **日期条整体底纹与分隔线不一致** - 日期条底部灰渐变与按钮间分隔线 - **颜色/视觉效果**
+   - 目标日期条底纹来自 `bg.png`，分隔来自 `line_searsel.png`；复刻缺失或贴图不正确时整体“质感”差异明显。
+
+### 从目标页面提取的信息（用于精确对齐）
+- **日期条**：
+  - 底纹：`bg.png`（repeat-x，`background-position: 0 -100px`）
+  - 分隔线：`line_searsel.png`（no-repeat，`background-position: 100% 50%`）
+  - 选中态：`bg_s2.png` + 蓝色粗体文字；选中按钮宽约 **145px**（可完整显示 `01-19 周一`）
+- **表头贴图**：
+  - 背景：`bg_tlisthd.png`
+  - 列分隔：`line_tlisth.png`
+- **余票字重策略**：
+  - 仅“有”为绿色；**数字余票加粗（700）**，其余保持常规
+
+### 修复内容
+- **新增/替换资源（从原站下载）**
+  - `frontend/public/images/trains/bg_tlisthd.png`
+  - `frontend/public/images/trains/line_tlisth.png`
+  - `frontend/public/images/train-list/bg.png`
+  - `frontend/public/images/train-list/line_searsel.png`
+- **修改文件**
+  - `frontend/src/components/TrainFilterPanel/TrainFilterPanel.tsx`
+  - `frontend/src/components/TrainFilterPanel/TrainFilterPanel.css`
+  - `frontend/src/components/TrainList/TrainList.tsx`
+  - `frontend/src/components/TrainList/TrainList.css`
+- **已修复/优化**
+  - 日期条：保留目标的 `01-18` 起始，默认选中当天；选中态宽度调整为 **145px**，并使用 `bg_s2.png` + 蓝色粗体文字（见 `replica_iteration_10_date_tabs_verify4.png`）
+  - 日期条：底纹/分隔线贴图补齐（`bg.png` / `line_searsel.png`），日期条整体质感更贴近目标
+  - 表头：替换正确的 `bg_tlisthd.png` 与 `line_tlisth.png`，分隔线观感贴近目标
+  - 余票：数字余票加粗（700），仅“有”为绿色（首行验证见 `replica_iteration_10_table_row1_verify.png`）
+
+### 验证结果
+- **已验证（关键问题解决）**：
+  - 日期条：选中态宽度/样式与目标一致（`target_iteration_10_date_tabs.png` vs `replica_iteration_10_date_tabs_verify4.png`）
+  - 表头：背景贴图与列分隔线贴图一致（`target_iteration_10_table_header.png` vs `replica_iteration_10_table_header_verify.png`）
+  - 首行：余票数字字重更接近目标（`target_iteration_10_table_row1.png` vs `replica_iteration_10_table_row1_verify.png`）
+
+### 剩余问题（下一轮继续）
+- 筛选区复选项在同一行的**信息密度/间距**仍可能与目标有细微差异（需要继续基于分区截图逐项抠）。

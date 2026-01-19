@@ -94,6 +94,7 @@
   justify-content: center !important;
   line-height: 1.4 !important;
   height: 52px !important;
+  font-weight: 700 !important;
   /* 原站表头单元格右侧有竖向分隔线贴图 */
   background-repeat: no-repeat !important;
   background-position: right 0 !important;
@@ -288,12 +289,19 @@
   font-size: 12px !important;
   /* 原网站：票数数字显示为黑色 */
   color: rgb(51, 51, 51) !important;
+  font-weight: 400 !important;
 }
 
 /* 只有"有"显示为绿色 */
 .seat-availability.has-tickets {
-  color: var(--trainlist-success-green) !important;
-  font-weight: 600 !important;
+  /* target computed: rgb(38,163,6) */
+  color: rgb(38, 163, 6) !important;
+  font-weight: 400 !important;
+}
+
+/* target: numeric counts are bold (e.g. td.t-num { font-weight:700 }) */
+.seat-availability.seat-availability--number {
+  font-weight: 700 !important;
 }
 
 /* "--" 显示为灰色 */

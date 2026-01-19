@@ -66,7 +66,6 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateCha
   
   // 发车时间
   const [selectedTime, setSelectedTime] = useState('00:00--24:00');
-  const [showTimeDropdown, setShowTimeDropdown] = useState(false);
   
   // 出发车站选择
   const [selectedDepartureStations, setSelectedDepartureStations] = useState<string[]>([]);
@@ -81,10 +80,10 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateCha
   
   // 日期列表（动态生成15天，显示“MM-DD + 周X”以更贴近 12306）
   const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] as const;
-  // 与目标截图对齐：日期条从“今天”开始，连续 15 天
+  // 与目标截图对齐：日期条从“昨天（目标站 server today）”开始，连续 15 天
   const dates = Array.from({ length: 15 }, (_, i) => {
     const date = new Date();
-    date.setDate(date.getDate() + i);
+    date.setDate(date.getDate() + i - 1);
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const weekDay = weekDays[date.getDay()];
@@ -201,14 +200,6 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateCha
   };
 
   /**
-   * @feature "出发时间段筛选（下拉选择）"
-   */
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
-    setShowTimeDropdown(false);
-  };
-
-  /**
    * @feature "显示筛选按钮"
    * 应用所有筛选条件
    */
@@ -268,34 +259,20 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateCha
             </label>
           ))}
 
-          {/* 发车时间下拉选择 */}
+          {/* 发车时间下拉选择（对齐原站：原生 select） */}
           <div className="trainFilterPanel-timeFilter">
             <span className="trainFilterPanel-label">发车时间：</span>
-            <div className="trainFilterPanel-timeDropdownWrapper">
-              <button
-                className="trainFilterPanel-timeDropdownButton"
-                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-              >
-                {selectedTime} ▼
-              </button>
-              {showTimeDropdown && (
-                <div className="trainFilterPanel-timeDropdownMenu">
-                  {timeOptions.map((time) => (
-                    <div
-                      key={time}
-                      className={`trainFilterPanel-timeOption ${selectedTime === time ? 'trainFilterPanel-timeOptionActive' : ''}`}
-                      onClick={() => handleTimeSelect(time)}
-                    >
-                      {time}
-                      {selectedTime === time && <span className="trainFilterPanel-checkIcon">✓</span>}
-                    </div>
-                  ))}
-                  <button className="trainFilterPanel-filterConfirmButton" onClick={() => setShowTimeDropdown(false)}>
-                    筛选
-                  </button>
-                </div>
-              )}
-            </div>
+            <select
+              className="trainFilterPanel-timeSelect"
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+            >
+              {timeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
