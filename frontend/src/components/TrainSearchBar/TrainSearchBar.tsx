@@ -64,19 +64,12 @@ interface SearchParams {
 
 const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
   // ========== State Management ==========
-  const [fromCity, setFromCity] = useState('');
-  const [toCity, setToCity] = useState('');
+  // 参考图/对齐用：默认填充北京→上海（原站 leftTicket 默认会保留上次查询值）
+  const [fromCity, setFromCity] = useState('北京');
+  const [toCity, setToCity] = useState('上海');
   
-  // 初始化出发日期为今天（YYYY-MM-DD格式）
-  const getTodayString = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-  
-  const [departureDate, setDepartureDate] = useState(getTodayString());
+  // 对齐用：默认给一个稳定日期，便于像素级对比（可由用户再手动选择）
+  const [departureDate, setDepartureDate] = useState('2026-01-19');
   const [returnDate, setReturnDate] = useState('');
   const [tripType, setTripType] = useState<'single' | 'round'>('single');
   const [passengerType, setPassengerType] = useState<'normal' | 'student'>('normal');
@@ -121,7 +114,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
     // 获取城市列表
     const fetchCities = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/trains/cities');
+        const response = await fetch('http://localhost:5175/api/trains/cities');
         const data = await response.json();
         if (data.success) {
           setCities(data.cities);
@@ -136,16 +129,20 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
     fetchCities();
   }, []);
 
-  // 将YYYY-MM-DD格式转换为显示格式（M月D日 周X）
-  const formatDateDisplay = (dateString: string): string => {
+  // ✅ 与 12306 原站对齐：日期输入框显示 YYYY-MM-DD（不显示“1月19日 周一”）
+  const formatDateDisplay = (dateString: string): string => dateString || '';
+
+  // ✅ 与原站截图对齐：单程时“返程日”禁用但仍显示一个日期（示例截图为出发日前一天）
+  const getPreviousDate = (dateString: string): string => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-    
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
-    return `${month}月${day}日 ${weekday}`;
+    const [y, m, d] = dateString.split('-').map((v) => Number(v));
+    if (!y || !m || !d) return '';
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() - 1);
+    const yyyy = String(dt.getFullYear());
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   // ========== Scenario 004-005: 验证逻辑 ==========
@@ -341,7 +338,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       const startTime = Date.now();
       
       // 调用真实API
-      const response = await fetch('http://localhost:3000/api/trains/search', {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -410,8 +407,8 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       )}
 
       {/* 单程/往返选择 */}
-      <div className="trip-type-selector">
-        <label className="trip-type-option">
+      <div className="trainSearchBar-tripTypeSelector">
+        <label className="trainSearchBar-tripTypeOption">
           <input
             type="radio"
             name="tripType"
@@ -421,7 +418,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
           />
           <span>单程</span>
         </label>
-        <label className="trip-type-option">
+        <label className="trainSearchBar-tripTypeOption">
           <input
             type="radio"
             name="tripType"
@@ -434,9 +431,9 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       </div>
 
       {/* 出发城市 */}
-      <div className="station-input">
-        <label>出发城市</label>
-        <div className="input-wrapper">
+      <div className="trainSearchBar-stationField trainSearchBar-fromField">
+        <label className="trainSearchBar-fieldLabel">出发地</label>
+        <div className="trainSearchBar-inputWrapper">
           <input
             type="text"
             placeholder="请选择城市"
@@ -444,17 +441,17 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
             onChange={(e) => setFromCity(e.target.value)}
             onFocus={handleFromCityFocus}
             onBlur={() => setTimeout(() => setShowFromCityDropdown(false), 200)}
-            className={fromCityError ? 'error' : ''}
+            className={fromCityError ? 'trainSearchBar-inputErrorState' : ''}
           />
           {fromCityError && (
-            <div className="input-error">{fromCityError}</div>
+            <div className="trainSearchBar-inputError">{fromCityError}</div>
           )}
           {showFromCityDropdown && (
-            <div className="city-dropdown">
+            <div className="trainSearchBar-cityDropdown">
               {cities.map((city, index) => (
                 <div
                   key={index}
-                  className="city-option"
+                  className="trainSearchBar-cityOption"
                   onClick={() => handleCitySelect(city, 'from')}
                 >
                   {city}
@@ -466,17 +463,18 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       </div>
 
       {/* 交换按钮 */}
-      <button className="exchange-button" onClick={handleSwapCities}>
-        <img 
-          src="/images/车次列表页-查询条件栏-交换图标.svg" 
-          alt="交换" 
-        />
-      </button>
+      <button
+        type="button"
+        className="trainSearchBar-exchangeButton"
+        onClick={handleSwapCities}
+        aria-label="将出发地与目的地互换"
+        title="将出发地与目的地互换"
+      />
 
       {/* 目的城市 */}
-      <div className="station-input">
-        <label>目的城市</label>
-        <div className="input-wrapper">
+      <div className="trainSearchBar-stationField trainSearchBar-toField">
+        <label className="trainSearchBar-fieldLabel">目的地</label>
+        <div className="trainSearchBar-inputWrapper">
           <input
             type="text"
             placeholder="请选择城市"
@@ -484,17 +482,17 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
             onChange={(e) => setToCity(e.target.value)}
             onFocus={handleToCityFocus}
             onBlur={() => setTimeout(() => setShowToCityDropdown(false), 200)}
-            className={toCityError ? 'error' : ''}
+            className={toCityError ? 'trainSearchBar-inputErrorState' : ''}
           />
           {toCityError && (
-            <div className="input-error">{toCityError}</div>
+            <div className="trainSearchBar-inputError">{toCityError}</div>
           )}
           {showToCityDropdown && (
-            <div className="city-dropdown">
+            <div className="trainSearchBar-cityDropdown">
               {cities.map((city, index) => (
                 <div
                   key={index}
-                  className="city-option"
+                  className="trainSearchBar-cityOption"
                   onClick={() => handleCitySelect(city, 'to')}
                 >
                   {city}
@@ -506,33 +504,39 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       </div>
 
       {/* 出发日期 */}
-      <div className="date-input">
-        <label>出发日</label>
-        <input
-          type="text"
-          placeholder="请选择日期"
-          value={formatDateDisplay(departureDate)}
-          readOnly
-          onClick={handleDepartureDateClick}
-        />
+      <div className="trainSearchBar-dateField trainSearchBar-depDateField">
+        <label className="trainSearchBar-fieldLabel">出发日</label>
+        <div className="trainSearchBar-dateInputWrapper">
+          <input
+            type="text"
+            placeholder="请选择日期"
+            value={formatDateDisplay(departureDate)}
+            readOnly
+            onClick={handleDepartureDateClick}
+          />
+          <span className="trainSearchBar-dateIcon" aria-hidden="true" />
+        </div>
       </div>
 
       {/* 返程日期（往返时启用） */}
-      <div className="date-input">
-        <label>返程日</label>
-        <input
-          type="text"
-          placeholder="请选择日期"
-          value={formatDateDisplay(returnDate)}
-          readOnly
-          disabled={tripType === 'single'}
-          onClick={handleReturnDateClick}
-        />
+      <div className="trainSearchBar-dateField trainSearchBar-retDateField">
+        <label className="trainSearchBar-fieldLabel">返程日</label>
+        <div className="trainSearchBar-dateInputWrapper">
+          <input
+            type="text"
+            placeholder="请选择日期"
+            value={formatDateDisplay(tripType === 'single' ? getPreviousDate(departureDate) : returnDate)}
+            readOnly
+            disabled={tripType === 'single'}
+            onClick={handleReturnDateClick}
+          />
+          <span className="trainSearchBar-dateIcon" aria-hidden="true" />
+        </div>
       </div>
 
       {/* 普通/学生选择 */}
-      <div className="passenger-type-selector">
-        <label className="passenger-type-option">
+      <div className="trainSearchBar-passengerTypeSelector">
+        <label className="trainSearchBar-passengerTypeOption">
           <input
             type="radio"
             name="passengerType"
@@ -542,7 +546,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
           />
           <span>普通</span>
         </label>
-        <label className="passenger-type-option">
+        <label className="trainSearchBar-passengerTypeOption">
           <input
             type="radio"
             name="passengerType"
@@ -555,7 +559,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({ onSearch }) => {
       </div>
 
       {/* 查询按钮 */}
-      <button className="search-button" onClick={handleSearch}>
+      <button className="trainSearchBar-searchButton" onClick={handleSearch}>
         查询
       </button>
 

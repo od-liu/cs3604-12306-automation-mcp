@@ -33,7 +33,7 @@
 
 import React, { useState } from 'react';
 import HomeTopBar from '../components/HomeTopBar/HomeTopBar';
-import MainNavigation from '../components/MainNavigation/MainNavigation';
+import SecondaryNav from '../components/SecondaryNav/SecondaryNav';
 import TrainSearchBar from '../components/TrainSearchBar/TrainSearchBar';
 import TrainFilterPanel from '../components/TrainFilterPanel/TrainFilterPanel';
 import TrainList from '../components/TrainList/TrainList';
@@ -62,9 +62,9 @@ const TrainListPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [searchParams, setSearchParams] = useState({
-    fromCity: '北京',
-    toCity: '上海',
-    date: '1月16日 周五'
+    fromCity: '',
+    toCity: '',
+    date: ''
   });
   const [trains, setTrains] = useState<Train[]>([]);
   const [allTrains, setAllTrains] = useState<Train[]>([]); // 保存原始查询结果
@@ -73,18 +73,7 @@ const TrainListPage: React.FC = () => {
 
   // ========== Lifecycle ==========
   
-  /**
-   * 页面加载时自动查询默认车次
-   */
-  React.useEffect(() => {
-    handleSearch({
-      fromCity: '北京',
-      toCity: '上海',
-      departureDate: '2024-01-16',
-      tripType: 'single',
-      passengerType: 'normal'
-    });
-  }, []);
+  // 页面加载时不自动查询，等待用户输入条件后再查询
 
   /**
    * 5分钟过期检测
@@ -123,7 +112,7 @@ const TrainListPage: React.FC = () => {
     
     // 调用 API 获取车次列表
     try {
-      const response = await fetch('http://localhost:3000/api/trains/search', {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -229,18 +218,74 @@ const TrainListPage: React.FC = () => {
     setUsername('');
   };
 
+  /**
+   * @feature "日期快捷选择"
+   * 当用户点击日期筛选按钮时，使用新日期重新查询车次
+   */
+  const handleDateChange = async (newDate: string) => {
+    if (!searchParams.fromCity || !searchParams.toCity) {
+      console.log('请先选择出发地和目的地');
+      return;
+    }
+    
+    console.log('日期变更，重新查询:', newDate);
+    
+    // 更新搜索参数中的日期
+    setSearchParams(prev => ({
+      ...prev,
+      date: newDate
+    }));
+    
+    // 调用 API 获取新日期的车次列表
+    try {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fromCity: searchParams.fromCity,
+          toCity: searchParams.toCity,
+          departureDate: newDate,
+          isStudent: false,
+          isHighSpeed: false
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAllTrains(data.trains);
+        setTrains(data.trains);
+        setLastQueryTime(Date.now());
+        setShowExpireWarning(false);
+      } else {
+        console.error('查询失败:', data.message);
+        setAllTrains([]);
+        setTrains([]);
+      }
+    } catch (error) {
+      console.error('查询失败:', error);
+      setAllTrains([]);
+      setTrains([]);
+    }
+  };
+
   // ========== UI Render ==========
   return (
     <div className="train-list-page">
-      {/* @feature "整合顶部导航栏" */}
-      <HomeTopBar 
-        isLoggedIn={isLoggedIn}
-        username={username}
-        onLogout={handleLogout}
-      />
+      {/* 顶部导航区域（白色背景） */}
+      <header className="train-list-header">
+        {/* @feature "整合顶部导航栏" */}
+        <HomeTopBar 
+          isLoggedIn={isLoggedIn}
+          username={username}
+          onLogout={handleLogout}
+        />
 
-      {/* @feature "整合主导航菜单" */}
-      <MainNavigation />
+        {/* @feature "整合主导航菜单" - 复用主页的SecondaryNav组件 */}
+        <SecondaryNav />
+      </header>
 
       {/* 主内容区域 */}
       <div className="train-list-content">
@@ -250,7 +295,7 @@ const TrainListPage: React.FC = () => {
           <TrainSearchBar onSearch={handleSearch} />
 
           {/* @feature "整合筛选条件区域" */}
-          <TrainFilterPanel onFilter={handleFilter} />
+          <TrainFilterPanel onFilter={handleFilter} onDateChange={handleDateChange} />
         </div>
 
         {/* 5分钟过期警告 */}

@@ -19,7 +19,8 @@
 
 :root {
   --primary-blue: rgb(59, 153, 252);      /* #3B99FC */
-  --bg-light-blue: rgb(239, 241, 249);    /* #EFF1F9 */
+  /* target computed: rgb(238, 241, 248) */
+  --bg-light-blue: rgb(238, 241, 248);    /* #EEF1F8 */
   --text-primary: rgb(51, 51, 51);        /* #333333 */
   --text-secondary: rgb(102, 102, 102);   /* #666666 */
   --text-disabled: rgb(153, 153, 153);    /* #999999 */
@@ -29,16 +30,71 @@
 }
 
 .train-search-bar {
-  width: 100% !important;
-  padding: 20px 24px !important;
-  background-color: transparent !important;
-  border-radius: 0 !important;
+  /* 参考图：查询条件栏为固定内容宽并居中（不要撑满整页） */
+  /* 对齐原站：外框约 1190px（含 10px 左右 padding 的 1168 内容区） */
+  /* target `.sear-box`: width=1168px, padding=12px 10px, border=1px -> total 1190px */
+  width: 1168px !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  /* 12306: `.sear-box.quick-sear-box.sear-box-lg` */
+  padding: 12px 10px !important;
+  /* target computed: content height 48px -> total height 74px (with padding+border) */
+  height: 48px !important;
+  /* 与原站一致：查询条件栏为浅色底（非纯白卡片阴影） */
+  background-color: var(--bg-light-blue) !important;
+  border-radius: 3px !important;
   box-shadow: none !important;
-  border-bottom: 1px solid #E0E0E0 !important;
-  display: flex !important;
+  /* 原站查询框有完整蓝色边框 */
+  border: 1px solid rgb(41, 140, 206) !important;
+  /* 原站文字基调：12px Tahoma/宋体 */
+  font-size: 12px !important;
+  font-family: Tahoma, "宋体" !important;
+  /* 用 grid 固定列宽，避免“控件被拉伸/间距飘”导致位置对不上 */
+  display: grid !important;
+  /* 关键：在“普通/学生”和“查询”之间插入 1fr，使查询按钮靠右对齐（贴近原站布局） */
+  /* 固定列宽 + 固定 gap：用目标站的实际 x 坐标校准（避免 1fr 导致误差累积） */
+  grid-template-columns: 80px 182px 16px 181px 176px 176px 70px 38px 92px !important;
+  column-gap: 14px !important;
   align-items: center !important;
-  gap: 16px !important;
   position: relative !important;
+  /* target computed: content-box */
+  box-sizing: content-box !important;
+  margin-top: 10px !important;
+}
+
+/* ========== grid placement（确保 1fr spacer 生效，避免查询按钮落在 spacer 列） ========== */
+.train-search-bar .trainSearchBar-tripTypeSelector {
+  grid-column: 1 / 2 !important;
+}
+
+.train-search-bar .trainSearchBar-fromField {
+  grid-column: 2 / 3 !important;
+}
+
+.train-search-bar .trainSearchBar-exchangeButton {
+  grid-column: 3 / 4 !important;
+}
+
+.train-search-bar .trainSearchBar-toField {
+  grid-column: 4 / 5 !important;
+}
+
+.train-search-bar .trainSearchBar-depDateField {
+  grid-column: 5 / 6 !important;
+}
+
+.train-search-bar .trainSearchBar-retDateField {
+  grid-column: 6 / 7 !important;
+}
+
+.train-search-bar .trainSearchBar-passengerTypeSelector {
+  grid-column: 7 / 8 !important;
+}
+
+.train-search-bar .trainSearchBar-searchButton {
+  grid-column: 9 / 10 !important;
+  /* 目标站按钮并非贴最右，右侧会保留约 45px 空白 */
+  justify-self: start !important;
 }
 
 /* 通用错误提示（Scenario 006-007, 012） */
@@ -57,64 +113,106 @@
 }
 
 /* 单程/往返切换 */
-.trip-type-selector {
+.train-search-bar .trainSearchBar-tripTypeSelector {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
+  gap: 6px !important;
+  margin-top: 0 !important;
+  position: relative !important;
 }
 
-.trip-type-option {
+/* 原站：单程/往返区域右侧有竖向分隔线 */
+.train-search-bar .trainSearchBar-tripTypeSelector::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: -6px !important; /* 让分隔线落在 grid gap 中间 */
+  width: 1px !important;
+  height: 48px !important;
+  background-color: rgb(180, 210, 232) !important;
+}
+
+.train-search-bar .trainSearchBar-tripTypeOption {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
   cursor: pointer !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
 }
 
-.trip-type-option input[type="radio"] {
+.train-search-bar .trainSearchBar-tripTypeOption input[type="radio"] {
   cursor: pointer !important;
 }
 
 /* 城市输入框 */
-.train-search-bar .station-input {
+.train-search-bar .trainSearchBar-stationField {
   display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
   position: relative !important;
+  /* 目标站“出发地/目的地”为 label + 120px 输入框组合 */
+  width: 162px !important;
+  flex: 0 0 162px !important;
 }
 
-.train-search-bar .station-input label {
+/* 微调：目标站“目的地”输入框相对 swap 更靠右约 5px（必须放在 stationField 之后覆盖 gap） */
+.train-search-bar .trainSearchBar-toField {
+  gap: 11px !important;
+}
+
+.train-search-bar .trainSearchBar-fieldLabel {
   font-size: 12px !important;
-  color: var(--text-secondary) !important;
+  /* 目标站 label 颜色更接近深色 */
+  color: var(--text-primary) !important;
+  white-space: nowrap !important;
+  line-height: 18px !important;
+  /* “出发地/目的地/出发日/返程日”宽度固定，保证输入框 x 对齐 */
+  width: 42px !important;
+  flex: 0 0 42px !important;
 }
 
-.train-search-bar .station-input .input-wrapper {
+.train-search-bar .trainSearchBar-inputWrapper {
   position: relative !important;
+  width: 120px !important;
+  flex: 0 0 120px !important;
 }
 
-.train-search-bar .station-input input {
-  width: 140px !important;
-  height: 36px !important;
-  padding: 0 12px !important;
-  border: 1px solid var(--border-gray) !important;
-  border-radius: 4px !important;
-  font-size: 14px !important;
+.train-search-bar .trainSearchBar-stationField input {
+  /* 12306 `.inp-txt` */
+  /* 12306: width(113 content) + padding-left(5) + border(2) = 120 */
+  width: 113px !important;
+  /* target computed: height=18px + padding(5+5) + border(1+1) = 30px total */
+  height: 18px !important;
+  padding: 5px 0 5px 5px !important;
+  border: 1px solid rgb(207, 205, 199) !important;
+  border-radius: 0 !important;
+  font-size: 12px !important;
+  font-family: Tahoma, "宋体", sans-serif !important;
   background-color: white !important;
+  color: var(--text-disabled) !important; /* 12306 城市输入值为灰色 #999 */
+  line-height: 18px !important;
   outline: none !important;
   transition: border-color 0.2s !important;
+  box-sizing: content-box !important;
+  flex: 0 0 auto !important;
 }
 
-.train-search-bar .station-input input:focus {
+.train-search-bar .trainSearchBar-stationField input::placeholder {
+  color: var(--text-disabled) !important;
+}
+
+.train-search-bar .trainSearchBar-stationField input:focus {
   border-color: var(--primary-blue) !important;
 }
 
 /* 错误状态（Scenario 004-005） */
-.train-search-bar .station-input input.error {
+.train-search-bar .trainSearchBar-stationField input.trainSearchBar-inputErrorState {
   border-color: var(--error-red) !important;
 }
 
-.train-search-bar .station-input .input-error {
+.train-search-bar .trainSearchBar-inputError {
   position: absolute !important;
   top: 100% !important;
   left: 0 !important;
@@ -125,7 +223,7 @@
 }
 
 /* 城市下拉列表（Scenario 008-009） */
-.train-search-bar .city-dropdown {
+.train-search-bar .trainSearchBar-cityDropdown {
   position: absolute !important;
   top: 100% !important;
   left: 0 !important;
@@ -140,7 +238,7 @@
   margin-top: 4px !important;
 }
 
-.train-search-bar .city-option {
+.train-search-bar .trainSearchBar-cityOption {
   padding: 8px 12px !important;
   font-size: 14px !important;
   color: var(--text-primary) !important;
@@ -148,110 +246,163 @@
   transition: background-color 0.2s !important;
 }
 
-.train-search-bar .city-option:hover {
+.train-search-bar .trainSearchBar-cityOption:hover {
   background-color: rgb(240, 248, 255) !important;
 }
 
 /* 交换按钮 */
-.train-search-bar .exchange-button {
-  width: 32px !important;
-  height: 32px !important;
-  background-color: white !important;
-  border: 1px solid var(--border-gray) !important;
-  border-radius: 50% !important;
+.train-search-bar .trainSearchBar-exchangeButton {
+  /* 12306 `#change_station` */
+  width: 16px !important;
+  height: 16px !important;
+  /* grid 中不用大 margin 撑开间距；只把它压到输入框行附近 */
+  /* target computed: margin 18px 20px 0px 5px */
+  margin: 18px 20px 0 5px !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.2s !important;
-  margin-top: 16px !important; /* 对齐到输入框 */
+  display: block !important;
+  background-image: url('/images/train-list/bg02.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: -67px -96px !important;
+  flex: 0 0 auto !important;
 }
 
-.train-search-bar .exchange-button:hover {
-  border-color: var(--primary-blue) !important;
-  background-color: rgb(240, 248, 255) !important;
-}
-
-.train-search-bar .exchange-button img {
-  width: 20px !important;
-  height: 20px !important;
+.train-search-bar .trainSearchBar-exchangeButton:hover {
+  filter: brightness(1.05) !important;
 }
 
 /* 日期选择器 */
-.train-search-bar .date-input {
+.train-search-bar .trainSearchBar-dateField {
   display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  /* 防止被 TrainSearchForm.css 的全局 `.date-input { width:265px !important; }` 影响布局 */
+  width: 162px !important;
+  flex: 0 0 162px !important;
 }
 
-.train-search-bar .date-input label {
+.train-search-bar .trainSearchBar-dateInputWrapper {
+  position: relative !important;
+  width: 120px !important; /* 与 12306 outer width 对齐 */
+  height: 30px !important;
+  flex: 0 0 auto !important;
+}
+
+.train-search-bar .trainSearchBar-dateField input {
+  width: 113px !important;
+  /* target computed: height=18px + padding(5+5) + border(1+1) = 30px total */
+  height: 18px !important;
+  padding: 5px 0 5px 5px !important;
+  border: 1px solid rgb(207, 205, 199) !important;
+  border-radius: 0 !important;
   font-size: 12px !important;
-  color: var(--text-secondary) !important;
-}
-
-.train-search-bar .date-input input {
-  width: 160px !important;
-  height: 36px !important;
-  padding: 0 12px !important;
-  border: 1px solid var(--border-gray) !important;
-  border-radius: 4px !important;
-  font-size: 14px !important;
+  font-family: Tahoma, "宋体", sans-serif !important;
   background-color: white !important;
+  color: var(--text-primary) !important; /* 12306 日期输入值更深 */
+  line-height: 18px !important;
   cursor: pointer !important;
   outline: none !important;
   transition: border-color 0.2s !important;
+  box-sizing: content-box !important;
 }
 
-.train-search-bar .date-input input:disabled {
+.train-search-bar .trainSearchBar-dateIcon {
+  position: absolute !important;
+  right: 5px !important;
+  top: 5px !important;
+  width: 20px !important;
+  height: 20px !important;
+  background-image: url('/images/train-list/icon.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 -250px !important; /* 12306 `.i-date` */
+  pointer-events: none !important;
+}
+
+.train-search-bar .trainSearchBar-dateField input:disabled {
   background-color: rgb(250, 250, 250) !important;
   color: var(--text-disabled) !important;
   cursor: not-allowed !important;
 }
 
-.train-search-bar .date-input input:not(:disabled):hover {
+.train-search-bar .trainSearchBar-dateField input:not(:disabled):hover {
   border-color: var(--primary-blue) !important;
 }
 
 /* 普通/学生选择 */
-.train-search-bar .passenger-type-selector {
+.train-search-bar .trainSearchBar-passengerTypeSelector {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
+  margin-top: 2px !important;
+  position: relative !important;
+  padding-left: 12px !important;
 }
 
-.train-search-bar .passenger-type-option {
+/* 原站：日期区与“普通/学生”之间有竖向分隔线 */
+.train-search-bar .trainSearchBar-passengerTypeSelector::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1px !important;
+  height: 48px !important;
+  background-color: rgb(180, 210, 232) !important;
+}
+
+.train-search-bar .trainSearchBar-passengerTypeOption {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
   cursor: pointer !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
 }
 
-.train-search-bar .passenger-type-option input[type="radio"] {
+.train-search-bar .trainSearchBar-passengerTypeOption input[type="radio"] {
   cursor: pointer !important;
 }
 
 /* 查询按钮 */
-/* ⚠️ 修正：按钮颜色应为橙色 #FF6600（图片实际），而非蓝色（文档错误） */
-.train-search-bar .search-button {
-  width: 100px !important;
-  height: 40px !important;
-  background-color: var(--warning-orange) !important; /* 修正：橙色 */
-  color: white !important;
-  border: none !important;
+.train-search-bar .trainSearchBar-searchButton {
+  /* 对齐原站 #query_ticket.btn92s */
+  width: 92px !important;
+  height: 30px !important;
+  /* 按钮无 label，需要与输入框行对齐 */
+  /* target computed: margin-top 12px, margin-right 10px */
+  margin: 12px 10px 0 0 !important;
+  flex: 0 0 92px !important;
+  flex-shrink: 0 !important;
+
+  display: inline-block !important;
+  border: 0 !important;
   border-radius: 4px !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
+  padding: 0 !important;
+
+  /* 原站使用 bg_btn.png (repeat-x) */
+  background-image: url('/images/registration/bg_btn.png') !important;
+  background-repeat: repeat-x !important;
+  background-position: 0 0 !important;
+  background-color: transparent !important;
+
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  font-family: Tahoma, "宋体", sans-serif !important;
+  line-height: 30px !important;
+  text-align: center !important;
+
   cursor: pointer !important;
-  transition: background-color 0.2s !important;
-  margin-left: auto !important;
 }
 
-.train-search-bar .search-button:hover {
-  background-color: rgb(255, 120, 26) !important; /* 悬停：稍亮的橙色 */
+.train-search-bar .trainSearchBar-searchButton:hover {
+  filter: brightness(1.03) !important;
 }
 
-.train-search-bar .search-button:active {
-  background-color: rgb(230, 92, 0) !important; /* 按下：稍暗的橙色 */
+.train-search-bar .trainSearchBar-searchButton:active {
+  filter: brightness(0.97) !important;
 }

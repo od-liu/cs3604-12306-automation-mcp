@@ -4,15 +4,26 @@
 .train-list-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #F0F2F5; /* 更接近参考图的浅灰背景 */
+  /* 12306 leftTicket 页面的页面底色为白色（筛选/查询块自身有浅色底与边框） */
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
+}
+
+/* ========== 顶部导航区域（白色背景） ========== */
+.train-list-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .train-list-content {
   flex: 1;
   width: 100%;
-  max-width: 1200px;
+  /* 对齐原站 leftTicket：内容区（查询/筛选/列表）主体宽约 1190px */
+  max-width: 1190px;
   margin: 0 auto;
   padding: 0;
   padding-bottom: 40px;
@@ -20,12 +31,12 @@
 
 /* 查询和筛选整合容器 */
 .search-filter-container {
-  background-color: #ffffff;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  margin: 16px 0;
-  margin-bottom: 0;
-  overflow: hidden;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  /* 原站：导航下方间距较小 */
+  margin: 10px 0 0;
+  overflow: visible;
 }
 
 /* ========== 5分钟过期警告 ========== */
