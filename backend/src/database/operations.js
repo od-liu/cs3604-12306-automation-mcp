@@ -812,14 +812,28 @@ export async function searchTrains(fromCity, toCity, departureDate, isStudent = 
       };
     }
     
-    // 查询每个车次的座位信息
-    const trainsWithSeats = [];
-    for (const train of trains) {
-      const seats = await db.allAsync(`
-        SELECT seat_type, total_seats, available_seats, price
-        FROM train_seats
-        WHERE train_id = ?
-      `, train.train_id);
+    // 🚀 性能优化：批量查询所有车次的座位信息（一次查询，而非循环查询）
+    const trainIds = trains.map(t => t.train_id);
+    const placeholders = trainIds.map(() => '?').join(',');
+    
+    const allSeats = await db.allAsync(`
+      SELECT seat_type, total_seats, available_seats, price, train_id
+      FROM train_seats
+      WHERE train_id IN (${placeholders})
+    `, ...trainIds);
+    
+    // 按 train_id 分组座位信息
+    const seatsByTrainId = {};
+    allSeats.forEach(seat => {
+      if (!seatsByTrainId[seat.train_id]) {
+        seatsByTrainId[seat.train_id] = [];
+      }
+      seatsByTrainId[seat.train_id].push(seat);
+    });
+    
+    // 构建返回结果
+    const trainsWithSeats = trains.map(train => {
+      const seats = seatsByTrainId[train.train_id] || [];
       
       // 将座位信息转换为对象格式
       const seatsObj = {};
@@ -841,7 +855,7 @@ export async function searchTrains(fromCity, toCity, departureDate, isStudent = 
         }
       });
       
-      trainsWithSeats.push({
+      return {
         trainNumber: train.train_number,
         trainType: train.train_type,
         departureStation: train.departure_station,
@@ -853,9 +867,9 @@ export async function searchTrains(fromCity, toCity, departureDate, isStudent = 
         duration: train.duration,
         arrivalDay: train.arrival_day === 0 ? '当日到达' : '次日到达',
         seats: seatsObj,
-        supportsStudent: true // 简化实现：所有车次都支持学生票
-      });
-    }
+        supportsStudent: true
+      };
+    });
     
     return {
       success: true,
