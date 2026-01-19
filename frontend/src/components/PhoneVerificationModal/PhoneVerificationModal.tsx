@@ -109,11 +109,22 @@ const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
     }
     
     try {
+      // 从 localStorage 获取用户ID
+      const userId = localStorage.getItem('userId');
+      
+      if (!userId) {
+        setPasswordError('用户未登录，请重新登录');
+        return;
+      }
+      
       // 调用后端验证密码
-      console.log('🔐 开始验证密码...');
+      console.log('🔐 开始验证密码, userId:', userId);
       const response = await fetch('/api/auth/verify-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ password })
       });
       
@@ -173,9 +184,15 @@ const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
     }
     
     try {
+      // 从 localStorage 获取用户ID
+      const userId = localStorage.getItem('userId');
+      
       const response = await fetch('/api/auth/verify-phone-code', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId || ''
+        },
         body: JSON.stringify({ phone, code: verificationCode })
       });
       

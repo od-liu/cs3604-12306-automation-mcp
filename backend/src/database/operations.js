@@ -30,7 +30,7 @@ export async function authenticateUser(username, password) {
 
     // Query user (support username/email/phone) - 包含 name 和 username
     const user = await db.getAsync(
-      'SELECT id, username, password FROM users WHERE username = ? OR email = ? OR phone = ?',
+      'SELECT id, username, name, password_hash FROM users WHERE username = ? OR email = ? OR phone = ?',
       username, username, username
     );
 
@@ -42,7 +42,7 @@ export async function authenticateUser(username, password) {
     }
 
     // Verify password
-    const isValid = bcrypt.compareSync(password, user.password);
+    const isValid = bcrypt.compareSync(password, user.password_hash);
     if (!isValid) {
       return {
         success: false,
@@ -1423,6 +1423,133 @@ export async function getOrderSuccessInfo(orderId) {
     return {
       success: false,
       message: '获取订单信息失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-VERIFY-PASSWORD
+ * @summary 验证用户密码
+ * @param {number} userId - 用户ID
+ * @param {string} password - 密码
+ * @returns {Promise<Object>} result
+ * @output {boolean} result.success - 验证是否成功
+ */
+export async function verifyPassword(userId, password) {
+  try {
+    const { getDb } = await import('./db.js');
+    const bcrypt = (await import('bcrypt')).default;
+    const db = getDb();
+    
+    console.log('🔐 [密码验证] 验证用户密码, userId:', userId);
+    
+    // 查询用户密码哈希
+    const user = await db.getAsync(
+      'SELECT password_hash FROM users WHERE id = ?',
+      userId
+    );
+    
+    if (!user) {
+      console.error('❌ [密码验证] 用户不存在, userId:', userId);
+      return {
+        success: false,
+        message: '用户不存在'
+      };
+    }
+    
+    // 验证密码
+    const isValid = bcrypt.compareSync(password, user.password_hash);
+    
+    if (!isValid) {
+      console.log('❌ [密码验证] 密码错误');
+      return {
+        success: false,
+        message: '密码错误'
+      };
+    }
+    
+    console.log('✅ [密码验证] 密码正确');
+    return {
+      success: true
+    };
+  } catch (error) {
+    console.error('❌ [密码验证] 验证失败:', error);
+    return {
+      success: false,
+      message: '验证失败'
+    };
+  }
+}
+
+/**
+ * @function FUNC-GET-PERSONAL-INFO
+ * @summary 获取用户个人信息
+ * @param {number} userId - 用户ID
+ * @returns {Promise<Object>} result
+ * @output {boolean} result.success - 是否成功
+ * @output {Object} result.data - 用户个人信息
+ */
+export async function getPersonalInfo(userId) {
+  try {
+    const { getDb } = await import('./db.js');
+    const db = getDb();
+    
+    console.log('📋 [个人信息] 获取用户信息, userId:', userId);
+    
+    // 查询用户信息
+    const user = await db.getAsync(`
+      SELECT 
+        username,
+        name as realName,
+        id_type as idType,
+        id_number as idNumber,
+        phone,
+        email,
+        passenger_type as passengerType
+      FROM users
+      WHERE id = ?
+    `, userId);
+    
+    if (!user) {
+      console.error('❌ [个人信息] 用户不存在, userId:', userId);
+      return {
+        success: false,
+        message: '用户不存在'
+      };
+    }
+    
+    console.log('✅ [个人信息] 查询到用户:', user.username);
+    
+    // 格式化返回数据
+    const idTypeMap = {
+      '1': '中华人民共和国居民身份证',
+      '2': '港澳居民来往内地通行证',
+      '3': '台湾居民来往大陆通行证',
+      'C': '护照'
+    };
+    
+    const personalInfo = {
+      username: user.username,
+      realName: user.realName || '',
+      country: '中国', // 固定值
+      idType: idTypeMap[user.idType] || '中华人民共和国居民身份证',
+      idNumber: user.idNumber || '',
+      verificationStatus: '已通过', // 简化处理，实际应查验证表
+      phone: user.phone || '',
+      phoneVerification: '已通过核验', // 简化处理
+      email: user.email || '',
+      discountType: user.passengerType === '1' ? '成人' : (user.passengerType === '2' ? '学生' : '其他')
+    };
+    
+    return {
+      success: true,
+      data: personalInfo
+    };
+  } catch (error) {
+    console.error('❌ [个人信息] 获取个人信息失败:', error);
+    return {
+      success: false,
+      message: '获取个人信息失败'
     };
   }
 }

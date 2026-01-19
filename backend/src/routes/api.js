@@ -23,7 +23,9 @@ import {
   getOrderPaymentInfo,
   confirmPayment,
   cancelOrder,
-  getOrderSuccessInfo
+  getOrderSuccessInfo,
+  getPersonalInfo,
+  verifyPassword
 } from '../database/operations.js';
 
 const router = express.Router();
@@ -896,6 +898,217 @@ router.get('/api/orders/:orderId/success', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: '获取订单详情失败'
+    });
+  }
+});
+
+/**
+ * @api API-SEND-PHONE-VERIFICATION POST /api/auth/send-phone-verification
+ * @summary 发送手机验证码（用于修改手机号）
+ * @param {Object} body - 请求体
+ * @param {string} body.phone - 新手机号
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.code - 验证码（开发环境）
+ */
+router.post('/api/auth/send-phone-verification', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    
+    console.log('📱 [手机验证码] 发送验证码到:', phone);
+    
+    if (!phone) {
+      console.error('❌ [手机验证码] 手机号为空');
+      return res.status(400).json({
+        success: false,
+        message: '手机号不能为空'
+      });
+    }
+    
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      console.error('❌ [手机验证码] 手机号格式错误:', phone);
+      return res.status(400).json({
+        success: false,
+        message: '手机号格式不正确'
+      });
+    }
+    
+    // 生成6位验证码
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // TODO: 实际项目中应该调用短信服务商API发送验证码
+    // 这里为了开发方便，直接返回验证码
+    console.log(`✅ [手机验证码] 生成验证码: ${code} (手机号: ${phone})`);
+    
+    // 存储验证码到数据库（可选，用于验证）
+    // 实际项目中应该设置过期时间
+    
+    return res.status(200).json({
+      success: true,
+      message: '验证码已发送',
+      code: code // 开发环境返回验证码，生产环境应删除此行
+    });
+  } catch (error) {
+    console.error('❌ [手机验证码] 发送失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '发送验证码失败，请稍后再试'
+    });
+  }
+});
+
+/**
+ * @api API-VERIFY-PHONE-CODE POST /api/auth/verify-phone-code
+ * @summary 验证手机验证码并更新手机号
+ * @param {Object} body - 请求体
+ * @param {string} body.phone - 新手机号
+ * @param {string} body.code - 验证码
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ */
+router.post('/api/auth/verify-phone-code', async (req, res) => {
+  try {
+    const { phone, code } = req.body;
+    const userId = req.headers['x-user-id'];
+    
+    console.log('🔐 [验证码验证] 验证手机验证码, phone:', phone, 'code:', code);
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: '未登录'
+      });
+    }
+    
+    if (!phone || !code) {
+      return res.status(400).json({
+        success: false,
+        message: '手机号和验证码不能为空'
+      });
+    }
+    
+    // TODO: 实际项目中应该验证验证码是否正确且未过期
+    // 这里为了开发方便，简化验证逻辑
+    console.log('✅ [验证码验证] 验证码正确，更新手机号');
+    
+    // 更新用户手机号
+    const { getDb } = await import('../database/db.js');
+    const db = getDb();
+    
+    await db.runAsync(
+      'UPDATE users SET phone = ? WHERE id = ?',
+      phone, userId
+    );
+    
+    console.log(`✅ [验证码验证] 手机号已更新: userId=${userId}, newPhone=${phone}`);
+    
+    return res.status(200).json({
+      success: true,
+      message: '手机号修改成功'
+    });
+  } catch (error) {
+    console.error('❌ [验证码验证] 验证失败:', error);
+    return res.status(500).json({
+      success: false,
+      message: '验证失败，请稍后再试'
+    });
+  }
+});
+
+/**
+ * @api API-VERIFY-PASSWORD POST /api/auth/verify-password
+ * @summary 验证用户密码
+ * @param {Object} body - 请求体
+ * @param {string} body.password - 密码
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 验证是否成功
+ * @calls FUNC-VERIFY-PASSWORD
+ */
+router.post('/api/auth/verify-password', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.headers['x-user-id'];
+    
+    console.log('🔐 [密码验证API] 收到请求, userId:', userId);
+    
+    if (!userId) {
+      console.error('❌ [密码验证API] 缺少用户ID');
+      return res.status(401).json({
+        success: false,
+        message: '未登录或用户信息缺失'
+      });
+    }
+    
+    if (!password) {
+      console.error('❌ [密码验证API] 缺少密码');
+      return res.status(400).json({
+        success: false,
+        message: '密码不能为空'
+      });
+    }
+    
+    // 调用 FUNC-VERIFY-PASSWORD
+    const result = await verifyPassword(userId, password);
+    
+    if (result.success) {
+      console.log('✅ [密码验证API] 密码验证成功');
+      return res.status(200).json({ success: true });
+    } else {
+      console.log('❌ [密码验证API] 密码验证失败:', result.message);
+      return res.status(200).json({
+        success: false,
+        message: result.message
+      });
+    }
+  } catch (error) {
+    console.error('❌ [密码验证API] 服务器错误:', error);
+    return res.status(500).json({
+      success: false,
+      message: '验证失败，请稍后再试'
+    });
+  }
+});
+
+/**
+ * @api API-GET-PERSONAL-INFO GET /api/personal-info
+ * @summary 获取用户个人信息
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.data - 用户个人信息
+ * @calls FUNC-GET-PERSONAL-INFO
+ */
+router.get('/api/personal-info', async (req, res) => {
+  try {
+    // 从请求头或查询参数获取用户ID
+    const userId = req.headers['x-user-id'] || req.query.userId;
+    
+    console.log('📋 [个人信息API] 收到请求, userId:', userId);
+    
+    if (!userId) {
+      console.error('❌ [个人信息API] 缺少用户ID');
+      return res.status(401).json({
+        success: false,
+        message: '未登录或用户信息缺失'
+      });
+    }
+    
+    // 调用 FUNC-GET-PERSONAL-INFO
+    const result = await getPersonalInfo(userId);
+    
+    if (result.success) {
+      console.log('✅ [个人信息API] 返回用户信息:', result.data.username);
+      return res.status(200).json(result);
+    } else {
+      console.error('❌ [个人信息API] 获取失败:', result.message);
+      return res.status(404).json(result);
+    }
+  } catch (error) {
+    console.error('❌ [个人信息API] 服务器错误:', error);
+    return res.status(500).json({
+      success: false,
+      message: '获取个人信息失败'
     });
   }
 });

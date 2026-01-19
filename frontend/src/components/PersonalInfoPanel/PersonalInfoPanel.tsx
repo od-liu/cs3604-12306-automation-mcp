@@ -51,6 +51,7 @@ interface PersonalInfoData {
 }
 
 const PersonalInfoPanel: React.FC = () => {
+  const [loading, setLoading] = useState(true); // 🆕 添加加载状态
   const [data, setData] = useState<PersonalInfoData>({
     username: '',
     realName: '',
@@ -85,16 +86,39 @@ const PersonalInfoPanel: React.FC = () => {
   useEffect(() => {
     const fetchPersonalInfo = async () => {
       try {
-        const response = await fetch('/api/personal-info');
+        setLoading(true); // 🆕 开始加载
+        
+        // 从 localStorage 获取用户ID
+        const userId = localStorage.getItem('userId');
+        
+        if (!userId) {
+          console.error('❌ [个人信息] 未找到用户ID，无法获取个人信息');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('📋 [个人信息] 获取用户信息, userId:', userId);
+        
+        // 发送请求时携带用户ID
+        const response = await fetch('/api/personal-info', {
+          headers: {
+            'X-User-Id': userId
+          }
+        });
         const result = await response.json();
         
         if (result.success) {
+          console.log('✅ [个人信息] 成功获取用户信息:', result.data.username);
           setData(result.data);
           setEditedEmail(result.data.email || '');
           setEditedDiscountType(result.data.discountType || '');
+        } else {
+          console.error('❌ [个人信息] 获取失败:', result.message);
         }
       } catch (error) {
-        console.error('获取个人信息失败:', error);
+        console.error('❌ [个人信息] 网络错误:', error);
+      } finally {
+        setLoading(false); // 🆕 加载完成
       }
     };
     
@@ -165,51 +189,57 @@ const PersonalInfoPanel: React.FC = () => {
 
   return (
     <div className="personal-info-panel" id="ui-personal-info-content">
-      {/* 基本信息部分 */}
-      <div className="basic-info-section">
-        <h3 className="section-title">基本信息</h3>
-        <div className="info-content">
-          <div className="info-row">
-            <span className="info-label">
-              <span className="required-mark">* </span>用户名：
-            </span>
-            <span className="info-value">{data.username || 'od12322'}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="info-label">
-              <span className="required-mark">* </span>姓名：
-            </span>
-            <span className="info-value">{data.realName || '刘嘉敏'}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="info-label">国家/地区：</span>
-            <span className="info-value">{data.country || '中国China'}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="info-label">
-              <span className="required-mark">* </span>证件类型：
-            </span>
-            <span className="info-value">{data.idType || '居民身份证'}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="info-label">
-              <span className="required-mark">* </span>证件号码：
-            </span>
-            <span className="info-value">{data.idNumber || '3301***********028'}</span>
-          </div>
-          
-          <div className="info-row">
-            <span className="info-label">核验状态：</span>
-            <span className="info-value verification-status">
-              {data.verificationStatus || '已通过'}
-            </span>
-          </div>
+      {loading ? (
+        <div className="loading-container">
+          <div className="loading-text">加载中...</div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* 基本信息部分 */}
+          <div className="basic-info-section">
+            <h3 className="section-title">基本信息</h3>
+            <div className="info-content">
+              <div className="info-row">
+                <span className="info-label">
+                  <span className="required-mark">* </span>用户名：
+                </span>
+                <span className="info-value">{data.username}</span>
+              </div>
+              
+              <div className="info-row">
+                <span className="info-label">
+                  <span className="required-mark">* </span>姓名：
+                </span>
+                <span className="info-value">{data.realName}</span>
+              </div>
+              
+              <div className="info-row">
+                <span className="info-label">国家/地区：</span>
+                <span className="info-value">{data.country}</span>
+              </div>
+              
+              <div className="info-row">
+                <span className="info-label">
+                  <span className="required-mark">* </span>证件类型：
+                </span>
+                <span className="info-value">{data.idType}</span>
+              </div>
+              
+              <div className="info-row">
+                <span className="info-label">
+                  <span className="required-mark">* </span>证件号码：
+                </span>
+                <span className="info-value">{data.idNumber}</span>
+              </div>
+              
+              <div className="info-row">
+                <span className="info-label">核验状态：</span>
+                <span className="info-value verification-status">
+                  {data.verificationStatus}
+                </span>
+              </div>
+            </div>
+          </div>
       
       {/* 联系方式部分 */}
       <div className="contact-info-section">
@@ -230,10 +260,10 @@ const PersonalInfoPanel: React.FC = () => {
               <span className="required-mark">* </span>手机号：
             </span>
             <div className="info-value-group">
-              <span className="info-value">{data.phone || '(+86) 198****9256'}</span>
+              <span className="info-value">{data.phone}</span>
               {!isEditingContact ? (
                 <span className="verification-status">
-                  {data.phoneVerification || '已通过核验'}
+                  {data.phoneVerification}
                 </span>
               ) : (
                 <span className="phone-verify-link" onClick={handlePhoneVerify}>
@@ -279,7 +309,7 @@ const PersonalInfoPanel: React.FC = () => {
               <span className="required-mark">* </span>优惠(待)类型：
             </span>
             {!isEditingAdditional ? (
-              <span className="info-value">{data.discountType || '成人'}</span>
+              <span className="info-value">{data.discountType}</span>
             ) : (
               <select
                 className="input-select"
@@ -295,12 +325,14 @@ const PersonalInfoPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* 手机验证弹窗 */}
-      <PhoneVerificationModal
-        isOpen={showPhoneVerifyModal}
-        onClose={() => setShowPhoneVerifyModal(false)}
-        onSuccess={handlePhoneVerifySuccess}
-      />
+          {/* 手机验证弹窗 */}
+          <PhoneVerificationModal
+            isOpen={showPhoneVerifyModal}
+            onClose={() => setShowPhoneVerifyModal(false)}
+            onSuccess={handlePhoneVerifySuccess}
+          />
+        </>
+      )}
     </div>
   );
 };
