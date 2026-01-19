@@ -286,14 +286,17 @@
 /* 席别余票 */
 .seat-availability {
   font-size: 12px !important;
-  color: var(--trainlist-text-secondary) !important;
+  /* 原网站：票数数字显示为黑色 */
+  color: rgb(51, 51, 51) !important;
 }
 
+/* 只有"有"显示为绿色 */
 .seat-availability.has-tickets {
   color: var(--trainlist-success-green) !important;
   font-weight: 600 !important;
 }
 
+/* "--" 显示为灰色 */
 .seat-availability.not-available {
   color: rgb(189, 189, 189) !important;
 }
