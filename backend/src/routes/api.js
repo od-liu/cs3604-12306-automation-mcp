@@ -19,7 +19,11 @@ import {
   searchTrains,
   getTrainDetails,
   getPassengers,
-  submitOrder
+  submitOrder,
+  getOrderPaymentInfo,
+  confirmPayment,
+  cancelOrder,
+  getOrderSuccessInfo
 } from '../database/operations.js';
 
 const router = express.Router();
@@ -53,7 +57,9 @@ router.post('/api/auth/login', async (req, res) => {
   if (result.success) {
     return res.status(200).json({
       success: true,
-      userId: result.userId
+      userId: result.userId,
+      username: result.username,
+      name: result.name
     });
   } else {
     return res.status(401).json({
@@ -491,8 +497,17 @@ router.get('/api/trains/:trainNumber/details', async (req, res) => {
  * @calls FUNC-GET-PASSENGERS - 委托给数据库查询函数
  */
 router.get('/api/passengers', async (req, res) => {
-  // 从session或token中获取用户ID（这里暂时mock）
-  const userId = req.session?.userId || 'mock-user-id';
+  // 从session、query参数或header中获取用户ID
+  const userId = req.session?.userId || req.query.userId || req.headers['x-user-id'];
+  
+  // 如果没有用户ID，返回空列表（未登录状态）
+  if (!userId) {
+    return res.status(200).json({
+      success: true,
+      passengers: [],
+      message: '未登录，请先登录后查看乘客列表'
+    });
+  }
   
   try {
     // 调用 FUNC-GET-PASSENGERS 从数据库获取
@@ -536,26 +551,28 @@ router.get('/api/passengers', async (req, res) => {
  * @calls FUNC-SUBMIT-ORDER - 委托给订单处理函数
  */
 router.post('/api/orders/submit', async (req, res) => {
-  const { trainNo, date, departureStation, arrivalStation, passengers } = req.body;
+  const { trainNumber, departureDate, fromStation, toStation, departureTime, arrivalTime, passengers } = req.body;
   
   // 参数验证
-  if (!trainNo || !date || !departureStation || !arrivalStation || !passengers || passengers.length === 0) {
+  if (!trainNumber || !departureDate || !fromStation || !toStation || !passengers || passengers.length === 0) {
     return res.status(400).json({
       success: false,
       message: '订单信息不完整'
     });
   }
   
-  // 从session或token中获取用户ID
-  const userId = req.session?.userId || 'mock-user-id';
+  // 从session或token中获取用户ID (暂时使用固定ID，实际应从session获取)
+  const userId = req.session?.userId || 1;
   
   try {
     // 调用 FUNC-SUBMIT-ORDER 处理订单
     const result = await submitOrder(userId, {
-      trainNo,
-      date,
-      departureStation,
-      arrivalStation,
+      trainNumber,
+      departureDate,
+      fromStation,
+      toStation,
+      departureTime,
+      arrivalTime,
       passengers
     });
     
@@ -576,6 +593,126 @@ router.post('/api/orders/submit', async (req, res) => {
       success: false,
       message: '订单提交失败'
     });
+  }
+});
+
+/**
+ * @api API-GET-ORDER-PAYMENT-INFO GET /api/payment/:orderId
+ * @summary 获取订单支付信息
+ * @param {string} orderId - 订单ID (URL参数)
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.order - 订单信息
+ * @calls FUNC-GET-ORDER-PAYMENT-INFO
+ */
+router.get('/api/payment/:orderId', async (req, res) => {
+  const { orderId } = req.params;
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单ID不能为空'
+    });
+  }
+  
+  const result = await getOrderPaymentInfo(orderId);
+  
+  if (result.success) {
+    return res.status(200).json(result);
+  } else {
+    return res.status(404).json(result);
+  }
+});
+
+/**
+ * @api API-CONFIRM-PAYMENT POST /api/payment/:orderId/confirm
+ * @summary 确认支付订单
+ * @param {string} orderId - 订单ID (URL参数)
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.message - 响应消息
+ * @returns {boolean} response.timeout - 是否超时(可选)
+ * @calls FUNC-CONFIRM-PAYMENT
+ */
+router.post('/api/payment/:orderId/confirm', async (req, res) => {
+  const { orderId } = req.params;
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单ID不能为空'
+    });
+  }
+  
+  const result = await confirmPayment(orderId);
+  
+  if (result.success) {
+    return res.status(200).json(result);
+  } else {
+    if (result.timeout) {
+      return res.status(400).json(result);
+    }
+    return res.status(500).json(result);
+  }
+});
+
+/**
+ * @api API-CANCEL-ORDER POST /api/payment/:orderId/cancel
+ * @summary 取消订单
+ * @param {string} orderId - 订单ID (URL参数)
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {string} response.message - 响应消息
+ * @calls FUNC-CANCEL-ORDER
+ */
+router.post('/api/payment/:orderId/cancel', async (req, res) => {
+  const { orderId } = req.params;
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单ID不能为空'
+    });
+  }
+  
+  // TODO: 从session获取userId
+  // 临时方案：从请求体或query获取，实际应该从session中获取
+  const userId = req.body.userId || req.query.userId || 1;
+  
+  const result = await cancelOrder(orderId, userId);
+  
+  if (result.success) {
+    return res.status(200).json(result);
+  } else {
+    return res.status(500).json(result);
+  }
+});
+
+/**
+ * @api API-GET-ORDER-SUCCESS-INFO GET /api/orders/:orderId/success
+ * @summary 获取订单成功信息
+ * @param {string} orderId - 订单ID (URL参数)
+ * @returns {Object} response - 响应体
+ * @returns {boolean} response.success - 是否成功
+ * @returns {Object} response.order - 订单信息
+ * @calls FUNC-GET-ORDER-SUCCESS-INFO
+ */
+router.get('/api/orders/:orderId/success', async (req, res) => {
+  const { orderId } = req.params;
+  
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: '订单ID不能为空'
+    });
+  }
+  
+  const result = await getOrderSuccessInfo(orderId);
+  
+  if (result.success) {
+    return res.status(200).json(result);
+  } else {
+    return res.status(404).json(result);
   }
 });
 

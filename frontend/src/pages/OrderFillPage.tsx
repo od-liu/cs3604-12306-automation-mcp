@@ -55,6 +55,10 @@ const OrderFillPage: React.FC = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedPassengers, setSelectedPassengers] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 订单提交中状态
+  
+  // 从 localStorage 获取当前登录用户ID
+  const userId = localStorage.getItem('userId');
   
   // 从路由state中获取车次信息
   const trainData = location.state?.trainData || {
@@ -96,36 +100,70 @@ const OrderFillPage: React.FC = () => {
   };
 
   const handleConfirmOrder = async () => {
+    // 防止重复提交
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     // 提交订单到后端
     try {
-      const response = await fetch('/api/orders', {
+      // 转换乘客数据格式以匹配后端API
+      const formattedPassengers = selectedPassengers.map((sp: any) => ({
+        passengerId: sp.passenger.id,
+        name: sp.passenger.name,
+        idType: sp.passenger.idType,
+        idNumber: sp.passenger.idNumber,
+        ticketType: sp.ticketType || sp.passenger.passengerType,
+        seatClass: sp.seatType,
+        price: sp.seatPrice
+      }));
+
+      // 转换订单数据格式以匹配后端API
+      const orderPayload = {
+        trainNumber: trainData.trainNo,
+        departureDate: trainData.date,
+        fromStation: trainData.departureStation,
+        toStation: trainData.arrivalStation,
+        departureTime: trainData.departureTime,
+        arrivalTime: trainData.arrivalTime,
+        passengers: formattedPassengers
+      };
+
+      console.log('提交订单数据:', orderPayload);
+
+      const response = await fetch('http://localhost:5175/api/orders/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          trainNo: trainData.trainNo,
-          date: trainData.date,
-          departureStation: trainData.departureStation,
-          arrivalStation: trainData.arrivalStation,
-          passengers: selectedPassengers
-        })
+        body: JSON.stringify(orderPayload)
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // 关闭弹窗
+        setShowConfirmModal(false);
         // 跳转到支付页面
-        navigate('/payment', { state: { orderId: data.orderId } });
+        console.log('订单提交成功，跳转到支付页面:', `/payment/${data.orderId}`);
+        navigate(`/payment/${data.orderId}`);
       } else {
-        const error = await response.json();
-        setErrorMessage(error.message || '提交订单失败');
+        // 检查是否是票已售罄
+        if (data.message && data.message.includes('售罄')) {
+          setErrorMessage('手慢了，该车次席别车票已售罄！');
+        } else {
+          setErrorMessage(data.message || '提交订单失败');
+        }
+        setShowConfirmModal(false);
         setShowErrorModal(true);
       }
     } catch (error) {
-      setErrorMessage('网络错误，请稍后重试');
+      console.error('订单提交失败:', error);
+      setErrorMessage('网络忙，请稍后再试。');
+      setShowConfirmModal(false);
       setShowErrorModal(true);
     } finally {
-      setShowConfirmModal(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -134,7 +172,10 @@ const OrderFillPage: React.FC = () => {
   };
 
   const handleCloseModal = () => {
-    setShowConfirmModal(false);
+    // 提交过程中不允许关闭弹窗
+    if (!isSubmitting) {
+      setShowConfirmModal(false);
+    }
   };
 
   const handleCloseErrorModal = () => {
@@ -168,6 +209,7 @@ const OrderFillPage: React.FC = () => {
           trainNo={trainData.trainNo}
           availableSeats={availableSeats}
           onPassengersChange={handlePassengersChange}
+          userId={userId || undefined}
         />
         
         {/* REQ-ORDER-SUBMIT: 提交订单区域 */}
@@ -209,6 +251,7 @@ const OrderFillPage: React.FC = () => {
           }}
           onClose={handleCloseModal}
           onConfirm={handleConfirmOrder}
+          isSubmitting={isSubmitting}
         />
       )}
       
