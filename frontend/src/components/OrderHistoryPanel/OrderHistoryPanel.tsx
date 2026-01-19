@@ -132,8 +132,24 @@ const OrderHistoryPanel: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
-        setOrders(data.data || []);
-        console.log(`✅ [订单历史] 获取到 ${data.data?.length || 0} 条订单`);
+        // 🔧 转换后端返回的数据格式为前端期望的格式
+        const transformedOrders = (data.data || []).map((order: any) => ({
+          id: order.orderId?.toString() || '',
+          trainNumber: order.trainNumber || '',
+          departureStation: order.fromStation || '',
+          arrivalStation: order.toStation || '',
+          departureDate: order.date || '',
+          departureTime: order.departTime || '',
+          arrivalTime: order.arriveTime || '',
+          passengers: (order.passengers || []).map((p: any) => p.name),  // 提取乘客姓名
+          seatType: order.passengers?.[0]?.seatClass || '',  // 第一个乘客的座位类型
+          seatNumber: order.passengers?.[0]?.seatNumber || '',  // 第一个乘客的座位号
+          price: order.totalPrice || 0,
+          status: order.status || ''
+        }));
+        
+        setOrders(transformedOrders);
+        console.log(`✅ [订单历史] 获取到 ${transformedOrders.length} 条订单`);
       } else {
         console.error('❌ [订单历史] 获取失败:', data.message);
       }
