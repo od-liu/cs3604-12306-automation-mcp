@@ -68,8 +68,8 @@ const OrderFillPage: React.FC = () => {
   // 从 localStorage 获取当前登录用户ID
   const userId = localStorage.getItem('userId');
   
-  // 从路由state中获取车次信息
-  const trainData = location.state?.trainData || {
+  // 默认列车数据（用于直接访问 /order 页面时的展示）
+  const defaultTrainData = {
     date: '2026-01-18（周日）',
     trainNo: 'G103',
     departureStation: '北京南',
@@ -78,8 +78,33 @@ const OrderFillPage: React.FC = () => {
     arrivalTime: '11:58',
     prices: {
       secondClass: { price: 662.0, available: 960 },
-      firstClass: { price: 1060.0, available: 80 },
-      businessClass: { price: 2318.0, available: 10 }
+      firstClass: { price: 1060.0, available: 805 },
+      businessClass: { price: 2318.0, available: 105 }
+    }
+  };
+  
+  // 从路由state中获取车次信息，对每个属性进行回退
+  const routeData = location.state?.trainData;
+  const trainData = {
+    date: routeData?.date || defaultTrainData.date,
+    trainNo: routeData?.trainNo || defaultTrainData.trainNo,
+    departureStation: routeData?.departureStation || defaultTrainData.departureStation,
+    departureTime: routeData?.departureTime || defaultTrainData.departureTime,
+    arrivalStation: routeData?.arrivalStation || defaultTrainData.arrivalStation,
+    arrivalTime: routeData?.arrivalTime || defaultTrainData.arrivalTime,
+    prices: {
+      secondClass: {
+        price: routeData?.prices?.secondClass?.price ?? defaultTrainData.prices.secondClass.price,
+        available: routeData?.prices?.secondClass?.available ?? defaultTrainData.prices.secondClass.available
+      },
+      firstClass: {
+        price: routeData?.prices?.firstClass?.price ?? defaultTrainData.prices.firstClass.price,
+        available: routeData?.prices?.firstClass?.available ?? defaultTrainData.prices.firstClass.available
+      },
+      businessClass: {
+        price: routeData?.prices?.businessClass?.price ?? defaultTrainData.prices.businessClass.price,
+        available: routeData?.prices?.businessClass?.available ?? defaultTrainData.prices.businessClass.available
+      }
     }
   };
 

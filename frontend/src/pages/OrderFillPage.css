@@ -4,7 +4,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: rgb(240, 240, 240); /* 浅灰背景 */
+  background-color: #ffffff; /* 与 target_image.png 一致：纯白背景 */
 }
 
 /* ========== 顶部导航区域（白色背景） ========== */
@@ -23,6 +23,8 @@
   flex-direction: column;
   padding-top: 20px;
   padding-bottom: 40px;
+  width: 980px;
+  margin: 0 auto;
 }
 
 /* 占位符样式（开发阶段辅助） */

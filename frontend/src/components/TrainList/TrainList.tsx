@@ -124,6 +124,24 @@ const TrainList: React.FC<TrainListProps> = ({
       return;
     }
     
+    // 辅助函数：获取席别价格（从 train.seats['xxx_price'] 获取，如果没有则使用默认值）
+    const getSeatPrice = (seatType: string, defaultPrice: number): number => {
+      const priceKey = `${seatType}_price`;
+      const priceValue = train.seats[priceKey];
+      if (priceValue !== undefined && priceValue !== null && priceValue !== '--') {
+        return parseFloat(String(priceValue)) || defaultPrice;
+      }
+      return defaultPrice;
+    };
+    
+    // 辅助函数：获取席别余票数
+    const getSeatAvailable = (seatType: string): number => {
+      const seatValue = train.seats[seatType];
+      if (seatValue === '有') return 999;
+      if (seatValue === '无' || seatValue === '--' || seatValue === undefined) return 0;
+      return parseInt(String(seatValue)) || 0;
+    };
+    
     // 构造订单填写页需要的车次数据
     const trainData = {
       date: date, // 使用传入的日期
@@ -136,16 +154,16 @@ const TrainList: React.FC<TrainListProps> = ({
       arrivalDay: train.arrivalDay,
       prices: {
         secondClass: { 
-          price: parseFloat(String(train.seats['二等座'])) || 0, 
-          available: train.seats['二等座'] === '有' ? 999 : (parseInt(String(train.seats['二等座'])) || 0)
+          price: getSeatPrice('二等座', 662.0), 
+          available: getSeatAvailable('二等座')
         },
         firstClass: { 
-          price: parseFloat(String(train.seats['一等座'])) || 0, 
-          available: train.seats['一等座'] === '有' ? 999 : (parseInt(String(train.seats['一等座'])) || 0)
+          price: getSeatPrice('一等座', 1060.0), 
+          available: getSeatAvailable('一等座')
         },
         businessClass: { 
-          price: parseFloat(String(train.seats['商务座'])) || 0, 
-          available: train.seats['商务座'] === '有' ? 999 : (parseInt(String(train.seats['商务座'])) || 0)
+          price: getSeatPrice('商务座', 2318.0), 
+          available: getSeatAvailable('商务座')
         }
       }
     };
