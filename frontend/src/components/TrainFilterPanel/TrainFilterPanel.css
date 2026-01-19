@@ -12,132 +12,187 @@
 .train-filter-panel {
   width: 100% !important;
   margin: 0 !important;
-  background-color: transparent !important;
+  /* 原站截图中为白底（避免透明导致截图/视觉出现黑底） */
+  background-color: white !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 20px 24px !important;
-  padding-top: 16px !important;
+  /* 12306 `.sear-sel-bd`：更紧凑，且左右基本不留内边距 */
+  padding: 3px 0 30px !important;
+  border: 1px solid rgb(51, 145, 208) !important;
   position: relative !important;
+  font-size: 12px !important;
+  font-family: Tahoma, "宋体" !important;
 }
 
-/* 日期快捷选择 */
-.date-filter {
+/* 外层容器（对应 12306 `.sear-sel`） */
+.train-filter-wrapper {
+  width: 100% !important;
+}
+
+/* 日期快捷选择（位于蓝色筛选框上方） */
+.train-filter-date-strip {
   display: flex !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-  margin-bottom: 16px !important;
-  padding-bottom: 16px !important;
-  border-bottom: 1px solid #E0E0E0 !important;
+  /* 原站日期条为“连续按钮”，基本无间距 */
+  gap: 0 !important;
+  flex-wrap: nowrap !important;
+  margin: 0 !important;
+  padding: 0 0 0 0 !important;
+  overflow: hidden !important;
+  /* 目标截图：日期条区域有浅灰底 */
+  background-color: rgb(245, 245, 245) !important;
 }
 
-.date-button {
-  padding: 8px 16px !important;
-  border: 1px solid var(--border-gray) !important;
-  border-radius: 4px !important;
-  background-color: white !important;
-  font-size: 14px !important;
+.train-filter-date-strip .trainFilterPanel-dateButton {
+  width: 62px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border: 1px solid rgb(204, 204, 204) !important;
+  border-radius: 0 !important;
+  /* 目标截图：未选中为灰色渐变底 */
+  background-image: linear-gradient(rgb(250, 250, 250), rgb(230, 230, 230)) !important;
+  background-color: rgb(245, 245, 245) !important;
+  background-repeat: repeat-x !important;
+  box-sizing: border-box !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
 }
 
-.date-button:hover {
+.train-filter-date-strip .trainFilterPanel-dateButton:not(:last-child) {
+  border-right: 0 !important;
+}
+
+.train-filter-date-strip .trainFilterPanel-dateButtonTop {
+  font-size: 12px !important;
+  line-height: 14px !important;
+}
+
+.train-filter-date-strip .trainFilterPanel-dateButtonBottom {
+  /* 目标截图中仅选中日期展示“周X”，其余只展示日期 */
+  display: none !important;
+  margin-top: 2px !important;
+  font-size: 11px !important;
+  line-height: 12px !important;
+  opacity: 0.9 !important;
+}
+
+.train-filter-date-strip .trainFilterPanel-dateButton:hover {
   border-color: var(--primary-blue) !important;
   color: var(--primary-blue) !important;
 }
 
-.date-button.active {
-  background-color: var(--primary-blue) !important;
-  border-color: var(--primary-blue) !important;
-  color: white !important;
+.train-filter-date-strip .trainFilterPanel-dateButton.trainFilterPanel-dateButtonActive {
+  /* 目标截图：选中态为白底 + 蓝字 + 蓝边框（不使用整块贴图底色） */
+  background-image: none !important;
+  background-color: #ffffff !important;
+  color: rgb(59, 153, 252) !important; /* #3B99FC */
+  font-weight: 700 !important;
+  border-color: rgb(59, 153, 252) !important;
+  border-width: 2px !important;
 }
+
+.train-filter-date-strip .trainFilterPanel-dateButton.trainFilterPanel-dateButtonActive .trainFilterPanel-dateButtonBottom {
+  display: block !important;
+  color: rgb(59, 153, 252) !important;
+}
+
+/* 选中态"周X" - 移除多余的长横线，与原网站一致 */
 
 /* 筛选条件行 */
-.filter-row {
+.train-filter-panel .trainFilterPanel-row {
   display: flex !important;
   align-items: center !important;
-  padding: 16px 0 !important;
-  border-bottom: 1px solid var(--bg-light-gray) !important;
-  gap: 16px !important;
-  flex-wrap: wrap !important;
+  padding: 2px 0 !important;
+  border-bottom: none !important;
+  gap: 8px !important;
+  /* 原站筛选行基本不换行（避免把区域撑得很高） */
+  flex-wrap: nowrap !important;
 }
 
-.filter-row:first-child {
+.train-filter-panel .trainFilterPanel-row:first-child {
   padding-top: 0 !important;
 }
 
-.filter-row:last-child {
+.train-filter-panel .trainFilterPanel-row:last-child {
   border-bottom: none !important;
 }
 
 /* 筛选标签 */
-.filter-label {
-  font-size: 14px !important;
+.train-filter-panel .trainFilterPanel-label {
+  font-size: 12px !important;
   color: var(--text-primary) !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
-  min-width: 80px !important;
+  min-width: 68px !important;
 }
 
 /* 全部按钮 */
-.all-button {
-  padding: 6px 16px !important;
-  border: 1px solid var(--border-gray) !important;
-  border-radius: 4px !important;
-  background-color: white !important;
-  font-size: 14px !important;
-  color: var(--text-primary) !important;
+.train-filter-panel .trainFilterPanel-allButton {
+  padding: 0 10px !important;
+  /* 原站默认就是蓝底白字的小按钮 */
+  border: 1px solid rgb(51, 145, 208) !important;
+  border-radius: 3px !important;
+  background-color: rgb(51, 145, 208) !important;
+  height: 22px !important;
+  font-size: 12px !important;
+  color: white !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
 }
 
-.all-button:hover {
-  border-color: var(--primary-blue) !important;
-  color: var(--primary-blue) !important;
+.train-filter-panel .trainFilterPanel-allButton:hover {
+  filter: brightness(1.03) !important;
 }
 
-.all-button.active {
-  background-color: var(--primary-blue) !important;
-  border-color: var(--primary-blue) !important;
+.train-filter-panel .trainFilterPanel-allButton.trainFilterPanel-allButtonActive {
+  background-color: rgb(51, 145, 208) !important;
+  border-color: rgb(51, 145, 208) !important;
   color: white !important;
 }
 
 /* 复选框样式 */
-.checkbox-label {
+.train-filter-panel .trainFilterPanel-checkboxLabel {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
   cursor: pointer !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
+  white-space: nowrap !important;
 }
 
-.checkbox-label input[type="checkbox"] {
+.train-filter-panel .trainFilterPanel-checkboxLabel input[type="checkbox"] {
   cursor: pointer !important;
-  width: 16px !important;
-  height: 16px !important;
+  width: 13px !important;
+  height: 13px !important;
 }
 
 /* 发车时间下拉选择器 */
-.time-filter {
+.train-filter-panel .trainFilterPanel-timeFilter {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   margin-left: auto !important;
 }
 
-.time-dropdown-wrapper {
+.train-filter-panel .trainFilterPanel-timeDropdownWrapper {
   position: relative !important;
 }
 
-.time-dropdown-button {
-  width: 180px !important;
-  height: 32px !important;
-  padding: 0 12px !important;
+.train-filter-panel .trainFilterPanel-timeDropdownButton {
+  width: 160px !important;
+  height: 24px !important;
+  padding: 0 8px !important;
   border: 1px solid var(--border-gray) !important;
-  border-radius: 4px !important;
+  border-radius: 3px !important;
   background-color: white !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
   cursor: pointer !important;
   outline: none !important;
@@ -145,12 +200,12 @@
   transition: border-color 0.2s !important;
 }
 
-.time-dropdown-button:hover {
+.train-filter-panel .trainFilterPanel-timeDropdownButton:hover {
   border-color: var(--primary-blue) !important;
 }
 
 /* 时间下拉菜单 */
-.time-dropdown-menu {
+.train-filter-panel .trainFilterPanel-timeDropdownMenu {
   position: absolute !important;
   top: 100% !important;
   left: 0 !important;
@@ -164,9 +219,9 @@
   overflow: hidden !important;
 }
 
-.time-option {
-  padding: 12px 16px !important;
-  font-size: 14px !important;
+.train-filter-panel .trainFilterPanel-timeOption {
+  padding: 10px 14px !important;
+  font-size: 12px !important;
   color: var(--text-primary) !important;
   cursor: pointer !important;
   transition: background-color 0.2s !important;
@@ -175,22 +230,22 @@
   align-items: center !important;
 }
 
-.time-option:hover {
+.train-filter-panel .trainFilterPanel-timeOption:hover {
   background-color: var(--bg-light-gray) !important;
 }
 
-.time-option.active {
+.train-filter-panel .trainFilterPanel-timeOption.trainFilterPanel-timeOptionActive {
   background-color: rgb(255, 247, 230) !important; /* #FFF7E6 */
   color: var(--warning-orange) !important;
 }
 
-.time-option .check-icon {
+.train-filter-panel .trainFilterPanel-checkIcon {
   color: var(--warning-orange) !important;
   font-weight: bold !important;
 }
 
 /* 筛选确认按钮（下拉框底部） */
-.filter-confirm-button {
+.train-filter-panel .trainFilterPanel-filterConfirmButton {
   width: 100% !important;
   height: 40px !important;
   background-color: var(--warning-orange) !important;
@@ -202,34 +257,40 @@
   transition: background-color 0.2s !important;
 }
 
-.filter-confirm-button:hover {
+.train-filter-panel .trainFilterPanel-filterConfirmButton:hover {
   background-color: rgb(255, 133, 51) !important;
 }
 
 /* 筛选应用按钮（右下角） */
-.apply-filter-button {
+.train-filter-panel .trainFilterPanel-applyButton {
   position: absolute !important;
-  bottom: 16px !important;
-  right: 16px !important;
-  width: 100px !important;
-  height: 36px !important;
-  background-color: var(--warning-orange) !important;
+  bottom: 3px !important;
+  right: 0px !important;
+  width: 80px !important;
+  height: 22px !important;
+  /* 原站使用 quick.png 作为背景（包含右侧小三角） */
+  background-image: url('/images/train-list/quick.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: 0 0 !important;
+  background-size: 80px 22px !important;
+  background-color: transparent !important;
   color: white !important;
   border: none !important;
-  border-radius: 4px !important;
-  font-size: 14px !important;
+  border-radius: 0 !important;
+  font-size: 12px !important;
   font-weight: 500 !important;
   cursor: pointer !important;
   transition: background-color 0.2s !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: block !important;
+  text-align: left !important;
+  padding: 0 0 0 10px !important; /* 对齐原站 padding-left:10px */
+  line-height: 22px !important;
 }
 
-.apply-filter-button:hover {
-  background-color: rgb(255, 133, 51) !important;
+.train-filter-panel .trainFilterPanel-applyButton:hover {
+  filter: brightness(1.03) !important;
 }
 
-.apply-filter-button:active {
-  background-color: rgb(230, 92, 0) !important;
+.train-filter-panel .trainFilterPanel-applyButton:active {
+  filter: brightness(0.97) !important;
 }

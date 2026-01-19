@@ -52,7 +52,13 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
   // ========== State Management ==========
   
   // 日期选择（15个日期）
-  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const getMonthDayKey = (d: Date) => {
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${month}-${day}`;
+  };
+  // 与原站截图对齐：默认选中当天（示例为 01-19 周一）
+  const [selectedDates, setSelectedDates] = useState<string[]>([getMonthDayKey(new Date())]);
   
   // 车次类型选择
   const [selectedTrainTypes, setSelectedTrainTypes] = useState<string[]>([]);
@@ -72,13 +78,20 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
 
   // ========== Data Configuration ==========
   
-  // 日期列表（动态生成15天）
+  // 日期列表（动态生成15天，显示“MM-DD + 周X”以更贴近 12306）
+  const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] as const;
+  // 与目标截图对齐：日期条从“今天”开始，连续 15 天
   const dates = Array.from({ length: 15 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() + i);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${month}-${day}`;
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const weekDay = weekDays[date.getDay()];
+    return {
+      key: `${month}-${day}`,
+      labelTop: `${month}-${day}`,
+      labelBottom: weekDay
+    };
   });
 
   // 车次类型列表
@@ -109,22 +122,26 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
   const arrivalStations = ['上海虹桥', '上海', '上海南'];
 
   // 席别列表
+  // 与目标截图对齐：席别顺序与文案（包含“优选一等座”）
   const seatTypes = [
-    '商务座', '一等座', '二等座', '软卧', '软座', 
-    '二等卧', '一等卧', '硬卧', '硬座'
+    '商务座',
+    '优选一等座',
+    '一等座',
+    '二等座',
+    '一等卧',
+    '二等卧',
+    '软卧',
+    '硬卧',
+    '硬座'
   ];
 
   // ========== Feature Implementations ==========
 
   /**
-   * @feature "日期快捷选择"
+   * @feature "日期快捷选择" - 单选模式，只能选中一个日期
    */
-  const handleDateToggle = (date: string) => {
-    setSelectedDates(prev => 
-      prev.includes(date) 
-        ? prev.filter(d => d !== date)
-        : [...prev, date]
-    );
+  const handleDateSelect = (date: string) => {
+    setSelectedDates([date]); // 单选：直接设置为只包含当前日期的数组
   };
 
   /**
@@ -204,156 +221,154 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
 
   // ========== UI Render ==========
   return (
-    <div className="train-filter-panel">
-      {/* 日期快捷选择 */}
-      <div className="filter-row date-filter">
-        {dates.map(date => (
+    <div className="train-filter-wrapper">
+      {/* 日期快捷选择（对应 12306 的日期条：在蓝色筛选框上方） */}
+      <div className="train-filter-date-strip">
+        {dates.map((date) => (
           <button
-            key={date}
-            className={`date-button ${selectedDates.includes(date) ? 'active' : ''}`}
-            onClick={() => handleDateToggle(date)}
+            key={date.key}
+            className={`trainFilterPanel-dateButton ${selectedDates.includes(date.key) ? 'trainFilterPanel-dateButtonActive' : ''}`}
+            onClick={() => handleDateSelect(date.key)}
           >
-            {date}
+            <span className="trainFilterPanel-dateButtonTop">{date.labelTop}</span>
+            <span className="trainFilterPanel-dateButtonBottom">{date.labelBottom}</span>
           </button>
         ))}
       </div>
 
-      {/* 车次类型筛选 */}
-      <div className="filter-row train-type-filter">
-        <span className="filter-label">车次类型：</span>
-        <button
-          className={`all-button ${selectedTrainTypes.length === trainTypes.length ? 'active' : ''}`}
-          onClick={handleSelectAllTrainTypes}
-        >
-          全部
-        </button>
-        {trainTypes.map(type => (
-          <label key={type.value} className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={selectedTrainTypes.includes(type.value)}
-              onChange={() => handleTrainTypeToggle(type.value)}
-            />
-            <span>{type.label}</span>
-          </label>
-        ))}
-        
-        {/* 发车时间下拉选择 */}
-        <div className="time-filter">
-          <span className="filter-label">发车时间：</span>
-          <div className="time-dropdown-wrapper">
-            <button
-              className="time-dropdown-button"
-              onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-            >
-              {selectedTime} ▼
-            </button>
-            {showTimeDropdown && (
-              <div className="time-dropdown-menu">
-                {timeOptions.map(time => (
-                  <div
-                    key={time}
-                    className={`time-option ${selectedTime === time ? 'active' : ''}`}
-                    onClick={() => handleTimeSelect(time)}
-                  >
-                    {time}
-                    {selectedTime === time && <span className="check-icon">✓</span>}
-                  </div>
-                ))}
-                <button className="filter-confirm-button" onClick={() => setShowTimeDropdown(false)}>
-                  筛选
-                </button>
-              </div>
-            )}
+      {/* 蓝色边框筛选区（对应 12306 `.sear-sel-bd`） */}
+      <div className="train-filter-panel">
+        {/* 车次类型筛选 */}
+        <div className="trainFilterPanel-row trainFilterPanel-trainTypeRow">
+          <span className="trainFilterPanel-label">车次类型：</span>
+          <button
+            className={`trainFilterPanel-allButton ${selectedTrainTypes.length === trainTypes.length ? 'trainFilterPanel-allButtonActive' : ''}`}
+            onClick={handleSelectAllTrainTypes}
+          >
+            全部
+          </button>
+          {trainTypes.map((type) => (
+            <label key={type.value} className="trainFilterPanel-checkboxLabel">
+              <input
+                type="checkbox"
+                checked={selectedTrainTypes.includes(type.value)}
+                onChange={() => handleTrainTypeToggle(type.value)}
+              />
+              <span>{type.label}</span>
+            </label>
+          ))}
+
+          {/* 发车时间下拉选择 */}
+          <div className="trainFilterPanel-timeFilter">
+            <span className="trainFilterPanel-label">发车时间：</span>
+            <div className="trainFilterPanel-timeDropdownWrapper">
+              <button
+                className="trainFilterPanel-timeDropdownButton"
+                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+              >
+                {selectedTime} ▼
+              </button>
+              {showTimeDropdown && (
+                <div className="trainFilterPanel-timeDropdownMenu">
+                  {timeOptions.map((time) => (
+                    <div
+                      key={time}
+                      className={`trainFilterPanel-timeOption ${selectedTime === time ? 'trainFilterPanel-timeOptionActive' : ''}`}
+                      onClick={() => handleTimeSelect(time)}
+                    >
+                      {time}
+                      {selectedTime === time && <span className="trainFilterPanel-checkIcon">✓</span>}
+                    </div>
+                  ))}
+                  <button className="trainFilterPanel-filterConfirmButton" onClick={() => setShowTimeDropdown(false)}>
+                    筛选
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 出发车站筛选 */}
-      <div className="filter-row station-filter">
-        <span className="filter-label">出发车站：</span>
-        <button
-          className={`all-button ${selectedDepartureStations.length === departureStations.length ? 'active' : ''}`}
-          onClick={handleSelectAllDepartureStations}
-        >
-          全部
+        {/* 出发车站筛选 */}
+        <div className="trainFilterPanel-row trainFilterPanel-stationRow">
+          <span className="trainFilterPanel-label">出发车站：</span>
+          <button
+            className={`trainFilterPanel-allButton ${selectedDepartureStations.length === departureStations.length ? 'trainFilterPanel-allButtonActive' : ''}`}
+            onClick={handleSelectAllDepartureStations}
+          >
+            全部
+          </button>
+          {departureStations.map((station) => (
+            <label key={station} className="trainFilterPanel-checkboxLabel">
+              <input
+                type="checkbox"
+                checked={selectedDepartureStations.includes(station)}
+                onChange={() => {
+                  setSelectedDepartureStations((prev) =>
+                    prev.includes(station) ? prev.filter((s) => s !== station) : [...prev, station]
+                  );
+                }}
+              />
+              <span>{station}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* 到达车站筛选 */}
+        <div className="trainFilterPanel-row trainFilterPanel-stationRow">
+          <span className="trainFilterPanel-label">到达车站：</span>
+          <button
+            className={`trainFilterPanel-allButton ${selectedArrivalStations.length === arrivalStations.length ? 'trainFilterPanel-allButtonActive' : ''}`}
+            onClick={handleSelectAllArrivalStations}
+          >
+            全部
+          </button>
+          {arrivalStations.map((station) => (
+            <label key={station} className="trainFilterPanel-checkboxLabel">
+              <input
+                type="checkbox"
+                checked={selectedArrivalStations.includes(station)}
+                onChange={() => {
+                  setSelectedArrivalStations((prev) =>
+                    prev.includes(station) ? prev.filter((s) => s !== station) : [...prev, station]
+                  );
+                }}
+              />
+              <span>{station}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* 车次席别筛选 */}
+        <div className="trainFilterPanel-row trainFilterPanel-seatRow">
+          <span className="trainFilterPanel-label">车次席别：</span>
+          <button
+            className={`trainFilterPanel-allButton ${selectedSeatTypes.length === seatTypes.length ? 'trainFilterPanel-allButtonActive' : ''}`}
+            onClick={handleSelectAllSeatTypes}
+          >
+            全部
+          </button>
+          {seatTypes.map((seat) => (
+            <label key={seat} className="trainFilterPanel-checkboxLabel">
+              <input
+                type="checkbox"
+                checked={selectedSeatTypes.includes(seat)}
+                onChange={() => {
+                  setSelectedSeatTypes((prev) =>
+                    prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
+                  );
+                }}
+              />
+              <span>{seat}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* 筛选按钮 */}
+        <button className="trainFilterPanel-applyButton" onClick={handleApplyFilter}>
+          筛选
         </button>
-        {departureStations.map(station => (
-          <label key={station} className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={selectedDepartureStations.includes(station)}
-              onChange={() => {
-                setSelectedDepartureStations(prev => 
-                  prev.includes(station) 
-                    ? prev.filter(s => s !== station)
-                    : [...prev, station]
-                );
-              }}
-            />
-            <span>{station}</span>
-          </label>
-        ))}
       </div>
-
-      {/* 到达车站筛选 */}
-      <div className="filter-row station-filter">
-        <span className="filter-label">到达车站：</span>
-        <button
-          className={`all-button ${selectedArrivalStations.length === arrivalStations.length ? 'active' : ''}`}
-          onClick={handleSelectAllArrivalStations}
-        >
-          全部
-        </button>
-        {arrivalStations.map(station => (
-          <label key={station} className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={selectedArrivalStations.includes(station)}
-              onChange={() => {
-                setSelectedArrivalStations(prev => 
-                  prev.includes(station) 
-                    ? prev.filter(s => s !== station)
-                    : [...prev, station]
-                );
-              }}
-            />
-            <span>{station}</span>
-          </label>
-        ))}
-      </div>
-
-      {/* 车次席别筛选 */}
-      <div className="filter-row seat-type-filter">
-        <span className="filter-label">车次席别：</span>
-        <button
-          className={`all-button ${selectedSeatTypes.length === seatTypes.length ? 'active' : ''}`}
-          onClick={handleSelectAllSeatTypes}
-        >
-          全部
-        </button>
-        {seatTypes.map(seat => (
-          <label key={seat} className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={selectedSeatTypes.includes(seat)}
-              onChange={() => {
-                setSelectedSeatTypes(prev => 
-                  prev.includes(seat) 
-                    ? prev.filter(s => s !== seat)
-                    : [...prev, seat]
-                );
-              }}
-            />
-            <span>{seat}</span>
-          </label>
-        ))}
-      </div>
-
-      {/* 筛选按钮 */}
-      <button className="apply-filter-button" onClick={handleApplyFilter}>
-        筛选
-      </button>
     </div>
   );
 };
