@@ -218,6 +218,59 @@ const TrainListPage: React.FC = () => {
     setUsername('');
   };
 
+  /**
+   * @feature "日期快捷选择"
+   * 当用户点击日期筛选按钮时，使用新日期重新查询车次
+   */
+  const handleDateChange = async (newDate: string) => {
+    if (!searchParams.fromCity || !searchParams.toCity) {
+      console.log('请先选择出发地和目的地');
+      return;
+    }
+    
+    console.log('日期变更，重新查询:', newDate);
+    
+    // 更新搜索参数中的日期
+    setSearchParams(prev => ({
+      ...prev,
+      date: newDate
+    }));
+    
+    // 调用 API 获取新日期的车次列表
+    try {
+      const response = await fetch('http://localhost:5175/api/trains/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fromCity: searchParams.fromCity,
+          toCity: searchParams.toCity,
+          departureDate: newDate,
+          isStudent: false,
+          isHighSpeed: false
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAllTrains(data.trains);
+        setTrains(data.trains);
+        setLastQueryTime(Date.now());
+        setShowExpireWarning(false);
+      } else {
+        console.error('查询失败:', data.message);
+        setAllTrains([]);
+        setTrains([]);
+      }
+    } catch (error) {
+      console.error('查询失败:', error);
+      setAllTrains([]);
+      setTrains([]);
+    }
+  };
+
   // ========== UI Render ==========
   return (
     <div className="train-list-page">
@@ -242,7 +295,7 @@ const TrainListPage: React.FC = () => {
           <TrainSearchBar onSearch={handleSearch} />
 
           {/* @feature "整合筛选条件区域" */}
-          <TrainFilterPanel onFilter={handleFilter} />
+          <TrainFilterPanel onFilter={handleFilter} onDateChange={handleDateChange} />
         </div>
 
         {/* 5分钟过期警告 */}

@@ -43,9 +43,10 @@
 }
 
 .train-filter-date-strip .trainFilterPanel-dateButton {
-  width: 62px !important;
+  /* 原站：日期按钮为水平单行布局 */
+  min-width: 62px !important;
   height: 32px !important;
-  padding: 0 !important;
+  padding: 0 8px !important;
   border: 1px solid rgb(204, 204, 204) !important;
   border-radius: 0 !important;
   /* 目标截图：未选中为灰色渐变底 */
@@ -57,11 +58,11 @@
   color: var(--text-primary) !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
+  /* 使用inline排列，不使用flex（因为flex在某些情况下仍会换行） */
+  display: block !important;
+  text-align: center !important;
+  line-height: 32px !important;
+  white-space: nowrap !important;  /* 不换行 */
 }
 
 .train-filter-date-strip .trainFilterPanel-dateButton:not(:last-child) {
@@ -70,16 +71,16 @@
 
 .train-filter-date-strip .trainFilterPanel-dateButtonTop {
   font-size: 12px !important;
-  line-height: 14px !important;
+  line-height: 32px !important;
+  display: inline !important;  /* 内联显示 */
 }
 
 .train-filter-date-strip .trainFilterPanel-dateButtonBottom {
-  /* 目标截图中仅选中日期展示“周X”，其余只展示日期 */
+  /* 原站：仅选中日期展示"周X"，其余只展示日期 */
   display: none !important;
-  margin-top: 2px !important;
-  font-size: 11px !important;
-  line-height: 12px !important;
-  opacity: 0.9 !important;
+  font-size: 12px !important;
+  line-height: 32px !important;
+  margin-left: 4px !important;  /* 与日期之间的间距 */
 }
 
 .train-filter-date-strip .trainFilterPanel-dateButton:hover {
@@ -98,7 +99,7 @@
 }
 
 .train-filter-date-strip .trainFilterPanel-dateButton.trainFilterPanel-dateButtonActive .trainFilterPanel-dateButtonBottom {
-  display: block !important;
+  display: inline !important;  /* 内联显示，与日期在同一行 */
   color: rgb(59, 153, 252) !important;
 }
 

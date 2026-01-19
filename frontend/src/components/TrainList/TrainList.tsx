@@ -124,6 +124,86 @@ const TrainList: React.FC<TrainListProps> = ({
     alert(`预订车次 ${train.trainNumber}（骨架实现）`);
   };
 
+  /**
+   * 判断座位值是否有效（非空、非"--"）
+   */
+  const isValidSeatValue = (value: string | number | undefined): boolean => {
+    if (value === undefined || value === null) return false;
+    const strValue = String(value);
+    return strValue !== '' && strValue !== '--';
+  };
+
+  /**
+   * 判断座位值是否表示有票
+   */
+  const hasTickets = (value: string | number | undefined): boolean => {
+    if (!isValidSeatValue(value)) return false;
+    const strValue = String(value);
+    return strValue === '有' || (!isNaN(Number(strValue)) && Number(strValue) > 0);
+  };
+
+  /**
+   * 渲染单列座位单元格
+   */
+  const renderSingleSeatCell = (value: string | number | undefined) => {
+    const displayValue = isValidSeatValue(value) ? String(value) : '--';
+    const hasTicketsClass = hasTickets(value) ? 'has-tickets' : 'not-available';
+    
+    return (
+      <div className={`seat-availability ${hasTicketsClass}`}>
+        {displayValue}
+      </div>
+    );
+  };
+
+  /**
+   * 渲染双行座位单元格（如商务座/特等座）
+   * 原站样式：只显示有值的行，如果两个都没有则显示一个"--"
+   */
+  const renderSeatCell = (topValue: string | number | undefined, bottomValue: string | number | undefined) => {
+    const topValid = isValidSeatValue(topValue);
+    const bottomValid = isValidSeatValue(bottomValue);
+    
+    // 如果两个都有效，显示两行
+    if (topValid && bottomValid) {
+      return (
+        <div className="seat-availability seat-availability--double">
+          <div className={`seat-availability__top ${hasTickets(topValue) ? 'has-tickets' : 'not-available'}`}>
+            {String(topValue)}
+          </div>
+          <div className={`seat-availability__bottom ${hasTickets(bottomValue) ? 'has-tickets' : 'not-available'}`}>
+            {String(bottomValue)}
+          </div>
+        </div>
+      );
+    }
+    
+    // 如果只有上面的有效，显示上面的
+    if (topValid) {
+      return (
+        <div className={`seat-availability ${hasTickets(topValue) ? 'has-tickets' : 'not-available'}`}>
+          {String(topValue)}
+        </div>
+      );
+    }
+    
+    // 如果只有下面的有效，显示下面的
+    if (bottomValid) {
+      return (
+        <div className={`seat-availability ${hasTickets(bottomValue) ? 'has-tickets' : 'not-available'}`}>
+          {String(bottomValue)}
+        </div>
+      );
+    }
+    
+    // 两个都无效，显示 "--"
+    return (
+      <div className="seat-availability not-available">
+        --
+      </div>
+    );
+  };
+
   // ========== UI Render ==========
   return (
     <div className="train-list">
@@ -232,70 +312,39 @@ const TrainList: React.FC<TrainListProps> = ({
             <div className="arrival-day">{train.arrivalDay}</div>
           </div>
 
-          {/* 席别余票（对齐目标：补齐缺失列；未知席别显示 --） */}
-          <div className="seat-availability seat-availability--double">
-            <div className={`seat-availability__top ${train.seats['商务座'] === '有' || (train.seats['商务座'] && train.seats['商务座'] !== '--' && train.seats['商务座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-              {train.seats['商务座'] || '--'}
-            </div>
-            <div className="seat-availability__bottom">
-              {train.seats['特等座'] || '--'}
-            </div>
-          </div>
+          {/* 席别余票 - 原站样式：单行显示，只有有效数据时才显示 */}
+          {/* 商务座/特等座列 */}
+          {renderSeatCell(train.seats['商务座'], train.seats['特等座'])}
 
-          <div className={`seat-availability ${train.seats['优选一等座'] === '有' || (train.seats['优选一等座'] && train.seats['优选一等座'] !== '--' && train.seats['优选一等座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['优选一等座'] || '--'}
-          </div>
+          {/* 优选一等座列 */}
+          {renderSingleSeatCell(train.seats['优选一等座'])}
 
-          <div className={`seat-availability ${train.seats['一等座'] === '有' || (train.seats['一等座'] && train.seats['一等座'] !== '--' && train.seats['一等座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['一等座'] || '--'}
-          </div>
+          {/* 一等座列 */}
+          {renderSingleSeatCell(train.seats['一等座'])}
 
-          <div className="seat-availability seat-availability--double">
-            <div className={`seat-availability__top ${train.seats['二等座'] === '有' || (train.seats['二等座'] && train.seats['二等座'] !== '--' && train.seats['二等座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-              {train.seats['二等座'] || '--'}
-            </div>
-            <div className="seat-availability__bottom">
-              {train.seats['二等包座'] || '--'}
-            </div>
-          </div>
+          {/* 二等座/二等包座列 */}
+          {renderSeatCell(train.seats['二等座'], train.seats['二等包座'])}
 
-          <div className={`seat-availability ${train.seats['高级软卧'] === '有' || (train.seats['高级软卧'] && train.seats['高级软卧'] !== '--' && train.seats['高级软卧'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['高级软卧'] || '--'}
-          </div>
+          {/* 高级软卧列 */}
+          {renderSingleSeatCell(train.seats['高级软卧'])}
 
-          <div className="seat-availability seat-availability--double">
-            <div className={`seat-availability__top ${train.seats['软卧'] === '有' || (train.seats['软卧'] && train.seats['软卧'] !== '--' && train.seats['软卧'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-              {train.seats['软卧'] || '--'}
-            </div>
-            <div className="seat-availability__bottom">
-              {train.seats['一等卧'] || '--'}
-            </div>
-          </div>
+          {/* 软卧/动卧/一等卧列 */}
+          {renderSeatCell(train.seats['软卧'], train.seats['一等卧'])}
 
-          <div className="seat-availability seat-availability--double">
-            <div className={`seat-availability__top ${train.seats['硬卧'] === '有' || (train.seats['硬卧'] && train.seats['硬卧'] !== '--' && train.seats['硬卧'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-              {train.seats['硬卧'] || '--'}
-            </div>
-            <div className="seat-availability__bottom">
-              {train.seats['二等卧'] || '--'}
-            </div>
-          </div>
+          {/* 硬卧/二等卧列 */}
+          {renderSeatCell(train.seats['硬卧'], train.seats['二等卧'])}
 
-          <div className={`seat-availability ${train.seats['软座'] === '有' || (train.seats['软座'] && train.seats['软座'] !== '--' && train.seats['软座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['软座'] || '--'}
-          </div>
+          {/* 软座列 */}
+          {renderSingleSeatCell(train.seats['软座'])}
 
-          <div className={`seat-availability ${train.seats['硬座'] === '有' || (train.seats['硬座'] && train.seats['硬座'] !== '--' && train.seats['硬座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['硬座'] || '--'}
-          </div>
+          {/* 硬座列 */}
+          {renderSingleSeatCell(train.seats['硬座'])}
 
-          <div className={`seat-availability ${train.seats['无座'] === '有' || (train.seats['无座'] && train.seats['无座'] !== '--' && train.seats['无座'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['无座'] || '--'}
-          </div>
+          {/* 无座列 */}
+          {renderSingleSeatCell(train.seats['无座'])}
 
-          <div className={`seat-availability ${train.seats['其他'] === '有' || (train.seats['其他'] && train.seats['其他'] !== '--' && train.seats['其他'] !== '无') ? 'has-tickets' : 'not-available'}`}>
-            {train.seats['其他'] || '--'}
-          </div>
+          {/* 其他列 */}
+          {renderSingleSeatCell(train.seats['其他'])}
 
           {/* 备注（目标站：该列包含预订按钮） */}
           <div className="trainList-remarkCell">

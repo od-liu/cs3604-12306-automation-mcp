@@ -37,6 +37,7 @@ import './TrainFilterPanel.css';
 
 interface TrainFilterPanelProps {
   onFilter?: (filters: FilterOptions) => void;
+  onDateChange?: (date: string) => void;  // 日期变更时触发重新查询
 }
 
 interface FilterOptions {
@@ -48,7 +49,7 @@ interface FilterOptions {
   seatTypes: string[];
 }
 
-const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
+const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateChange }) => {
   // ========== State Management ==========
   
   // 日期选择（15个日期）
@@ -139,9 +140,18 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter }) => {
 
   /**
    * @feature "日期快捷选择" - 单选模式，只能选中一个日期
+   * 选择日期时会触发重新查询（因为不同日期的车次不同）
    */
   const handleDateSelect = (date: string) => {
     setSelectedDates([date]); // 单选：直接设置为只包含当前日期的数组
+    
+    // 触发日期变更回调，让父组件重新查询该日期的车次
+    if (onDateChange) {
+      // 将 MM-DD 格式转换为完整的日期字符串 YYYY-MM-DD
+      const currentYear = new Date().getFullYear();
+      const fullDate = `${currentYear}-${date}`;
+      onDateChange(fullDate);
+    }
   };
 
   /**
