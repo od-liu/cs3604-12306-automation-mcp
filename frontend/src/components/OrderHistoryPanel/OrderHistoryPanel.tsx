@@ -170,16 +170,29 @@ const OrderHistoryPanel: React.FC = () => {
    */
   const getFilteredOrders = (): Order[] => {
     return orders.filter(order => {
+      // 🔧 注意：数据库状态是英文（paid/unpaid/cancelled/completed）
+      // 前端需要兼容英文和中文状态
+      
       // 根据Tab类型过滤
       if (activeTab === 'uncompleted') {
         // 未完成订单：状态为"未支付"或"待出行"
-        return order.status === '未支付' || order.status === '待支付' || order.status === '待出行';
+        return order.status === '未支付' || 
+               order.status === '待支付' || 
+               order.status === '待出行' ||
+               order.status === 'unpaid';  // 🆕 兼容英文状态
       } else if (activeTab === 'upcoming') {
         // 未出行订单：已支付但未出行
-        return order.status === '待出行' || order.status === '已支付';
+        return order.status === '待出行' || 
+               order.status === '已支付' ||
+               order.status === 'paid';  // 🆕 兼容英文状态
       } else if (activeTab === 'history') {
         // 历史订单：已完成或已取消
-        return order.status === '已完成' || order.status === '已取消' || order.status === '已退票';
+        return order.status === '已完成' || 
+               order.status === '已取消' || 
+               order.status === '已退票' ||
+               order.status === 'completed' ||  // 🆕 兼容英文状态
+               order.status === 'cancelled' ||  // 🆕 兼容英文状态
+               order.status === 'refunded';     // 🆕 兼容英文状态
       }
       return true;
     });
