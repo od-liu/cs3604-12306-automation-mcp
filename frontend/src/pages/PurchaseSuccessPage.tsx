@@ -160,8 +160,10 @@ const PurchaseSuccessPage: React.FC = () => {
   if (loading) {
     return (
       <div className="purchase-success-page">
-        <HomeTopBar isLoggedIn={isLoggedIn} username={username} onLogout={handleLogout} />
-        <MainNavigation />
+        <header className="purchase-success-header">
+          <HomeTopBar isLoggedIn={isLoggedIn} username={username} onLogout={handleLogout} />
+          <SecondaryNav activeItem="车票" />
+        </header>
         <div className="success-loading">加载中...</div>
       </div>
     );
