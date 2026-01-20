@@ -222,13 +222,11 @@ const OrderHistoryPanel: React.FC = () => {
                order.status === '已支付' ||
                order.status === 'paid';  // 🆕 兼容英文状态
       } else if (activeTab === 'history') {
-        // 历史订单：已完成或已取消
+        // 历史订单：已完成或已退票（不包括已取消）
         return order.status === '已完成' || 
-               order.status === '已取消' || 
                order.status === '已退票' ||
                order.status === 'completed' ||  // 🆕 兼容英文状态
-               order.status === 'cancelled' ||  // 🆕 兼容英文状态
-               order.status === 'refunded';     // 🆕 兼容英文状态
+               order.status === 'refunded';     // 🆕 兼容英文状态（不包括 cancelled）
       }
       return true;
     }).filter(order => {
