@@ -46,8 +46,8 @@
   flex: 1;
   min-width: 0; /* 允许内容区域缩小并出现滚动条 */
   background-color: #FFFFFF;
-  border: 1px solid #E0E0E0;
-  border-radius: 4px;
+  border: 1px solid #DEDEDE;
+  border-radius: 0;
   padding: 20px;
   overflow-x: auto; /* 内容过宽时显示横向滚动条 */
 }
