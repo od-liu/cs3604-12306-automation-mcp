@@ -1061,7 +1061,7 @@ export async function getPassengers(userId) {
       '3': '儿童票'
     };
 
-    // 转换数据格式并对证件号进行脱敏处理
+    // 转换数据格式并对证件号和手机号进行脱敏处理
     const formattedPassengers = passengers.map(p => {
       // 证件号脱敏：显示前4位和后3位，中间用*代替
       const idNumber = p.id_number || '';
@@ -1069,12 +1069,18 @@ export async function getPassengers(userId) {
         ? idNumber.substring(0, 4) + '*'.repeat(idNumber.length - 7) + idNumber.substring(idNumber.length - 3)
         : idNumber;
       
+      // 手机号脱敏：(+86) + 前3位 + **** + 后4位
+      const phone = p.phone || '';
+      const maskedPhone = phone.length === 11 
+        ? `(+86)${phone.substring(0, 3)}****${phone.substring(7)}`
+        : phone ? `(+86)${phone}` : '';
+      
       return {
         id: String(p.id),
         name: p.name,
         idType: idTypeMap[p.id_type] || p.id_type || '居民身份证',
         idNumber: maskedIdNumber,
-        phone: p.phone || '',  // 🆕 添加手机号字段
+        phone: maskedPhone,  // 🆕 添加脱敏后的手机号字段
         passengerType: passengerTypeMap[p.passenger_type] || p.passenger_type || '成人票',
         isSelf: p.is_self === 1  // 🆕 是否为用户本人
       };
