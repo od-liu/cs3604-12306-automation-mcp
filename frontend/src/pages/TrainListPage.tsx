@@ -164,7 +164,7 @@ const TrainListPage: React.FC = () => {
           departureDate: params.departureDate,
           isStudent: params.passengerType === 'student',
           isHighSpeed: false,
-          useV2: true  // 🆕 使用新的座位管理系统
+          useV2: false  // 暂时禁用V2，使用V1系统（V2需要train_schedules数据）
         })
       });
       
@@ -295,7 +295,7 @@ const TrainListPage: React.FC = () => {
           departureDate: newDate,
           isStudent: false,
           isHighSpeed: false,
-          useV2: true  // 🆕 使用新的座位管理系统
+          useV2: false  // 暂时禁用V2，使用V1系统（V2需要train_schedules数据）
         })
       });
       
