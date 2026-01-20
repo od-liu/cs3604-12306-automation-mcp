@@ -97,50 +97,101 @@ export async function searchTrainsV2(fromCity, toCity, departureDate, isStudent 
       const fromStopSeq = train.from_seq;
       const toStopSeq = train.to_seq;
       
-      // 🆕 使用区间座位管理计算余票
-      const secondClassCount = await countAvailableSeats(
-        schedule.id,
-        fromStopSeq,
-        toStopSeq,
-        '二等座'
-      );
+      // 🔧 根据车次类型查询不同的席别
+      const trainType = train.train_number.charAt(0);
+      const isDTrainType = trainType === 'D';
       
-      const firstClassCount = await countAvailableSeats(
-        schedule.id,
-        fromStopSeq,
-        toStopSeq,
-        '一等座'
-      );
+      let seatsObj = {};
       
-      const businessClassCount = await countAvailableSeats(
-        schedule.id,
-        fromStopSeq,
-        toStopSeq,
-        '商务座'
-      );
-      
-      // 获取价格
-      const prices = await db.allAsync(`
-        SELECT seat_type, price
-        FROM schedule_seats
-        WHERE schedule_id = ? AND seat_type IN ('二等座', '一等座', '商务座')
-        GROUP BY seat_type, price
-      `, schedule.id);
-      
-      const priceMap = {};
-      prices.forEach(p => {
-        priceMap[p.seat_type] = p.price;
-      });
-      
-      // 格式化座位信息
-      const seatsObj = {
-        '二等座': secondClassCount === 0 ? '无' : (secondClassCount >= 20 ? '有' : secondClassCount.toString()),
-        '一等座': firstClassCount === 0 ? '无' : (firstClassCount >= 20 ? '有' : firstClassCount.toString()),
-        '商务座': businessClassCount === 0 ? '无' : (businessClassCount >= 20 ? '有' : businessClassCount.toString()),
-        '二等座_price': priceMap['二等座'] || 662,
-        '一等座_price': priceMap['一等座'] || 1060,
-        '商务座_price': priceMap['商务座'] || 2318
-      };
+      if (isDTrainType) {
+        // D车次：查询软卧、硬卧、二等座
+        const softSleeperCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '软卧'
+        );
+        
+        const hardSleeperCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '硬卧'
+        );
+        
+        const secondClassCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '二等座'
+        );
+        
+        // 获取价格
+        const prices = await db.allAsync(`
+          SELECT seat_type, price
+          FROM schedule_seats
+          WHERE schedule_id = ? AND seat_type IN ('软卧', '硬卧', '二等座')
+          GROUP BY seat_type, price
+        `, schedule.id);
+        
+        const priceMap = {};
+        prices.forEach(p => {
+          priceMap[p.seat_type] = p.price;
+        });
+        
+        seatsObj = {
+          '软卧': softSleeperCount === 0 ? '无' : (softSleeperCount >= 20 ? '有' : softSleeperCount.toString()),
+          '硬卧': hardSleeperCount === 0 ? '无' : (hardSleeperCount >= 20 ? '有' : hardSleeperCount.toString()),
+          '二等座': secondClassCount === 0 ? '无' : (secondClassCount >= 20 ? '有' : secondClassCount.toString()),
+          '软卧_price': priceMap['软卧'] || 800,
+          '硬卧_price': priceMap['硬卧'] || 500,
+          '二等座_price': priceMap['二等座'] || 300
+        };
+      } else {
+        // G/C车次：查询商务座、一等座、二等座
+        const secondClassCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '二等座'
+        );
+        
+        const firstClassCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '一等座'
+        );
+        
+        const businessClassCount = await countAvailableSeats(
+          schedule.id,
+          fromStopSeq,
+          toStopSeq,
+          '商务座'
+        );
+        
+        // 获取价格
+        const prices = await db.allAsync(`
+          SELECT seat_type, price
+          FROM schedule_seats
+          WHERE schedule_id = ? AND seat_type IN ('二等座', '一等座', '商务座')
+          GROUP BY seat_type, price
+        `, schedule.id);
+        
+        const priceMap = {};
+        prices.forEach(p => {
+          priceMap[p.seat_type] = p.price;
+        });
+        
+        seatsObj = {
+          '二等座': secondClassCount === 0 ? '无' : (secondClassCount >= 20 ? '有' : secondClassCount.toString()),
+          '一等座': firstClassCount === 0 ? '无' : (firstClassCount >= 20 ? '有' : firstClassCount.toString()),
+          '商务座': businessClassCount === 0 ? '无' : (businessClassCount >= 20 ? '有' : businessClassCount.toString()),
+          '二等座_price': priceMap['二等座'] || 662,
+          '一等座_price': priceMap['一等座'] || 1060,
+          '商务座_price': priceMap['商务座'] || 2318
+        };
+      }
       
       trainsWithSeats.push({
         trainNumber: train.train_number,
