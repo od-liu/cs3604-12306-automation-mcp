@@ -76,8 +76,12 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({
   const [fromCity, setFromCity] = useState(initialFromCity || '北京');
   const [toCity, setToCity] = useState(initialToCity || '上海');
   
-  // 🆕 优先使用从首页传递的日期，否则使用默认值
-  const [departureDate, setDepartureDate] = useState(initialDepartureDate || '2026-01-19');
+  // 🆕 优先使用从首页传递的日期，否则使用默认值（今天）
+  const [departureDate, setDepartureDate] = useState(() => {
+    if (initialDepartureDate) return initialDepartureDate;
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   const [returnDate, setReturnDate] = useState('');
   const [tripType, setTripType] = useState<'single' | 'round'>('single');
   const [passengerType, setPassengerType] = useState<'normal' | 'student'>('normal');
