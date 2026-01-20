@@ -104,16 +104,6 @@ const OrderHistoryPanel: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const formatDateDisplay = (dateStr: string): string => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    const weekday = weekdays[date.getDay()];
-    return `${month}月${day}日 周${weekday}`;
-  };
-
   const formatYmd = (dateTime?: string): string => {
     if (!dateTime) return '';
     // 后端可能返回 sqlite datetime: "YYYY-MM-DD HH:mm:ss"
@@ -339,14 +329,18 @@ const OrderHistoryPanel: React.FC = () => {
 
             {/* 开始日期 */}
             <div className="filter-item date-picker">
-              <input
-                lang="en-CA"
-                type="date"
-                className="date-input"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              {startDate && <span className="date-display">{formatDateDisplay(startDate)}</span>}
+              <div className="date-box">
+                <input
+                  type="text"
+                  className="date-input"
+                  placeholder="请输入日期，例如2021-01-01"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <span className="date-calendarIcon" aria-hidden="true">
+                  
+                </span>
+              </div>
             </div>
 
             {/* 分隔符 */}
@@ -354,14 +348,18 @@ const OrderHistoryPanel: React.FC = () => {
 
             {/* 结束日期 */}
             <div className="filter-item date-picker">
-              <input
-                lang="en-CA"
-                type="date"
-                className="date-input"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-              {endDate && <span className="date-display">{formatDateDisplay(endDate)}</span>}
+              <div className="date-box">
+                <input
+                  type="text"
+                  className="date-input"
+                  placeholder="请输入日期，例如2021-01-01"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <span className="date-calendarIcon" aria-hidden="true">
+                  
+                </span>
+              </div>
             </div>
 
             {/* 搜索框 */}

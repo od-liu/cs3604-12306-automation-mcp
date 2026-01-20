@@ -1,4 +1,13 @@
 /* ========== 订单历史面板容器 ========== */
+@font-face {
+  font-family: 'cn12306-iconfont';
+  src: url('/assets/fonts/12306-iconfont.woff2') format('woff2'),
+    url('/assets/fonts/12306-iconfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 .order-history-panel {
   display: flex;
   flex-direction: column;
@@ -76,6 +85,19 @@
   position: relative;
 }
 
+/* 12306 日期输入：textbox + iconfont（） */
+.date-box {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+  border: 1px solid #DEDEDE;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
 /* 订单类型下拉选择 */
 .query-type-select {
   height: 30px;
@@ -103,42 +125,43 @@
 
 /* 日期输入 - 修复重影问题 */
 .date-input {
-  height: 30px;
-  padding: 0 34px 0 12px;
-  border: 1px solid #DEDEDE;
+  height: 28px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 10px 0 12px;
+  border: none;
   border-radius: 0;
   font-size: 14px;
   color: #333333; /* 目标页显示 YYYY-MM-DD */
-  background-color: #FFFFFF;
-  cursor: pointer;
-  width: 180px;
-  min-width: 180px;
-  max-width: 180px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23999' d='M7 2h2v2h6V2h2v2h3v20H4V4h3V2zm13 6H6v14h14V8zM8 10h4v4H8v-4z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+  background: transparent;
+  outline: none;
 }
 
-.date-input:hover {
+.date-input::placeholder {
+  color: #999999;
+}
+
+.date-box:hover {
   border-color: #999999;
 }
 
-.date-input:focus {
-  outline: none;
+.date-box:focus-within {
   border-color: #0066CC;
 }
 
-/* 只有选择了日期才显示格式化的日期 */
-.date-display {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  color: #333333;
-  pointer-events: none;
-  background-color: #FFFFFF;
-  padding: 0 4px;
+.date-calendarIcon {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'cn12306-iconfont';
+  font-size: 16px;
+  line-height: 1;
+  color: #999999;
+  cursor: pointer;
+  user-select: none;
 }
 
 .order-pagination {
