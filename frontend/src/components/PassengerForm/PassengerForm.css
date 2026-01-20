@@ -23,17 +23,18 @@
 }
 
 /* ========== 表单行 ========== */
-.form-content {
+/* 🔧 增强特异性：所有选择器都限定在 .passenger-form-container 内部 */
+.passenger-form-container .form-content {
   margin-bottom: 30px;
 }
 
-.form-row {
+.passenger-form-container .form-row {
   display: flex;
   align-items: flex-start;
   margin-bottom: 20px;
 }
 
-.form-label {
+.passenger-form-container .form-label {
   width: 250px;
   padding-top: 10px;
   font-size: 15px;
@@ -43,19 +44,19 @@
   white-space: nowrap;
 }
 
-.required-mark {
+.passenger-form-container .required-mark {
   color: #ff4d4f;
   margin-right: 4px;
   font-weight: bold;
 }
 
-.form-input-wrapper {
+.passenger-form-container .form-input-wrapper {
   flex: 1;
   margin-left: 10px;
 }
 
-.form-input,
-.form-select {
+.passenger-form-container .form-input,
+.passenger-form-container .form-select {
   width: 100%;
   max-width: 400px;
   height: 44px;
@@ -68,22 +69,22 @@
   transition: border-color 0.3s;
 }
 
-.form-input:focus,
-.form-select:focus {
+.passenger-form-container .form-input:focus,
+.passenger-form-container .form-select:focus {
   border-color: #3B99FC;
 }
 
-.form-input.error {
+.passenger-form-container .form-input.error {
   border-color: #E60000;
 }
 
-.form-error {
+.passenger-form-container .form-error {
   font-size: 12px;
   color: #E60000;
   margin-top: 5px;
 }
 
-.form-select {
+.passenger-form-container .form-select {
   cursor: pointer;
   background-color: white;
 }

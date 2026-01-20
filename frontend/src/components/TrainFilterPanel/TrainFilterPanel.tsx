@@ -267,11 +267,11 @@ const TrainFilterPanel: React.FC<TrainFilterPanelProps> = ({ onFilter, onDateCha
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
             >
-              {timeOptions.map((time) => (
+                  {timeOptions.map((time) => (
                 <option key={time} value={time}>
-                  {time}
+                      {time}
                 </option>
-              ))}
+                  ))}
             </select>
           </div>
         </div>

@@ -482,7 +482,7 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({
         onClick={handleSwapCities}
         aria-label="将出发地与目的地互换"
         title="将出发地与目的地互换"
-      />
+        />
 
       {/* 目的城市 */}
       <div className="trainSearchBar-stationField trainSearchBar-toField">
@@ -520,13 +520,13 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({
       <div className="trainSearchBar-dateField trainSearchBar-depDateField">
         <label className="trainSearchBar-fieldLabel">出发日</label>
         <div className="trainSearchBar-dateInputWrapper">
-          <input
-            type="text"
-            placeholder="请选择日期"
-            value={formatDateDisplay(departureDate)}
-            readOnly
-            onClick={handleDepartureDateClick}
-          />
+        <input
+          type="text"
+          placeholder="请选择日期"
+          value={formatDateDisplay(departureDate)}
+          readOnly
+          onClick={handleDepartureDateClick}
+        />
           <span className="trainSearchBar-dateIcon" aria-hidden="true" />
         </div>
       </div>
@@ -535,14 +535,14 @@ const TrainSearchBar: React.FC<TrainSearchBarProps> = ({
       <div className="trainSearchBar-dateField trainSearchBar-retDateField">
         <label className="trainSearchBar-fieldLabel">返程日</label>
         <div className="trainSearchBar-dateInputWrapper">
-          <input
-            type="text"
-            placeholder="请选择日期"
+        <input
+          type="text"
+          placeholder="请选择日期"
             value={formatDateDisplay(tripType === 'single' ? getPreviousDate(departureDate) : returnDate)}
-            readOnly
-            disabled={tripType === 'single'}
-            onClick={handleReturnDateClick}
-          />
+          readOnly
+          disabled={tripType === 'single'}
+          onClick={handleReturnDateClick}
+        />
           <span className="trainSearchBar-dateIcon" aria-hidden="true" />
         </div>
       </div>
