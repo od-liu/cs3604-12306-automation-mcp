@@ -140,20 +140,19 @@ export async function submitOrderV2(userId, orderData) {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 20 * 60 * 1000); // 20分钟
     
-    // 🔧 orders.id 是 TEXT 类型，需要显式指定
-    const orderId = orderNumber; // 使用 orderNumber 作为订单 ID
+    // 🔧 orders.id 是 INTEGER PRIMARY KEY AUTOINCREMENT，不需要手动指定
+    // order_passengers.order_id 是 TEXT 类型，使用 orderNumber 作为关联键
     
     const orderResult = await db.runAsync(`
       INSERT INTO orders (
-        id, order_number, user_id, schedule_id, 
+        order_number, user_id, schedule_id, 
         train_number, from_station, to_station,
         departure_date, departure_time, arrival_time,
         from_stop_seq, to_stop_seq,
         total_price, status, created_at, expires_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
-      orderId,     // id (TEXT 类型，使用 orderNumber)
-      orderNumber, // order_number
+      orderNumber, // order_number (UNIQUE)
       userIdInt,   // 🔧 使用转换后的整数
       schedule.id,
       orderData.trainNumber,       // train_number
@@ -170,7 +169,10 @@ export async function submitOrderV2(userId, orderData) {
       expiresAt.toISOString()
     );
     
-    console.log(`📦 [订单提交V2] 订单创建成功: ${orderNumber} (ID=${orderId})`);
+    // 🔧 使用 orderNumber 作为 order_passengers 的关联键（TEXT 类型）
+    const orderId = orderNumber;
+    
+    console.log(`📦 [订单提交V2] 订单创建成功: ${orderNumber} (lastID=${orderResult.lastID})`);
     
     // ========== 6. 创建乘客订单记录 & 锁定座位 ==========
     const seats = [];
