@@ -201,6 +201,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           toStation: trainInfo.arrivalStation,      // 后端期望 toStation
           departureTime: trainInfo.departureTime,   // 后端需要出发时间
           arrivalTime: trainInfo.arrivalTime,       // 后端需要到达时间
+          useV2: true,                              // 🆕 使用V2座位管理系统（根据车厢类型分配座位）
           passengers: passengers.map(p => ({
             passengerId: p.id,
             name: p.name,                    // 后端期望 name

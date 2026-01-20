@@ -24,24 +24,7 @@
         { "seq": 8, "station": "无锡东", "arrive": "11:27", "depart": "11:29", "stop_min": 2 },
         { "seq": 9, "station": "上海虹桥", "arrive": "11:58", "depart": "11:58", "stop_min": 0 }
       ],
-      "cars": [
-        { "car_no": 1, "type": "商务座" },
-        { "car_no": 2, "type": "一等座" },
-        { "car_no": 3, "type": "一等座" },
-        { "car_no": 4, "type": "二等座" },
-        { "car_no": 5, "type": "二等座" },
-        { "car_no": 6, "type": "二等座" },
-        { "car_no": 7, "type": "二等座" },
-        { "car_no": 8, "type": "二等座" },
-        { "car_no": 9, "type": "餐车" },
-        { "car_no": 10, "type": "二等座" },
-        { "car_no": 11, "type": "二等座" },
-        { "car_no": 12, "type": "二等座" },
-        { "car_no": 13, "type": "二等座" },
-        { "car_no": 14, "type": "二等座" },
-        { "car_no": 15, "type": "二等座" },
-        { "car_no": 16, "type": "二等座" }
-      ],
+      a
       "fares": {
         "currency": "CNY",
         "second_class": 662,
