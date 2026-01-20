@@ -22,7 +22,7 @@
  * ================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HomeTopBar from '../components/HomeTopBar/HomeTopBar';
 import SecondaryNav from '../components/SecondaryNav/SecondaryNav';
@@ -56,6 +56,7 @@ const OrderFillPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedPassengers, setSelectedPassengers] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // 订单提交中状态
+  const [loadingSeats, setLoadingSeats] = useState(true); // 🆕 余票加载状态
   
   // 从 localStorage 读取登录状态
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -85,7 +86,9 @@ const OrderFillPage: React.FC = () => {
   
   // 从路由state中获取车次信息，对每个属性进行回退
   const routeData = location.state?.trainData;
-  const trainData = {
+  
+  // 🆕 使用 state 存储车次数据，支持实时更新余票数
+  const [trainData, setTrainData] = useState({
     date: routeData?.date || defaultTrainData.date,
     trainNo: routeData?.trainNo || defaultTrainData.trainNo,
     departureStation: routeData?.departureStation || defaultTrainData.departureStation,
@@ -108,7 +111,7 @@ const OrderFillPage: React.FC = () => {
       softSleeper: routeData?.prices?.softSleeper,
       hardSleeper: routeData?.prices?.hardSleeper
     }
-  };
+  });
 
   // 🔧 根据车次类型动态生成可用席位列表
   const trainType = trainData.trainNo.charAt(0);
@@ -129,8 +132,96 @@ const OrderFillPage: React.FC = () => {
       ];
 
   // ========== Lifecycle ==========
+  
+  // 🆕 获取实时余票数
+  useEffect(() => {
+    const fetchAvailableSeats = async () => {
+      try {
+        setLoadingSeats(true);
+        
+        // 提取纯日期格式（去除星期）
+        const pureDepartureDate = trainData.date.split('（')[0].split('(')[0].trim();
+        
+        const params = new URLSearchParams({
+          trainNumber: trainData.trainNo,
+          departureDate: pureDepartureDate,
+          fromStation: trainData.departureStation,
+          toStation: trainData.arrivalStation
+        });
+        
+        console.log('🔍 [订单填写页] 获取实时余票:', {
+          trainNumber: trainData.trainNo,
+          departureDate: pureDepartureDate,
+          fromStation: trainData.departureStation,
+          toStation: trainData.arrivalStation
+        });
+        
+        const response = await fetch(`/api/trains/available-seats?${params.toString()}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('✅ [订单填写页] 获取实时余票成功:', data.data);
+          
+          // 🔧 根据车次类型更新余票数
+          const trainType = trainData.trainNo.charAt(0);
+          const isDTrainType = trainType === 'D';
+          
+          if (isDTrainType) {
+            // D车次：更新软卧、硬卧、二等座
+            setTrainData(prev => ({
+              ...prev,
+              prices: {
+                ...prev.prices,
+                softSleeper: {
+                  price: prev.prices.softSleeper?.price || 800,
+                  available: data.data.softSleeper || 0
+                },
+                hardSleeper: {
+                  price: prev.prices.hardSleeper?.price || 500,
+                  available: data.data.hardSleeper || 0
+                },
+                secondClass: {
+                  price: prev.prices.secondClass.price,
+                  available: data.data.secondClass || 0
+                }
+              }
+            }));
+          } else {
+            // G/C车次：更新商务座、一等座、二等座
+            setTrainData(prev => ({
+              ...prev,
+              prices: {
+                ...prev.prices,
+                businessClass: {
+                  price: prev.prices.businessClass.price,
+                  available: data.data.businessClass || 0
+                },
+                firstClass: {
+                  price: prev.prices.firstClass.price,
+                  available: data.data.firstClass || 0
+                },
+                secondClass: {
+                  price: prev.prices.secondClass.price,
+                  available: data.data.secondClass || 0
+                }
+              }
+            }));
+          }
+        } else {
+          console.error('❌ [订单填写页] 获取余票失败:', data.message);
+        }
+      } catch (error) {
+        console.error('❌ [订单填写页] 获取余票错误:', error);
+      } finally {
+        setLoadingSeats(false);
+      }
+    };
+    
+    fetchAvailableSeats();
+  }, [trainData.trainNo, trainData.date, trainData.departureStation, trainData.arrivalStation]);
+  
   // 监听 localStorage 变化（用于跨标签页同步登录状态）
-  React.useEffect(() => {
+  useEffect(() => {
     const handleStorageChange = () => {
       const userId = localStorage.getItem('userId');
       const storedUsername = localStorage.getItem('username');
