@@ -105,14 +105,11 @@ const OrderHistoryPanel: React.FC = () => {
     setLoading(true);
     try {
       // 从 localStorage 获取用户ID
-      const userInfoStr = localStorage.getItem('user_info');
-      if (!userInfoStr) {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
         console.error('❌ 未登录，无法获取订单列表');
         return;
       }
-      
-      const userInfo = JSON.parse(userInfoStr);
-      const userId = userInfo.userId;
       
       console.log('📋 [订单历史] 获取订单列表, userId:', userId, 'tab:', activeTab);
       
