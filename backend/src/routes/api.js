@@ -1039,10 +1039,11 @@ router.post('/api/payment/:orderId/cancel', async (req, res) => {
   }
   
   // TODO: 从session获取userId
-  // 临时方案：从请求体或query获取，实际应该从session中获取
-  const userId = req.body.userId || req.query.userId || 1;
+  // 临时方案：从请求头或请求体获取
+  const userId = req.headers['x-user-id'] || req.body.userId || req.query.userId || 1;
   
-  const result = await cancelOrder(orderId, userId);
+  // 🔧 使用V2版本的取消订单函数（支持区间座位管理）
+  const result = await cancelOrderV2(orderId, userId);
   
   if (result.success) {
     return res.status(200).json(result);
