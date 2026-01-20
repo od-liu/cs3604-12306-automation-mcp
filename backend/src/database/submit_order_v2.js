@@ -169,10 +169,11 @@ export async function submitOrderV2(userId, orderData) {
       expiresAt.toISOString()
     );
     
-    // 🔧 使用 orderNumber 作为 order_passengers 的关联键（TEXT 类型）
-    const orderId = orderNumber;
+    // 🔧 使用 lastID (INTEGER) 作为 order_passengers 的关联键
+    // 因为外键约束引用 orders(id)，而 orders.id 是 INTEGER
+    const orderId = orderResult.lastID;
     
-    console.log(`📦 [订单提交V2] 订单创建成功: ${orderNumber} (lastID=${orderResult.lastID})`);
+    console.log(`📦 [订单提交V2] 订单创建成功: ${orderNumber} (orderId=${orderId})`);
     
     // ========== 6. 创建乘客订单记录 & 锁定座位 ==========
     const seats = [];
