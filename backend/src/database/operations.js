@@ -1766,7 +1766,7 @@ export async function getPersonalInfo(userId) {
     const user = await db.getAsync(`
       SELECT 
         username,
-        name as realName,
+        COALESCE(real_name, name, '') as realName,
         id_type as idType,
         id_number as idNumber,
         phone,
