@@ -1,8 +1,19 @@
 /* ========== 乘客管理面板容器 ========== */
 .passenger-manage-panel {
   background-color: #FFFFFF;
-  padding: 20px;
+  padding: 0;
   min-height: 600px;
+}
+
+/* 内层边框面板（对齐 12306 的 panel-border） */
+.passenger-manage-panelBorder {
+  /* 注意：外层 `.personal-content-area` 已经提供了 1030px 面板+20px padding 的效果；
+     这里不要再叠加 padding，否则会把表格区域挤窄导致右侧溢出。 */
+  border: 0;
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ========== 搜索栏 ========== */
@@ -13,155 +24,250 @@
   align-items: center;
 }
 
-.search-input-wrapper {
+.passenger-search-inputBox {
   position: relative;
-  flex: 1;
-  max-width: 300px;
+  width: 160px; /* 目标页 input 宽度 */
+  height: 30px;
 }
 
 .passenger-search-input {
   width: 100%;
-  height: 40px;
-  padding: 0 40px 0 12px;
+  height: 30px; /* 目标页 input 高度 */
+  padding: 4px 30px 4px 10px; /* 右侧预留清空按钮 */
   font-size: 14px;
-  border: 1px solid #E0E0E0;
-  border-radius: 4px;
+  border: 1px solid #DEDEDE;
+  border-radius: 0;
   outline: none;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s;
 }
 
 .passenger-search-input:focus {
-  border-color: #3B99FC;
+  border-color: #DEDEDE;
 }
 
-.search-clear-btn {
+.passenger-search-clear {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: none;
+  right: 0; /* 放到输入框内部，避免撑宽 */
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
   color: #999;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
-  line-height: 1;
+  line-height: 30px;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.search-clear-btn:hover {
-  color: #666;
+.passenger-search-clear:hover {
+  color: #666666;
+}
+
+.passenger-search-clear .icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .passenger-search-btn {
-  padding: 0 30px;
-  height: 40px;
+  width: 100px; /* 目标页按钮宽度 */
+  height: 30px; /* 目标页按钮高度 */
+  padding: 4px 10px;
   font-size: 14px;
-  color: white;
-  background-color: #3B99FC;
-  border: none;
-  border-radius: 4px;
+  color: #333333;
+  background-color: #FFFFFF;
+  border: 1px solid #DEDEDE;
+  border-radius: 6px; /* 目标页按钮圆角 */
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
 .passenger-search-btn:hover {
-  background-color: #2676E3;
+  background-color: #F5F5F5;
 }
 
 /* ========== 乘客表格 ========== */
 .passenger-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
-  border: 1px solid #E0E0E0;
+  margin: 0;
+  border: 0;
+  table-layout: fixed;
+}
+
+.passenger-table th,
+.passenger-table td {
+  box-sizing: border-box;
 }
 
 .passenger-table thead {
-  background-color: #F5F5F5;
+  background-color: #F8F8F8; /* 目标页表头底色 */
 }
 
 .passenger-table th {
-  padding: 12px 8px;
+  height: 40px;
+  padding: 0 10px; /* target: 0 10px */
   font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 400; /* target: 400 */
+  color: rgb(102, 102, 102); /* target: #666 */
   text-align: center;
-  border-bottom: 2px solid #E0E0E0;
+  border-bottom: 0;
+  vertical-align: middle;
 }
 
 .passenger-table tbody tr {
-  border-bottom: 1px solid #E0E0E0;
-  transition: background-color 0.2s;
+  border-bottom: 0;
+  transition: none;
 }
 
 .passenger-table tbody tr:hover {
-  background-color: #F9F9F9;
+  background-color: transparent;
 }
 
 .passenger-table td {
-  padding: 12px 8px;
   font-size: 14px;
   color: #333;
   text-align: center;
 }
 
-/* 列宽度 */
-.col-checkbox {
-  width: 40px;
+.passenger-tableBody td {
+  height: 61px; /* target: 61px */
+  padding: 15px 6px; /* target: 15px 6px */
+  line-height: 22px; /* target: 22px */
+  vertical-align: middle;
+  border-top: 1px solid #DEDEDE; /* target: #dedede */
+  border-right: 0;
 }
 
+.passenger-tableBody .col-sequence {
+  border-right: 1px solid #DEDEDE; /* target: only first col has vertical divider */
+}
+
+/* 列宽度 */
 .col-sequence {
-  width: 60px;
+  width: 70px; /* target */
 }
 
 .col-name {
-  width: 100px;
+  width: 140px; /* target */
 }
 
 .col-id-type {
-  width: 120px;
+  width: 160px; /* target */
 }
 
 .col-id-number {
-  width: 180px;
+  width: 200px; /* target */
 }
 
 .col-phone {
-  width: 150px;
+  width: 190px; /* target */
 }
 
 .col-status {
-  width: 80px;
+  width: 120px; /* target */
 }
 
 .col-actions {
-  width: 80px;
+  width: 106px; /* fit inside 988px bordered panel (inner = 986px) */
 }
 
-/* ========== 状态徽章 ========== */
-.status-badge {
-  display: inline-block;
-  padding: 2px 8px;
+/* 外层表格面板（表头 + 操作行 + 表体） */
+.passenger-tablePanel {
+  width: 100%;
+  max-width: 988px; /* 目标页表格区域宽度 */
+  border: 1px solid rgb(172, 209, 249); /* target: rgb(172,209,249) */
+  overflow: hidden; /* safety: prevent any accidental spill */
+}
+
+.passenger-tableActionsRow {
+  width: 100%;
+  height: 40px;
+  padding: 0 20px;
+  background-color: #F0F8FF; /* rgb(240,248,255) */
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.passenger-tableAction {
+  border: 0;
+  background: transparent;
+  color: #333333;
   font-size: 14px;
-  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  height: 40px;
 }
 
-.status-verified {
-  color: #52C41A;
-  font-weight: bold;
+.passenger-tableAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.passenger-tableAction .icon {
+  font-size: 16px;
+  margin-right: 5px; /* target: 5px */
+  vertical-align: -1px; /* target: -1px */
+}
+
+.passenger-icon-mr {
+  margin-right: 5px; /* keep compatibility with existing markup */
+}
+
+.passenger-icon-success {
+  color: rgb(78, 163, 115);
+}
+
+.passenger-icon-error {
+  color: rgb(225, 37, 37);
+}
+
+.passenger-seqCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding-left: 0;
+}
+
+.passenger-seqText {
+  color: #333333;
+}
+
+/* ========== 核验状态图标（target uses background-image) ========== */
+.passenger-statusIcon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 20px 20px;
+}
+
+.passenger-statusIconSuccess {
+  background-image: image-set(
+    url("/assets/images/center/user-verification-success.png") 1x,
+    url("/assets/images/center/user-verification-success@2x.png") 2x
+  );
 }
 
 /* ========== 操作按钮 ========== */
 .action-btn {
-  padding: 4px 8px;
-  margin: 0 4px;
+  padding: 0;
+  margin: 0 6px;
   font-size: 16px;
   border: none;
   background: none;
   cursor: pointer;
   transition: transform 0.2s;
+  line-height: 1;
 }
 
 .action-btn:hover {
@@ -174,63 +280,6 @@
 
 .action-btn-delete {
   color: #E60000;
-}
-
-/* ========== 操作按钮栏 ========== */
-.passenger-actions-bar {
-  display: flex;
-  gap: 15px;
-  padding: 20px 0;
-  border-top: 1px solid #E0E0E0;
-}
-
-.action-bar-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  border: 1px solid #E0E0E0;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.action-bar-btn:hover:not(:disabled) {
-  border-color: #3B99FC;
-  color: #3B99FC;
-}
-
-.action-bar-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.action-bar-btn-add {
-  color: #52C41A;
-  border-color: #52C41A;
-}
-
-.action-bar-btn-add:hover {
-  background-color: rgba(82, 196, 26, 0.1);
-  border-color: #52C41A;
-  color: #52C41A;
-}
-
-.action-bar-btn-delete {
-  color: #E60000;
-  border-color: #E60000;
-}
-
-.action-bar-btn-delete:hover:not(:disabled) {
-  background-color: rgba(230, 0, 0, 0.1);
-  border-color: #E60000;
-  color: #E60000;
-}
-
-.btn-icon {
-  font-size: 18px;
 }
 
 /* ========== 空状态 ========== */

@@ -16,11 +16,12 @@
 }
 
 /* ========== 面包屑导航 ========== */
-.breadcrumb-container {
+.personal-info-page .breadcrumb-container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 15px 40px;
   width: 100%;
+  margin: 0 auto;
+  padding: 15px 5px;
+  box-sizing: border-box;
 }
 
 .breadcrumb-text {
@@ -29,25 +30,27 @@
 }
 
 /* ========== 主内容区域 ========== */
-.personal-main-content {
+.personal-info-page .personal-main-content {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
   width: 100%;
+  margin: 0 auto;
+  padding: 0 5px;
+  box-sizing: border-box;
   display: flex;
-  gap: 20px;
+  gap: 0;
   flex: 1;
   padding-bottom: 40px;
   min-width: 0; /* 允许flex子元素缩小 */
 }
 
 /* ========== 内容区域 ========== */
-.personal-content-area {
-  flex: 1;
+.personal-info-page .personal-content-area {
+  flex: 1 1 auto;
   min-width: 0; /* 允许内容区域缩小并出现滚动条 */
   background-color: #FFFFFF;
   border: 1px solid #DEDEDE;
   border-radius: 0;
   padding: 20px;
+  box-sizing: border-box;
   overflow-x: auto; /* 内容过宽时显示横向滚动条 */
 }
