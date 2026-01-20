@@ -1,10 +1,14 @@
 1. ui-analyzer-prompt-simplified-需要在agent打开网页的时候，手动将网页全屏设置；需要在agent完成组件特写截图后检查agent截图质量，如果有错误，需要指出
     user prompt：新增需求：【初始需求文档.yaml】，请开始工作
 2. interface_designer：
+    输入user prompt后可全自动完成开发
     user prompt：新增需求：[ui-requirements.yaml][ui-style-guide.md]，请开始工作
 3. tdd_developer_prompt：
+    输入user prompt后可全自动完成开发，开发完成后需要由用户手动登录网站验证最终效果
     user prompt：新增需求：[ui-requirements.yaml][ui-style-guide.md]，请开始工作
 4. cny补充
 使用agent：opus 4.5- max mode
 需要下载browser MCP并用任务队列mcp管理任务
 使用时请确保网络链接良好
+
+目前发现：agent对于静态组件的复现效果可以达到90%，对于报错提示等动态组件的复现效果较差，ui样式存在一定出入，但功能可以正确复现
